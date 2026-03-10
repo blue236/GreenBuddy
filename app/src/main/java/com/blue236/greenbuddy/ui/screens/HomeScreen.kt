@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +32,9 @@ import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
 import com.blue236.greenbuddy.model.StarterPlantOption
+import com.blue236.greenbuddy.model.companionFeedback
 import com.blue236.greenbuddy.model.currentLessonOrNull
+import com.blue236.greenbuddy.model.growthStageVisual
 import com.blue236.greenbuddy.model.isComplete
 import com.blue236.greenbuddy.ui.components.CareStatRow
 import com.blue236.greenbuddy.ui.components.StatCard
@@ -50,6 +54,13 @@ fun HomeScreen(
     val nextStageXp = lessons.sumOf { it.rewardXp }
     val completionPercent = if (lessons.isEmpty()) 0 else (progress.completedCount * 100) / lessons.size
     val allLessonsComplete = progress.isComplete(lessons)
+    val growthStage = progress.growthStageVisual(lessons)
+    val feedback = companionFeedback(
+        plantName = plant.name,
+        careState = careState,
+        progress = progress,
+        lessons = lessons,
+    )
 
     Column(
         modifier = modifier
@@ -63,17 +74,39 @@ fun HomeScreen(
 
         Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
             Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("${plant.name} · ${plant.species}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                Text("Stage: ${plant.stage} · Mood: ${careState.mood} · Health: ${careState.health}")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("${plant.name} · ${plant.species}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                        Text("Stage: ${growthStage.title} · Mood: ${careState.mood} · Health: ${careState.health}")
+                    }
+                    Text(growthStage.accentLabel, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+                }
                 Box(
                     modifier = Modifier
-                        .size(120.dp)
-                        .background(Color(0xFFC8E6C9), RoundedCornerShape(24.dp)),
+                        .size(128.dp)
+                        .background(Color(0xFFC8E6C9), RoundedCornerShape(28.dp)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(plant.emoji, style = MaterialTheme.typography.displayMedium)
+                    Text(growthStage.emoji, style = MaterialTheme.typography.displayLarge)
                 }
+                LinearProgressIndicator(
+                    progress = { growthStage.progress },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(growthStage.milestoneText, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("\"${plant.greeting}\"")
+            }
+        }
+
+        Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFF5FBEF))) {
+            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(feedback.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(feedback.message)
+                Text(feedback.focusLabel, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
             }
         }
 
@@ -130,9 +163,9 @@ fun HomeScreen(
         StatCard("Growth progress") {
             Text(
                 if (allLessonsComplete) {
-                    "${progress.totalXp} / $nextStageXp XP collected — Young Plant unlocked"
+                    "${progress.totalXp} / $nextStageXp XP collected — ${growthStage.title} unlocked"
                 } else {
-                    "${progress.totalXp} / $nextStageXp XP toward Young Plant"
+                    "${progress.totalXp} / $nextStageXp XP toward ${growthStage.title}"
                 }
             )
             Spacer(Modifier.size(8.dp))
