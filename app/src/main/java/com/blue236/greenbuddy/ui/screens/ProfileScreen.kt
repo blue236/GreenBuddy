@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
+import com.blue236.greenbuddy.model.PlantCareState
 import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
@@ -23,6 +24,7 @@ fun ProfileScreen(
     starter: StarterPlantOption,
     lessons: List<Lesson>,
     progress: LessonProgress,
+    careState: PlantCareState,
 ) {
     val allLessonsComplete = progress.isComplete(lessons)
     val nextLesson = progress.currentLessonOrNull(lessons)
@@ -44,6 +46,8 @@ fun ProfileScreen(
         StatCard("Starter setup") {
             Text("Chosen starter: ${starter.title}")
             Text("Companion: ${starter.companion.name}")
+            Text("Current mood: ${careState.mood}")
+            Text("Current health: ${careState.health}")
             Text(if (allLessonsComplete) "Next lesson: starter track completed" else "Next lesson: ${nextLesson?.title.orEmpty()}")
         }
         StatCard("Roadmap focus") {

@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.StarterPlants
@@ -34,6 +35,7 @@ fun GreenBuddyApp(viewModel: GreenBuddyViewModel = viewModel()) {
         onSelectStarter = viewModel::selectStarter,
         onContinueOnboarding = viewModel::completeOnboarding,
         onSubmitLessonAnswer = viewModel::submitCurrentLessonAnswer,
+        onPerformCareAction = viewModel::performCareAction,
     )
 }
 
@@ -44,6 +46,7 @@ fun GreenBuddyAppContent(
     onSelectStarter: (String) -> Unit,
     onContinueOnboarding: () -> Unit,
     onSubmitLessonAnswer: (Int) -> Boolean,
+    onPerformCareAction: (CareAction) -> Unit,
 ) {
     val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species)
     val currentLesson = uiState.lessonProgress.currentLessonOrNull(lessons)
@@ -75,7 +78,14 @@ fun GreenBuddyAppContent(
     ) { innerPadding ->
         val modifier = Modifier.padding(innerPadding).padding(horizontal = 0.dp)
         when (uiState.selectedTab) {
-            Tab.HOME -> HomeScreen(modifier = modifier, starter = uiState.selectedStarter, lessons = lessons, progress = uiState.lessonProgress)
+            Tab.HOME -> HomeScreen(
+                modifier = modifier,
+                starter = uiState.selectedStarter,
+                lessons = lessons,
+                progress = uiState.lessonProgress,
+                careState = uiState.plantCareState,
+                onPerformCareAction = onPerformCareAction,
+            )
             Tab.LEARN -> LearnScreen(
                 modifier = modifier,
                 starter = uiState.selectedStarter,
@@ -84,7 +94,13 @@ fun GreenBuddyAppContent(
                 onSubmitAnswer = onSubmitLessonAnswer,
             )
             Tab.DEX -> DexScreen(modifier = modifier, options = uiState.starterOptions, selectedStarterId = uiState.selectedStarterId)
-            Tab.PROFILE -> ProfileScreen(modifier = modifier, starter = uiState.selectedStarter, lessons = lessons, progress = uiState.lessonProgress)
+            Tab.PROFILE -> ProfileScreen(
+                modifier = modifier,
+                starter = uiState.selectedStarter,
+                lessons = lessons,
+                progress = uiState.lessonProgress,
+                careState = uiState.plantCareState,
+            )
         }
     }
 }
@@ -102,6 +118,7 @@ private fun GreenBuddyAppPreview() {
             onSelectStarter = {},
             onContinueOnboarding = {},
             onSubmitLessonAnswer = { false },
+            onPerformCareAction = {},
         )
     }
 }

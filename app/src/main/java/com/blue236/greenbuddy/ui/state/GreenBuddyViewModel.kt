@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
+import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.Tab
@@ -34,6 +35,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             selectedStarterId = preferences.selectedStarterId,
             onboardingComplete = preferences.onboardingComplete,
             lessonProgress = preferences.lessonProgress.normalizedFor(lessons),
+            plantCareState = preferences.plantCareState,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -72,5 +74,13 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             repository.saveLessonProgress(state.selectedStarterId, updatedProgress)
         }
         return true
+    }
+
+    fun performCareAction(action: CareAction) {
+        val state = uiState.value
+        val updatedCareState = state.plantCareState.apply(action)
+        viewModelScope.launch {
+            repository.savePlantCareState(state.selectedStarterId, updatedCareState)
+        }
     }
 }
