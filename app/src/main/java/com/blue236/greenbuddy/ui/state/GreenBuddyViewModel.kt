@@ -11,6 +11,7 @@ import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.advanceWith
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.normalizedFor
+import com.blue236.greenbuddy.model.resolveGrowthStageState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,12 +31,21 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             preferences.selectedStarter.companion.species,
         )
 
+        val normalizedProgress = preferences.lessonProgress.normalizedFor(lessons)
+        val growthStageState = resolveGrowthStageState(
+            starterId = preferences.selectedStarterId,
+            progress = normalizedProgress,
+            careState = preferences.plantCareState,
+            seenStageRank = preferences.seenGrowthStageRank,
+        )
+
         GreenBuddyUiState(
             selectedTab = tab,
             selectedStarterId = preferences.selectedStarterId,
             onboardingComplete = preferences.onboardingComplete,
-            lessonProgress = preferences.lessonProgress.normalizedFor(lessons),
+            lessonProgress = normalizedProgress,
             plantCareState = preferences.plantCareState,
+            growthStageState = growthStageState,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -81,6 +91,16 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val updatedCareState = state.plantCareState.apply(action)
         viewModelScope.launch {
             repository.savePlantCareState(state.selectedStarterId, updatedCareState)
+        }
+    }
+
+    fun acknowledgeGrowthStage() {
+        val state = uiState.value
+        viewModelScope.launch {
+            repository.saveSeenGrowthStageRank(
+                starterId = state.selectedStarterId,
+                seenGrowthStageRank = state.growthStageState.currentStage.rank,
+            )
         }
     }
 }

@@ -27,6 +27,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
             selectedStarterId = selectedStarterId,
             lessonProgress = readLessonProgress(prefs, selectedStarterId),
             plantCareState = readPlantCareState(prefs, selectedStarterId),
+            seenGrowthStageRank = prefs[seenGrowthStageRankKey(selectedStarterId)] ?: 0,
         )
     }
 
@@ -59,6 +60,12 @@ class GreenBuddyPreferencesRepository(context: Context) {
         }
     }
 
+    suspend fun saveSeenGrowthStageRank(starterId: String, seenGrowthStageRank: Int) {
+        dataStore.edit { prefs ->
+            prefs[seenGrowthStageRankKey(starterId)] = seenGrowthStageRank
+        }
+    }
+
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
         private const val COMPLETED_IDS_SEPARATOR = ","
@@ -72,6 +79,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private fun hydrationKey(starterId: String) = intPreferencesKey("${starterId}_hydration")
         private fun sunlightKey(starterId: String) = intPreferencesKey("${starterId}_sunlight")
         private fun nutritionKey(starterId: String) = intPreferencesKey("${starterId}_nutrition")
+        private fun seenGrowthStageRankKey(starterId: String) = intPreferencesKey("${starterId}_seen_growth_stage_rank")
     }
 
     private fun readLessonProgress(prefs: Preferences, starterId: String): LessonProgress = LessonProgress(
