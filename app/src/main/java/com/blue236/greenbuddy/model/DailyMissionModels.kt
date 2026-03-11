@@ -48,7 +48,6 @@ data class DailyMissionSet(
 
 data class DailyMissionProgress(
     val missionDate: String = "",
-    val completedMissionIds: Set<String> = emptySet(),
     val completedCareActionsToday: Int = 0,
     val completedLessonsToday: Int = 0,
     val claimedDailyRewardDate: String? = null,
@@ -71,9 +70,6 @@ fun DailyMissionProgress.resolveForToday(
 ): DailyMissionSet {
     val normalized = normalizedFor(today)
     val thresholdConfig = thresholdConfigFor(today)
-    val lessonMissionId = missionId(today, DailyMissionType.COMPLETE_LESSON)
-    val careMissionId = missionId(today, DailyMissionType.PERFORM_CARE_ACTION)
-    val statMissionId = missionId(today, DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD)
 
     val statValue = when (thresholdConfig.statType) {
         CareStatType.HYDRATION -> careState.hydration
@@ -81,37 +77,36 @@ fun DailyMissionProgress.resolveForToday(
         CareStatType.NUTRITION -> careState.nutrition
     }
 
-    val autoCompleted = buildSet {
-        if (normalized.completedLessonsToday > 0) add(lessonMissionId)
-        if (normalized.completedCareActionsToday > 0) add(careMissionId)
-        if (statValue >= thresholdConfig.threshold) add(statMissionId)
+    val completedTypes = buildSet {
+        if (normalized.completedLessonsToday > 0) add(DailyMissionType.COMPLETE_LESSON)
+        if (normalized.completedCareActionsToday > 0) add(DailyMissionType.PERFORM_CARE_ACTION)
+        if (statValue >= thresholdConfig.threshold) add(DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD)
     }
-    val completedMissionIds = normalized.completedMissionIds + autoCompleted
-    val allCompletedToday = completedMissionIds.size >= 3
+    val allCompletedToday = completedTypes.size == DailyMissionType.entries.size
 
     return DailyMissionSet(
         date = today,
         missions = listOf(
             DailyMission(
-                id = lessonMissionId,
+                id = missionId(today, DailyMissionType.COMPLETE_LESSON),
                 type = DailyMissionType.COMPLETE_LESSON,
                 title = "Finish one lesson",
                 description = "Complete today’s lesson quiz to keep growth moving.",
-                isCompleted = lessonMissionId in completedMissionIds,
+                isCompleted = DailyMissionType.COMPLETE_LESSON in completedTypes,
             ),
             DailyMission(
-                id = careMissionId,
+                id = missionId(today, DailyMissionType.PERFORM_CARE_ACTION),
                 type = DailyMissionType.PERFORM_CARE_ACTION,
                 title = "Do one care action",
                 description = "Water, fertilize, or give your plant a sun bath.",
-                isCompleted = careMissionId in completedMissionIds,
+                isCompleted = DailyMissionType.PERFORM_CARE_ACTION in completedTypes,
             ),
             DailyMission(
-                id = statMissionId,
+                id = missionId(today, DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD),
                 type = DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD,
                 title = "Keep ${thresholdConfig.statType.label} above ${thresholdConfig.threshold}",
                 description = "Hold ${thresholdConfig.statType.label.lowercase()} at ${thresholdConfig.threshold}+ for today.",
-                isCompleted = statMissionId in completedMissionIds,
+                isCompleted = DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD in completedTypes,
             ),
         ),
         currentStreak = normalized.currentStreak,
@@ -125,14 +120,26 @@ fun DailyMissionProgress.resolveForToday(
 
 fun DailyMissionProgress.normalizedFor(today: LocalDate): DailyMissionProgress {
     val todayString = today.toString()
-    if (missionDate == todayString) return this
+    val yesterdayString = today.minusDays(1).toString()
+    val streakStillActive = lastCompletedDate == todayString || lastCompletedDate == yesterdayString
+
+    if (missionDate == todayString) {
+        return if (streakStillActive) {
+            this
+        } else {
+            copy(
+                currentStreak = 0,
+                streakRewardClaimedForStreak = null,
+            )
+        }
+    }
+
     return copy(
         missionDate = todayString,
-        completedMissionIds = emptySet(),
         completedCareActionsToday = 0,
         completedLessonsToday = 0,
-        claimedDailyRewardDate = claimedDailyRewardDate,
-        streakRewardClaimedForStreak = if (lastCompletedDate == today.minusDays(1).toString()) streakRewardClaimedForStreak else null,
+        currentStreak = if (streakStillActive) currentStreak else 0,
+        streakRewardClaimedForStreak = if (lastCompletedDate == yesterdayString) streakRewardClaimedForStreak else null,
     )
 }
 

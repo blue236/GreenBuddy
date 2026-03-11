@@ -31,6 +31,17 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val repository = GreenBuddyPreferencesRepository(application)
     private val selectedTab = MutableStateFlow(Tab.HOME)
 
+    init {
+        viewModelScope.launch {
+            repository.preferences.collect { preferences ->
+                val normalizedMissionProgress = preferences.dailyMissionProgress.normalizedFor(LocalDate.now())
+                if (normalizedMissionProgress != preferences.dailyMissionProgress) {
+                    repository.saveDailyMissionProgress(preferences.selectedStarterId, normalizedMissionProgress)
+                }
+            }
+        }
+    }
+
     val uiState: StateFlow<GreenBuddyUiState> = combine(
         repository.preferences,
         selectedTab,
@@ -95,8 +106,11 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         )
 
         viewModelScope.launch {
-            repository.saveLessonProgress(state.selectedStarterId, updatedLessonProgress)
-            repository.saveDailyMissionProgress(state.selectedStarterId, updatedMissionProgress)
+            repository.saveLessonAndMissionProgress(
+                starterId = state.selectedStarterId,
+                lessonProgress = updatedLessonProgress,
+                missionProgress = updatedMissionProgress,
+            )
         }
         return true
     }
@@ -112,8 +126,11 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             today = today,
         )
         viewModelScope.launch {
-            repository.savePlantCareState(state.selectedStarterId, updatedCareState)
-            repository.saveDailyMissionProgress(state.selectedStarterId, updatedMissionProgress)
+            repository.saveCareStateAndMissionProgress(
+                starterId = state.selectedStarterId,
+                careState = updatedCareState,
+                missionProgress = updatedMissionProgress,
+            )
         }
     }
 
