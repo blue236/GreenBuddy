@@ -153,6 +153,9 @@ fun GrowthStageState.milestoneText(): String =
         "Next evolution: ${it.title} at ${it.requiredXp} XP and care score ${it.minimumCareScore}+"
     } ?: "Final growth stage unlocked. Keep care steady to hold it."
 
+private fun nextStageUnlockHint(nextStage: GrowthStageRule): String =
+    "Reach ${nextStage.requiredXp} XP and care score ${nextStage.minimumCareScore}+ to unlock ${nextStage.title}."
+
 fun GrowthStageState.heroProgress(): Float = nextStage?.let { progressToNextStage } ?: 1f
 
 fun resolveGrowthStageState(
@@ -188,7 +191,7 @@ fun resolveGrowthStageState(
             append(if (careRemaining == 0) "care ready" else "$careRemaining care points more")
         }
     } ?: "All growth goals met for this starter."
-    val unlockHint = nextStage?.unlockedMessage ?: unlockedStage.unlockedMessage
+    val unlockHint = nextStage?.let(::nextStageUnlockHint) ?: unlockedStage.unlockedMessage
 
     return GrowthStageState(
         currentStage = unlockedStage,

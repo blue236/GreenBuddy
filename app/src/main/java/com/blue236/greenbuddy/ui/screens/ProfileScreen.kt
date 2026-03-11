@@ -44,11 +44,11 @@ fun ProfileScreen(
             Text("Level 1")
             Text("Starter journey progress ${progress.completedCount}/${lessons.size}")
             Text("XP ${progress.totalXp}")
-            Text("Track status: ${growthStageState.currentStage.title}")
+            Text(if (allLessonsComplete) "Lesson track: complete" else "Lesson track: in progress")
             Text("Plants unlocked 3")
         }
         StatCard("Growth status") {
-            Text("Current evolution: ${growthStageState.currentStage.title} ${growthStageState.currentStage.emoji}")
+            Text("Growth stage: ${growthStageState.currentStage.title} ${growthStageState.currentStage.emoji}")
             Text("Care score: ${careState.averageScore}")
             Text(growthStageState.requirementSummary)
             Text(if (growthStageState.nextStage == null) "Final stage reached" else "Readiness ${growthStageState.readinessPercent}%")
