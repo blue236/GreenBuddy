@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -31,14 +32,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.DailyMissionSet
+import com.blue236.greenbuddy.model.GrowthStageState
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
 import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.companionFeedback
 import com.blue236.greenbuddy.model.currentLessonOrNull
-import com.blue236.greenbuddy.model.growthStageVisual
+import com.blue236.greenbuddy.model.heroProgress
 import com.blue236.greenbuddy.model.isComplete
+import com.blue236.greenbuddy.model.milestoneText
 import com.blue236.greenbuddy.ui.components.CareStatRow
 import com.blue236.greenbuddy.ui.components.StatCard
 
@@ -51,14 +54,15 @@ fun HomeScreen(
     progress: LessonProgress,
     careState: PlantCareState,
     dailyMissionSet: DailyMissionSet? = null,
+    growthStageState: GrowthStageState,
     onPerformCareAction: (CareAction) -> Unit,
+    onAcknowledgeGrowthStage: () -> Unit,
 ) {
     val plant = starter.companion
     val currentLesson = progress.currentLessonOrNull(lessons)
-    val nextStageXp = lessons.sumOf { it.rewardXp }
+    val nextStageXp = growthStageState.nextStage?.requiredXp ?: progress.totalXp
     val completionPercent = if (lessons.isEmpty()) 0 else (progress.completedCount * 100) / lessons.size
     val allLessonsComplete = progress.isComplete(lessons)
-    val growthStage = progress.growthStageVisual(lessons)
     val feedback = companionFeedback(
         plantName = plant.name,
         careState = careState,
@@ -78,6 +82,25 @@ fun HomeScreen(
             "${plant.name} is your ${plant.species.lowercase()} study companion.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+        if (growthStageState.newlyUnlocked) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3D8)),
+                shape = RoundedCornerShape(20.dp),
+            ) {
+                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        "New evolution unlocked: ${growthStageState.currentStage.title}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(growthStageState.currentStage.unlockedMessage)
+                    Button(onClick = onAcknowledgeGrowthStage) {
+                        Text("Nice")
+                    }
+                }
+            }
+        }
 
         Card(
             colors = CardDefaults.cardColors(containerColor = Color(0xFF1F5A36)),
@@ -105,12 +128,12 @@ fun HomeScreen(
                             color = Color.White,
                         )
                         Text(
-                            "${growthStage.title} • ${careState.health}",
+                            "${growthStageState.currentStage.title} • ${careState.health}",
                             color = Color(0xFFE9F6EC),
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Text(
-                            growthStage.accentLabel,
+                            growthStageState.currentStage.accentLabel,
                             color = Color(0xFFB8F2C5),
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -122,7 +145,7 @@ fun HomeScreen(
                             .border(2.dp, Color(0xFFE8FFF0), RoundedCornerShape(28.dp)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(growthStage.emoji, style = MaterialTheme.typography.displayMedium)
+                        Text(growthStageState.currentStage.emoji, style = MaterialTheme.typography.displayMedium)
                     }
                 }
 
@@ -138,19 +161,30 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text("Growth progress", color = Color.White, fontWeight = FontWeight.SemiBold)
-                        Text("$completionPercent%", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Evolution progress", color = Color.White, fontWeight = FontWeight.SemiBold)
+                        Text("${growthStageState.readinessPercent}%", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                     LinearProgressIndicator(
-                        progress = { growthStage.progress },
+                        progress = { growthStageState.heroProgress() },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(10.dp),
                         color = Color(0xFF9BE7AE),
                         trackColor = Color(0xFF2F7448),
                     )
-                    Text(growthStage.milestoneText, color = Color(0xFFD7F3DE))
+                    Text(growthStageState.milestoneText(), color = Color(0xFFD7F3DE))
                 }
+            }
+        }
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF6ECD2)),
+            shape = RoundedCornerShape(20.dp),
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Growth rules", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(growthStageState.requirementSummary, color = Color(0xFF3D3421))
+                Text(growthStageState.unlockHint, color = Color(0xFF7A4B00), fontWeight = FontWeight.SemiBold)
             }
         }
 
@@ -226,9 +260,9 @@ fun HomeScreen(
                     )
                 }
                 if (allLessonsComplete) {
-                    Text("You’ve finished the ${starter.title} starter track. Keep care balanced to hold the thriving state.")
+                    Text("You’ve finished the ${starter.title} starter track. Growth still depends on keeping care strong.")
                     Text(
-                        "Switch starters in PlantDex for a new path, or use care actions below to maintain momentum.",
+                        "Hold the care score above threshold to keep the final ${growthStageState.currentStage.title.lowercase()} stage.",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
@@ -239,8 +273,8 @@ fun HomeScreen(
             }
         }
 
-        StatCard(title = "Care actions") {
-            Text("Tap an action to change live plant stats right away.")
+        StatCard("Care actions") {
+            Text("Quick actions change live care stats and can unlock the next evolution when thresholds are met.")
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -274,15 +308,16 @@ fun HomeScreen(
 
         StatCard(title = "Growth progress") {
             Text(
-                if (allLessonsComplete) {
-                    "${progress.totalXp} / $nextStageXp XP collected — ${growthStage.title} unlocked"
+                if (growthStageState.nextStage == null) {
+                    "${progress.totalXp} XP collected — ${growthStageState.currentStage.title} unlocked"
                 } else {
-                    "${progress.totalXp} / $nextStageXp XP toward ${growthStage.title}"
+                    "${progress.totalXp} / $nextStageXp XP toward ${growthStageState.nextStage.title}"
                 }
             )
             Spacer(Modifier.height(4.dp))
             Text("Lessons completed: ${progress.completedCount}/${lessons.size} ($completionPercent%)")
-            Text(if (allLessonsComplete) "This starter’s intro journey is complete." else "Daily loop: Learn → Quiz → Care → Reward")
+            Text("Current stage: ${growthStageState.currentStage.title}")
+            Text(if (allLessonsComplete) "Lesson track complete. Care now decides whether you can evolve further." else "Daily loop: Learn → Quiz → Care → Grow")
         }
     }
 }

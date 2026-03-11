@@ -19,6 +19,7 @@ import com.blue236.greenbuddy.model.normalizedFor
 import com.blue236.greenbuddy.model.recordCareAction
 import com.blue236.greenbuddy.model.recordLessonCompletion
 import com.blue236.greenbuddy.model.resolveForToday
+import com.blue236.greenbuddy.model.resolveGrowthStageState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -54,6 +55,12 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             lessonProgress = normalizedLessonProgress,
             careState = preferences.plantCareState,
         )
+        val growthStageState = resolveGrowthStageState(
+            starterId = preferences.selectedStarterId,
+            progress = normalizedLessonProgress,
+            careState = preferences.plantCareState,
+            seenStageRank = preferences.seenGrowthStageRank,
+        )
 
         GreenBuddyUiState(
             selectedTab = tab,
@@ -63,6 +70,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             plantCareState = preferences.plantCareState,
             dailyMissionProgress = normalizedDailyMissionProgress,
             dailyMissionSet = todayMissions,
+            growthStageState = growthStageState,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -130,6 +138,16 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
                 starterId = state.selectedStarterId,
                 careState = updatedCareState,
                 missionProgress = updatedMissionProgress,
+            )
+        }
+    }
+
+    fun acknowledgeGrowthStage() {
+        val state = uiState.value
+        viewModelScope.launch {
+            repository.saveSeenGrowthStageRank(
+                starterId = state.selectedStarterId,
+                seenGrowthStageRank = state.growthStageState.currentStage.rank,
             )
         }
     }

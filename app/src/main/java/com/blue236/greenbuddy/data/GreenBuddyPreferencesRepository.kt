@@ -30,6 +30,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
             lessonProgress = readLessonProgress(prefs, selectedStarterId),
             plantCareState = readPlantCareState(prefs, selectedStarterId),
             dailyMissionProgress = readDailyMissionProgress(prefs, selectedStarterId),
+            seenGrowthStageRank = prefs[seenGrowthStageRankKey(selectedStarterId)] ?: 0,
         )
     }
 
@@ -48,17 +49,13 @@ class GreenBuddyPreferencesRepository(context: Context) {
 
     suspend fun saveLessonProgress(starterId: String, progress: LessonProgress) {
         dataStore.edit { prefs ->
-            prefs[currentLessonIndexKey(starterId)] = progress.currentLessonIndex
-            prefs[completedLessonIdsKey(starterId)] = progress.completedLessonIds.joinToString(COMPLETED_IDS_SEPARATOR)
-            prefs[totalXpKey(starterId)] = progress.totalXp
+            writeLessonProgress(prefs, starterId, progress)
         }
     }
 
     suspend fun savePlantCareState(starterId: String, careState: PlantCareState) {
         dataStore.edit { prefs ->
-            prefs[hydrationKey(starterId)] = careState.hydration
-            prefs[sunlightKey(starterId)] = careState.sunlight
-            prefs[nutritionKey(starterId)] = careState.nutrition
+            writePlantCareState(prefs, starterId, careState)
         }
     }
 
@@ -90,6 +87,12 @@ class GreenBuddyPreferencesRepository(context: Context) {
         }
     }
 
+    suspend fun saveSeenGrowthStageRank(starterId: String, seenGrowthStageRank: Int) {
+        dataStore.edit { prefs ->
+            prefs[seenGrowthStageRankKey(starterId)] = seenGrowthStageRank
+        }
+    }
+
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
         private const val COMPLETED_IDS_SEPARATOR = ","
@@ -112,6 +115,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private fun lastCompletedDateKey(starterId: String) = stringPreferencesKey("${starterId}_last_completed_date")
         private fun leafTokensKey(starterId: String) = intPreferencesKey("${starterId}_leaf_tokens")
         private fun streakRewardClaimedForStreakKey(starterId: String) = intPreferencesKey("${starterId}_streak_reward_claimed_for_streak")
+        private fun seenGrowthStageRankKey(starterId: String) = intPreferencesKey("${starterId}_seen_growth_stage_rank")
     }
 
     private fun readLessonProgress(prefs: Preferences, starterId: String): LessonProgress = LessonProgress(

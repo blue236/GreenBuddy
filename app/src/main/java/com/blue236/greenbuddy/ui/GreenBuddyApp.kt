@@ -36,6 +36,7 @@ fun GreenBuddyApp(viewModel: GreenBuddyViewModel = viewModel()) {
         onContinueOnboarding = viewModel::completeOnboarding,
         onSubmitLessonAnswer = viewModel::submitCurrentLessonAnswer,
         onPerformCareAction = viewModel::performCareAction,
+        onAcknowledgeGrowthStage = viewModel::acknowledgeGrowthStage,
     )
 }
 
@@ -47,6 +48,7 @@ fun GreenBuddyAppContent(
     onContinueOnboarding: () -> Unit,
     onSubmitLessonAnswer: (Int) -> Boolean,
     onPerformCareAction: (CareAction) -> Unit,
+    onAcknowledgeGrowthStage: () -> Unit,
 ) {
     val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species)
     val currentLesson = uiState.lessonProgress.currentLessonOrNull(lessons)
@@ -85,7 +87,9 @@ fun GreenBuddyAppContent(
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
                 dailyMissionSet = uiState.dailyMissionSet,
+                growthStageState = uiState.growthStageState,
                 onPerformCareAction = onPerformCareAction,
+                onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
             )
             Tab.LEARN -> LearnScreen(
                 modifier = modifier,
@@ -102,6 +106,8 @@ fun GreenBuddyAppContent(
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
                 dailyMissionSet = uiState.dailyMissionSet,
+                growthStageState = uiState.growthStageState,
+                onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
             )
         }
     }
@@ -121,6 +127,7 @@ private fun GreenBuddyAppPreview() {
             onContinueOnboarding = {},
             onSubmitLessonAnswer = { false },
             onPerformCareAction = {},
+            onAcknowledgeGrowthStage = {},
         )
     }
 }

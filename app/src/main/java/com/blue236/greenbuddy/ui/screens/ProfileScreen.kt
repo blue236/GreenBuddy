@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.model.DailyMissionSet
+import com.blue236.greenbuddy.model.GrowthStageState
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
@@ -27,6 +29,8 @@ fun ProfileScreen(
     progress: LessonProgress,
     careState: PlantCareState,
     dailyMissionSet: DailyMissionSet? = null,
+    growthStageState: GrowthStageState,
+    onAcknowledgeGrowthStage: () -> Unit,
 ) {
     val allLessonsComplete = progress.isComplete(lessons)
     val nextLesson = progress.currentLessonOrNull(lessons)
@@ -42,8 +46,20 @@ fun ProfileScreen(
             Text("Level 1")
             Text("Starter journey progress ${progress.completedCount}/${lessons.size}")
             Text("XP ${progress.totalXp}")
-            Text(if (allLessonsComplete) "Track status: complete" else "Track status: in progress")
+            Text(if (allLessonsComplete) "Lesson track: complete" else "Lesson track: in progress")
             Text("Plants unlocked 3")
+        }
+        StatCard("Growth status") {
+            Text("Growth stage: ${growthStageState.currentStage.title} ${growthStageState.currentStage.emoji}")
+            Text("Care score: ${careState.averageScore}")
+            Text(growthStageState.requirementSummary)
+            Text(if (growthStageState.nextStage == null) "Final stage reached" else "Readiness ${growthStageState.readinessPercent}%")
+            if (growthStageState.newlyUnlocked) {
+                Text(growthStageState.currentStage.unlockedMessage)
+                Button(onClick = onAcknowledgeGrowthStage) {
+                    Text("Celebrate growth")
+                }
+            }
         }
         StatCard("Starter setup") {
             Text("Chosen starter: ${starter.title}")
@@ -68,7 +84,7 @@ fun ProfileScreen(
             }
         }
         StatCard("Roadmap focus") {
-            Text("MVP: onboarding, daily lesson, care loop, growth state, PlantDex")
+            Text("MVP: onboarding, daily lesson, care loop, growth thresholds, PlantDex")
         }
     }
 }
