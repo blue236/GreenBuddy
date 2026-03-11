@@ -10,11 +10,14 @@ import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.advanceWith
 import com.blue236.greenbuddy.model.claimStreakRewardIfEligible
 import com.blue236.greenbuddy.model.completeDailyMissions
 import com.blue236.greenbuddy.model.currentLessonOrNull
+import com.blue236.greenbuddy.model.isComplete
+import com.blue236.greenbuddy.model.nextUnlockableStarterId
 import com.blue236.greenbuddy.model.normalizedFor
 import com.blue236.greenbuddy.model.recordCareAction
 import com.blue236.greenbuddy.model.recordLessonCompletion
@@ -37,7 +40,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             repository.preferences.collect { preferences ->
                 val normalizedMissionProgress = preferences.dailyMissionProgress.normalizedFor(LocalDate.now())
                 if (normalizedMissionProgress != preferences.dailyMissionProgress) {
-                    repository.saveDailyMissionProgress(preferences.selectedStarterId, normalizedMissionProgress)
+                    repository.saveDailyMissionProgress(preferences.selectedStarter.id, normalizedMissionProgress)
                 }
             }
         }
@@ -47,27 +50,32 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         repository.preferences,
         selectedTab,
     ) { preferences, tab ->
-        val lessons = LessonCatalog.forSpecies(preferences.selectedStarter.companion.species)
-        val normalizedLessonProgress = preferences.lessonProgress.normalizedFor(lessons)
+        val normalizedLessonProgressByStarterId = preferences.lessonProgressByStarterId.mapValues { (starterId, progress) ->
+            val starter = StarterPlants.options.first { it.id == starterId }
+            progress.normalizedFor(LessonCatalog.forSpecies(starter.companion.species))
+        }
+        val selectedLessonProgress = normalizedLessonProgressByStarterId[preferences.selectedStarter.id] ?: LessonProgress()
+        val selectedCareState = preferences.plantCareState
         val normalizedDailyMissionProgress = preferences.dailyMissionProgress.normalizedFor(LocalDate.now())
         val todayMissions = normalizedDailyMissionProgress.resolveForToday(
             today = LocalDate.now(),
-            lessonProgress = normalizedLessonProgress,
-            careState = preferences.plantCareState,
+            lessonProgress = selectedLessonProgress,
+            careState = selectedCareState,
         )
         val growthStageState = resolveGrowthStageState(
-            starterId = preferences.selectedStarterId,
-            progress = normalizedLessonProgress,
-            careState = preferences.plantCareState,
+            starterId = preferences.selectedStarter.id,
+            progress = selectedLessonProgress,
+            careState = selectedCareState,
             seenStageRank = preferences.seenGrowthStageRank,
         )
 
         GreenBuddyUiState(
             selectedTab = tab,
-            selectedStarterId = preferences.selectedStarterId,
+            selectedStarterId = preferences.selectedStarter.id,
+            ownedStarterIds = preferences.ownedStarterIds,
             onboardingComplete = preferences.onboardingComplete,
-            lessonProgress = normalizedLessonProgress,
-            plantCareState = preferences.plantCareState,
+            lessonProgressByStarterId = normalizedLessonProgressByStarterId,
+            plantCareStateByStarterId = preferences.plantCareStateByStarterId,
             dailyMissionProgress = normalizedDailyMissionProgress,
             dailyMissionSet = todayMissions,
             growthStageState = growthStageState,
@@ -112,6 +120,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             careState = state.plantCareState,
             today = today,
         )
+        val shouldUnlockNextPlant = updatedLessonProgress.isComplete(lessons) && nextUnlockableStarterId(state.ownedStarterIds) != null
 
         viewModelScope.launch {
             repository.saveLessonAndMissionProgress(
@@ -119,6 +128,9 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
                 lessonProgress = updatedLessonProgress,
                 missionProgress = updatedMissionProgress,
             )
+            if (shouldUnlockNextPlant) {
+                nextUnlockableStarterId(state.ownedStarterIds)?.let { repository.unlockStarter(it) }
+            }
         }
         return true
     }

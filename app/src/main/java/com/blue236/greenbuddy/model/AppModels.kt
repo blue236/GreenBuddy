@@ -3,22 +3,32 @@ package com.blue236.greenbuddy.model
 data class AppPreferences(
     val onboardingComplete: Boolean = false,
     val selectedStarterId: String = StarterPlants.options.first().id,
-    val lessonProgress: LessonProgress = LessonProgress(),
-    val plantCareState: PlantCareState = PlantCareState.from(StarterPlants.options.first().companion),
+    val ownedStarterIds: Set<String> = defaultOwnedStarterIds(StarterPlants.options.first().id),
+    val lessonProgressByStarterId: Map<String, LessonProgress> = emptyMap(),
+    val plantCareStateByStarterId: Map<String, PlantCareState> = emptyMap(),
     val dailyMissionProgress: DailyMissionProgress = DailyMissionProgress(),
     val seenGrowthStageRank: Int = 0,
 ) {
     val selectedStarter: StarterPlantOption
-        get() = StarterPlants.options.firstOrNull { it.id == selectedStarterId } ?: StarterPlants.options.first()
+        get() = StarterPlants.options.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }
+            ?: StarterPlants.options.firstOrNull { it.id in ownedStarterIds }
+            ?: StarterPlants.options.first()
+
+    val lessonProgress: LessonProgress
+        get() = lessonProgressByStarterId[selectedStarter.id] ?: LessonProgress()
+
+    val plantCareState: PlantCareState
+        get() = plantCareStateByStarterId[selectedStarter.id] ?: PlantCareState.from(selectedStarter.companion)
 }
 
 data class GreenBuddyUiState(
     val selectedTab: Tab = Tab.HOME,
     val starterOptions: List<StarterPlantOption> = StarterPlants.options,
     val selectedStarterId: String = StarterPlants.options.first().id,
+    val ownedStarterIds: Set<String> = defaultOwnedStarterIds(StarterPlants.options.first().id),
     val onboardingComplete: Boolean = false,
-    val lessonProgress: LessonProgress = LessonProgress(),
-    val plantCareState: PlantCareState = PlantCareState.from(StarterPlants.options.first().companion),
+    val lessonProgressByStarterId: Map<String, LessonProgress> = emptyMap(),
+    val plantCareStateByStarterId: Map<String, PlantCareState> = emptyMap(),
     val dailyMissionProgress: DailyMissionProgress = DailyMissionProgress(),
     val dailyMissionSet: DailyMissionSet? = null,
     val growthStageState: GrowthStageState = resolveGrowthStageState(
@@ -28,5 +38,21 @@ data class GreenBuddyUiState(
     ),
 ) {
     val selectedStarter: StarterPlantOption
-        get() = starterOptions.firstOrNull { it.id == selectedStarterId } ?: starterOptions.first()
+        get() = starterOptions.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }
+            ?: starterOptions.firstOrNull { it.id in ownedStarterIds }
+            ?: starterOptions.first()
+
+    val lessonProgress: LessonProgress
+        get() = lessonProgressByStarterId[selectedStarter.id] ?: LessonProgress()
+
+    val plantCareState: PlantCareState
+        get() = plantCareStateByStarterId[selectedStarter.id] ?: PlantCareState.from(selectedStarter.companion)
+
+    val inventoryEntries: List<PlantInventoryEntry>
+        get() = buildInventoryEntries(
+            ownedStarterIds = ownedStarterIds,
+            selectedStarterId = selectedStarter.id,
+            lessonProgressByStarterId = lessonProgressByStarterId,
+            careStateByStarterId = plantCareStateByStarterId,
+        )
 }

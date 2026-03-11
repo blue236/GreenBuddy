@@ -30,6 +30,7 @@ fun ProfileScreen(
     careState: PlantCareState,
     dailyMissionSet: DailyMissionSet? = null,
     growthStageState: GrowthStageState,
+    ownedPlantCount: Int,
     onAcknowledgeGrowthStage: () -> Unit,
 ) {
     val allLessonsComplete = progress.isComplete(lessons)
@@ -46,8 +47,8 @@ fun ProfileScreen(
             Text("Level 1")
             Text("Starter journey progress ${progress.completedCount}/${lessons.size}")
             Text("XP ${progress.totalXp}")
-            Text(if (allLessonsComplete) "Lesson track: complete" else "Lesson track: in progress")
-            Text("Plants unlocked 3")
+            Text(if (allLessonsComplete) "Track status: complete" else "Track status: in progress")
+            Text("Plants owned $ownedPlantCount")
         }
         StatCard("Growth status") {
             Text("Growth stage: ${growthStageState.currentStage.title} ${growthStageState.currentStage.emoji}")
@@ -61,8 +62,8 @@ fun ProfileScreen(
                 }
             }
         }
-        StatCard("Starter setup") {
-            Text("Chosen starter: ${starter.title}")
+        StatCard("Greenhouse setup") {
+            Text("Active plant: ${starter.title}")
             Text("Companion: ${starter.companion.name}")
             Text("Current mood: ${careState.mood}")
             Text("Current health: ${careState.health}")
@@ -84,7 +85,7 @@ fun ProfileScreen(
             }
         }
         StatCard("Roadmap focus") {
-            Text("MVP: onboarding, daily lesson, care loop, growth thresholds, PlantDex")
+            Text("MVP: onboarding, growth thresholds, daily loop, greenhouse inventory, active plant switching")
         }
     }
 }

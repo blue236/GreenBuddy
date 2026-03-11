@@ -55,6 +55,7 @@ fun HomeScreen(
     careState: PlantCareState,
     dailyMissionSet: DailyMissionSet? = null,
     growthStageState: GrowthStageState,
+    greenhouseCount: Int,
     onPerformCareAction: (CareAction) -> Unit,
     onAcknowledgeGrowthStage: () -> Unit,
 ) {
@@ -79,7 +80,7 @@ fun HomeScreen(
     ) {
         Text("GreenBuddy", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(
-            "${plant.name} is your ${plant.species.lowercase()} study companion.",
+            "${plant.name} is your ${plant.species.lowercase()} study companion. Greenhouse size: $greenhouseCount.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
@@ -262,7 +263,7 @@ fun HomeScreen(
                 if (allLessonsComplete) {
                     Text("You’ve finished the ${starter.title} starter track. Growth still depends on keeping care strong.")
                     Text(
-                        "Hold the care score above threshold to keep the final ${growthStageState.currentStage.title.lowercase()} stage.",
+                        "Your next greenhouse companion unlocks automatically, and you can switch plants from the Greenhouse anytime.",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
@@ -277,7 +278,7 @@ fun HomeScreen(
             title = "Care actions",
             containerColor = Color(0xFFE7F4EA),
         ) {
-            Text("Quick actions change live care stats and can unlock the next evolution when thresholds are met.")
+            Text("Quick actions change your plant’s live care stats, count toward missions, and persist per plant in your greenhouse.")
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
