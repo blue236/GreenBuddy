@@ -13,10 +13,13 @@ import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.RealPlantModeState
 import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
 import com.blue236.greenbuddy.ui.components.StatCard
+import java.time.LocalDate
+import java.time.ZoneId
 
 @Composable
 fun ProfileScreen(
@@ -25,9 +28,12 @@ fun ProfileScreen(
     lessons: List<Lesson>,
     progress: LessonProgress,
     careState: PlantCareState,
+    realPlantModeState: RealPlantModeState,
 ) {
     val allLessonsComplete = progress.isComplete(lessons)
     val nextLesson = progress.currentLessonOrNull(lessons)
+    val zoneId = ZoneId.systemDefault()
+    val completedToday = realPlantModeState.completedActionsOn(LocalDate.now(zoneId), zoneId)
 
     Column(
         modifier = modifier
@@ -50,8 +56,20 @@ fun ProfileScreen(
             Text("Current health: ${careState.health}")
             Text(if (allLessonsComplete) "Next lesson: starter track completed" else "Next lesson: ${nextLesson?.title.orEmpty()}")
         }
+        StatCard("Real plant habits") {
+            Text(if (realPlantModeState.enabled) "Mode: enabled" else "Mode: off")
+            Text("Real care logs saved: ${realPlantModeState.entries.size}")
+            Text("Checklist items completed today: ${completedToday.size}/3")
+            Text(
+                if (realPlantModeState.enabled) {
+                    "Real-world care logs feed the same companion care loop used on Home."
+                } else {
+                    "Enable the mode on Home when you want to connect GreenBuddy to a real plant."
+                }
+            )
+        }
         StatCard("Roadmap focus") {
-            Text("MVP: onboarding, daily lesson, care loop, growth state, PlantDex")
+            Text("MVP: onboarding, daily lesson, care loop, growth state, PlantDex, real plant mode")
         }
     }
 }

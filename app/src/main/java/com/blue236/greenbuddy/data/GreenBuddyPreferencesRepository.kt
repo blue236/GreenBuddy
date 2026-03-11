@@ -11,6 +11,9 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.blue236.greenbuddy.model.AppPreferences
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.RealPlantCareAction
+import com.blue236.greenbuddy.model.RealPlantLogEntry
+import com.blue236.greenbuddy.model.RealPlantModeState
 import com.blue236.greenbuddy.model.StarterPlants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -27,6 +30,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
             selectedStarterId = selectedStarterId,
             lessonProgress = readLessonProgress(prefs, selectedStarterId),
             plantCareState = readPlantCareState(prefs, selectedStarterId),
+            realPlantModeState = readRealPlantModeState(prefs, selectedStarterId),
         )
     }
 
@@ -59,9 +63,20 @@ class GreenBuddyPreferencesRepository(context: Context) {
         }
     }
 
+    suspend fun saveRealPlantModeState(starterId: String, realPlantModeState: RealPlantModeState) {
+        dataStore.edit { prefs ->
+            prefs[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled
+            prefs[realPlantLogKey(starterId)] = realPlantModeState.entries.joinToString(LOG_ENTRY_SEPARATOR) { entry ->
+                "${entry.loggedAtEpochMillis}${LOG_FIELD_SEPARATOR}${entry.action.name}"
+            }
+        }
+    }
+
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
         private const val COMPLETED_IDS_SEPARATOR = ","
+        private const val LOG_ENTRY_SEPARATOR = ";"
+        private const val LOG_FIELD_SEPARATOR = "|"
 
         private val OnboardingCompleteKey = booleanPreferencesKey("onboarding_complete")
         private val SelectedStarterIdKey = stringPreferencesKey("selected_starter_id")
@@ -72,6 +87,8 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private fun hydrationKey(starterId: String) = intPreferencesKey("${starterId}_hydration")
         private fun sunlightKey(starterId: String) = intPreferencesKey("${starterId}_sunlight")
         private fun nutritionKey(starterId: String) = intPreferencesKey("${starterId}_nutrition")
+        private fun realPlantModeEnabledKey(starterId: String) = booleanPreferencesKey("${starterId}_real_plant_mode_enabled")
+        private fun realPlantLogKey(starterId: String) = stringPreferencesKey("${starterId}_real_plant_log")
     }
 
     private fun readLessonProgress(prefs: Preferences, starterId: String): LessonProgress = LessonProgress(
@@ -93,4 +110,21 @@ class GreenBuddyPreferencesRepository(context: Context) {
             nutrition = prefs[nutritionKey(starterId)] ?: defaultCare.nutrition,
         )
     }
+
+    private fun readRealPlantModeState(prefs: Preferences, starterId: String): RealPlantModeState = RealPlantModeState(
+        enabled = prefs[realPlantModeEnabledKey(starterId)] ?: false,
+        entries = prefs[realPlantLogKey(starterId)]
+            ?.split(LOG_ENTRY_SEPARATOR)
+            ?.mapNotNull { encodedEntry ->
+                val parts = encodedEntry.split(LOG_FIELD_SEPARATOR)
+                val timestamp = parts.getOrNull(0)?.toLongOrNull() ?: return@mapNotNull null
+                val action = parts.getOrNull(1)
+                    ?.let { actionName -> RealPlantCareAction.entries.firstOrNull { it.name == actionName } }
+                    ?: return@mapNotNull null
+                RealPlantLogEntry(action = action, loggedAtEpochMillis = timestamp)
+            }
+            ?.sortedByDescending { it.loggedAtEpochMillis }
+            ?.take(RealPlantModeState.MAX_LOG_ENTRIES)
+            ?: emptyList(),
+    )
 }

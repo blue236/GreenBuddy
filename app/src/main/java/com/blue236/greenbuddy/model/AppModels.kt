@@ -5,6 +5,7 @@ data class AppPreferences(
     val selectedStarterId: String = StarterPlants.options.first().id,
     val lessonProgress: LessonProgress = LessonProgress(),
     val plantCareState: PlantCareState = PlantCareState.from(StarterPlants.options.first().companion),
+    val realPlantModeState: RealPlantModeState = RealPlantModeState(),
 ) {
     val selectedStarter: StarterPlantOption
         get() = StarterPlants.options.firstOrNull { it.id == selectedStarterId } ?: StarterPlants.options.first()
@@ -17,6 +18,7 @@ data class GreenBuddyUiState(
     val onboardingComplete: Boolean = false,
     val lessonProgress: LessonProgress = LessonProgress(),
     val plantCareState: PlantCareState = PlantCareState.from(StarterPlants.options.first().companion),
+    val realPlantModeState: RealPlantModeState = RealPlantModeState(),
 ) {
     val selectedStarter: StarterPlantOption
         get() = starterOptions.firstOrNull { it.id == selectedStarterId } ?: starterOptions.first()

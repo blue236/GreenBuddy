@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
+import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.currentLessonOrNull
@@ -36,6 +37,8 @@ fun GreenBuddyApp(viewModel: GreenBuddyViewModel = viewModel()) {
         onContinueOnboarding = viewModel::completeOnboarding,
         onSubmitLessonAnswer = viewModel::submitCurrentLessonAnswer,
         onPerformCareAction = viewModel::performCareAction,
+        onSetRealPlantModeEnabled = viewModel::setRealPlantModeEnabled,
+        onLogRealPlantCare = viewModel::logRealPlantCare,
     )
 }
 
@@ -47,6 +50,8 @@ fun GreenBuddyAppContent(
     onContinueOnboarding: () -> Unit,
     onSubmitLessonAnswer: (Int) -> Boolean,
     onPerformCareAction: (CareAction) -> Unit,
+    onSetRealPlantModeEnabled: (Boolean) -> Unit,
+    onLogRealPlantCare: (RealPlantCareAction) -> Unit,
 ) {
     val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species)
     val currentLesson = uiState.lessonProgress.currentLessonOrNull(lessons)
@@ -84,7 +89,10 @@ fun GreenBuddyAppContent(
                 lessons = lessons,
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
+                realPlantModeState = uiState.realPlantModeState,
                 onPerformCareAction = onPerformCareAction,
+                onSetRealPlantModeEnabled = onSetRealPlantModeEnabled,
+                onLogRealPlantCare = onLogRealPlantCare,
             )
             Tab.LEARN -> LearnScreen(
                 modifier = modifier,
@@ -100,6 +108,7 @@ fun GreenBuddyAppContent(
                 lessons = lessons,
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
+                realPlantModeState = uiState.realPlantModeState,
             )
         }
     }
@@ -119,6 +128,8 @@ private fun GreenBuddyAppPreview() {
             onContinueOnboarding = {},
             onSubmitLessonAnswer = { false },
             onPerformCareAction = {},
+            onSetRealPlantModeEnabled = {},
+            onLogRealPlantCare = {},
         )
     }
 }

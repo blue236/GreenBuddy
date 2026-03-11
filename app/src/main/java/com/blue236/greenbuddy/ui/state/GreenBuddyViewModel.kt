@@ -7,6 +7,7 @@ import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
+import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.advanceWith
 import com.blue236.greenbuddy.model.currentLessonOrNull
@@ -36,6 +37,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             onboardingComplete = preferences.onboardingComplete,
             lessonProgress = preferences.lessonProgress.normalizedFor(lessons),
             plantCareState = preferences.plantCareState,
+            realPlantModeState = preferences.realPlantModeState,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -80,6 +82,29 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val state = uiState.value
         val updatedCareState = state.plantCareState.apply(action)
         viewModelScope.launch {
+            repository.savePlantCareState(state.selectedStarterId, updatedCareState)
+        }
+    }
+
+    fun setRealPlantModeEnabled(enabled: Boolean) {
+        val state = uiState.value
+        viewModelScope.launch {
+            repository.saveRealPlantModeState(
+                state.selectedStarterId,
+                state.realPlantModeState.copy(enabled = enabled),
+            )
+        }
+    }
+
+    fun logRealPlantCare(action: RealPlantCareAction) {
+        val state = uiState.value
+        val updatedRealPlantMode = state.realPlantModeState.logAction(
+            action = action,
+            loggedAtEpochMillis = System.currentTimeMillis(),
+        )
+        val updatedCareState = state.plantCareState.apply(action.linkedCareAction)
+        viewModelScope.launch {
+            repository.saveRealPlantModeState(state.selectedStarterId, updatedRealPlantMode)
             repository.savePlantCareState(state.selectedStarterId, updatedCareState)
         }
     }
