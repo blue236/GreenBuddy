@@ -1,198 +1,69 @@
 package com.blue236.greenbuddy.model
 
 object LessonCatalog {
-    fun forSpecies(species: String): List<Lesson> = when (species) {
-        "Monstera" -> monsteraLessons
-        "Basil" -> basilLessons
-        else -> tomatoLessons
+    fun forSpecies(species: String, languageTag: String = "en"): List<Lesson> {
+        val lang = normalizedLanguageTag(languageTag)
+        return when (species) {
+            "Monstera" -> monsteraLessons(lang)
+            "Basil" -> basilLessons(lang)
+            else -> tomatoLessons(lang)
+        }
     }
 
-    private val monsteraLessons = listOf(
+    private fun monsteraLessons(lang: String) = listOf(
         Lesson(
             id = "monstera_light",
-            title = "Window light without scorch",
-            summary = "Set up your Monstera near bright filtered light so new leaves can size up without burning.",
-            concept = "Monsteras grow best with bright indirect light. Gentle morning sun can work, but harsh afternoon rays often scorch leaves.",
-            keyTakeaway = "Reward: Leaf Finder badge — build a calm indoor light routine.",
-            quiz = LessonQuiz(
-                type = QuizType.MULTIPLE_CHOICE,
-                prompt = "What light setup is best for a Monstera starter in most homes?",
-                options = listOf("Bright indirect light near a window", "Harsh balcony sun all day", "A dim corner far from windows"),
-                correctAnswerIndex = 0,
-            ),
+            title = when (lang) { "de" -> "Fensterlicht ohne Blattbrand"; "ko" -> "잎을 태우지 않는 창가 빛"; else -> "Window light without scorch" },
+            summary = when (lang) { "de" -> "Stelle deine Monstera an helles, gefiltertes Licht, damit neue Blätter groß werden können, ohne zu verbrennen."; "ko" -> "몬스테라를 밝지만 부드러운 빛에 두면 새잎이 타지 않고 잘 자라요."; else -> "Set up your Monstera near bright filtered light so new leaves can size up without burning." },
+            concept = when (lang) { "de" -> "Monsteras wachsen am besten bei hellem indirektem Licht. Sanfte Morgensonne kann funktionieren, aber harte Nachmittagssonne verbrennt oft die Blätter."; "ko" -> "몬스테라는 밝은 간접광에서 가장 잘 자라요. 부드러운 아침 햇살은 괜찮지만 강한 오후 직사광은 잎을 태울 수 있어요."; else -> "Monsteras grow best with bright indirect light. Gentle morning sun can work, but harsh afternoon rays often scorch leaves." },
+            keyTakeaway = when (lang) { "de" -> "Belohnung: Leaf Finder-Abzeichen — baue eine ruhige Indoor-Lichtroutine auf."; "ko" -> "보상: Leaf Finder 배지 — 안정적인 실내 빛 루틴을 만들어요."; else -> "Reward: Leaf Finder badge — build a calm indoor light routine." },
+            quiz = LessonQuiz(QuizType.MULTIPLE_CHOICE, when (lang) { "de" -> "Welche Lichtsituation ist für eine Monstera in den meisten Wohnungen am besten?"; "ko" -> "대부분의 집에서 몬스테라 스타터에 가장 좋은 빛 환경은 무엇일까요?"; else -> "What light setup is best for a Monstera starter in most homes?" }, listOf(
+                when (lang) { "de" -> "Helles indirektes Licht nahe am Fenster"; "ko" -> "창가 근처의 밝은 간접광"; else -> "Bright indirect light near a window" },
+                when (lang) { "de" -> "Den ganzen Tag harte Balkonsonne"; "ko" -> "하루 종일 강한 베란다 직사광"; else -> "Harsh balcony sun all day" },
+                when (lang) { "de" -> "Eine dunkle Ecke weit weg vom Fenster"; "ko" -> "창문에서 먼 어두운 구석"; else -> "A dim corner far from windows" },
+            ), 0),
             rewardXp = 20,
-            rewardLabel = "Leaf Finder badge",
+            rewardLabel = when (lang) { "de" -> "Leaf Finder-Abzeichen"; "ko" -> "Leaf Finder 배지"; else -> "Leaf Finder badge" },
         ),
         Lesson(
-            id = "monstera_rotation",
-            title = "Rotate for balanced growth",
-            summary = "A quick weekly turn keeps your Monstera from leaning hard toward one side of the room.",
-            concept = "Indoor plants chase the strongest light source. Rotating the pot helps the stem and leaves develop more evenly.",
-            keyTakeaway = "Reward: Balanced Canopy badge — train a fuller indoor silhouette.",
-            quiz = LessonQuiz(
-                type = QuizType.TRUE_FALSE,
-                prompt = "True or false: Rotating a Monstera every week or two can help it grow more evenly.",
-                options = listOf("True", "False"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 25,
-            rewardLabel = "Balanced Canopy badge",
-        ),
+            id = "monstera_rotation", title = when (lang) { "de" -> "Für gleichmäßiges Wachstum drehen"; "ko" -> "균형 있게 자라도록 방향 바꾸기"; else -> "Rotate for balanced growth" },
+            summary = when (lang) { "de" -> "Ein kurzes wöchentliches Drehen verhindert, dass deine Monstera stark zu einer Raumseite kippt."; "ko" -> "주 1회 정도 화분 방향을 바꾸면 몬스테라가 한쪽으로 치우치지 않아요."; else -> "A quick weekly turn keeps your Monstera from leaning hard toward one side of the room." },
+            concept = when (lang) { "de" -> "Zimmerpflanzen orientieren sich zur stärksten Lichtquelle. Durch Drehen entwickeln sich Stiel und Blätter gleichmäßiger."; "ko" -> "실내 식물은 가장 강한 빛 쪽으로 자라요. 화분을 돌려 주면 줄기와 잎이 더 고르게 자랍니다."; else -> "Indoor plants chase the strongest light source. Rotating the pot helps the stem and leaves develop more evenly." },
+            keyTakeaway = when (lang) { "de" -> "Belohnung: Balanced Canopy-Abzeichen — trainiere eine vollere Indoor-Silhouette."; "ko" -> "보상: Balanced Canopy 배지 — 더 균형 잡힌 수형을 만들어요."; else -> "Reward: Balanced Canopy badge — train a fuller indoor silhouette." },
+            quiz = LessonQuiz(QuizType.TRUE_FALSE, when (lang) { "de" -> "Wahr oder falsch: Eine Monstera jede oder jede zweite Woche zu drehen kann gleichmäßigeres Wachstum fördern."; "ko" -> "참 또는 거짓: 1~2주마다 몬스테라를 돌려 주면 더 균형 있게 자랄 수 있다."; else -> "True or false: Rotating a Monstera every week or two can help it grow more evenly." }, listOf(if (lang == "de") "Wahr" else if (lang == "ko") "참" else "True", if (lang == "de") "Falsch" else if (lang == "ko") "거짓" else "False"), 0), rewardXp = 25, rewardLabel = when (lang) { "de" -> "Balanced Canopy-Abzeichen"; "ko" -> "Balanced Canopy 배지"; else -> "Balanced Canopy badge" }),
         Lesson(
-            id = "monstera_watering",
-            title = "Water after the top dries",
-            summary = "Monsteras prefer a soak-then-rest rhythm instead of staying wet all week.",
-            concept = "Let the top layer of soil dry a bit before watering again. Constantly soggy soil raises the risk of root stress and yellowing.",
-            keyTakeaway = "Reward: Root Watch badge — protect roots from overwatering.",
-            quiz = LessonQuiz(
-                type = QuizType.SCENARIO_CHOICE,
-                prompt = "Your Monstera soil is still damp two centimeters down, but it is watering day on your calendar. What should you do?",
-                options = listOf("Wait a bit longer and check again before watering", "Water now because the schedule matters most", "Add extra fertilizer instead of checking moisture"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 25,
-            rewardLabel = "Root Watch badge",
-        ),
+            id = "monstera_watering", title = when (lang) { "de" -> "Gießen, wenn die Oberfläche trocken ist"; "ko" -> "겉흙이 마른 뒤 물 주기"; else -> "Water after the top dries" },
+            summary = when (lang) { "de" -> "Monsteras mögen einen Rhythmus aus gründlichem Gießen und Pause statt dauerhaft nasser Erde."; "ko" -> "몬스테라는 흙이 늘 젖어 있기보다 흠뻑 주고 쉬는 리듬을 좋아해요."; else -> "Monsteras prefer a soak-then-rest rhythm instead of staying wet all week." },
+            concept = when (lang) { "de" -> "Lass die oberste Erdschicht leicht antrocknen, bevor du erneut gießt. Dauerhaft nasse Erde erhöht das Risiko für Wurzelstress und gelbe Blätter."; "ko" -> "다시 물 주기 전 윗흙이 조금 마르도록 두세요. 계속 축축한 흙은 뿌리 스트레스와 누런 잎의 원인이 될 수 있어요."; else -> "Let the top layer of soil dry a bit before watering again. Constantly soggy soil raises the risk of root stress and yellowing." },
+            keyTakeaway = when (lang) { "de" -> "Belohnung: Root Watch-Abzeichen — schütze Wurzeln vor Überwässerung."; "ko" -> "보상: Root Watch 배지 — 과습으로부터 뿌리를 지켜요."; else -> "Reward: Root Watch badge — protect roots from overwatering." },
+            quiz = LessonQuiz(QuizType.SCENARIO_CHOICE, when (lang) { "de" -> "Die Erde deiner Monstera ist zwei Zentimeter tief noch feucht, aber im Kalender ist Gießtag. Was solltest du tun?"; "ko" -> "몬스테라 흙을 2cm 정도 확인했더니 아직 촉촉하지만 달력상 오늘이 물 주는 날이에요. 어떻게 해야 할까요?"; else -> "Your Monstera soil is still damp two centimeters down, but it is watering day on your calendar. What should you do?" }, listOf(
+                when (lang) { "de" -> "Noch etwas warten und vor dem Gießen erneut prüfen"; "ko" -> "조금 더 기다렸다가 다시 확인한 뒤 물 주기"; else -> "Wait a bit longer and check again before watering" },
+                when (lang) { "de" -> "Jetzt gießen, weil der Zeitplan wichtiger ist"; "ko" -> "일정이 더 중요하니 지금 바로 물 주기"; else -> "Water now because the schedule matters most" },
+                when (lang) { "de" -> "Statt Feuchtigkeit zu prüfen extra düngen"; "ko" -> "수분 확인 대신 비료를 더 주기"; else -> "Add extra fertilizer instead of checking moisture" },
+            ), 0), rewardXp = 25, rewardLabel = when (lang) { "de" -> "Root Watch-Abzeichen"; "ko" -> "Root Watch 배지"; else -> "Root Watch badge" }),
         Lesson(
-            id = "monstera_support",
-            title = "Give climbing leaves support",
-            summary = "A stake or moss pole helps mature Monstera growth feel purposeful instead of floppy.",
-            concept = "Monsteras are natural climbers. Support can encourage larger leaves and a tidier growth habit as the plant matures.",
-            keyTakeaway = "Reward: Climber Coach badge — guide a stronger growth habit.",
-            quiz = LessonQuiz(
-                type = QuizType.MULTIPLE_CHOICE,
-                prompt = "Why add support to a growing Monstera?",
-                options = listOf("To encourage natural climbing growth", "To keep the soil permanently wet", "To replace the need for light"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 30,
-            rewardLabel = "Climber Coach badge",
-        ),
+            id = "monstera_support", title = when (lang) { "de" -> "Kletternden Blättern Halt geben"; "ko" -> "기어오를 잎에 지지대 주기"; else -> "Give climbing leaves support" },
+            summary = when (lang) { "de" -> "Ein Stab oder Moospfahl lässt reifere Monstera-Triebe zielgerichtet statt schlapp wachsen."; "ko" -> "지지대나 수태봉은 성숙한 몬스테라가 축 처지지 않고 방향성 있게 자라도록 도와줘요."; else -> "A stake or moss pole helps mature Monstera growth feel purposeful instead of floppy." },
+            concept = when (lang) { "de" -> "Monsteras sind natürliche Kletterpflanzen. Halt kann größere Blätter und einen ordentlicheren Wuchs fördern."; "ko" -> "몬스테라는 원래 타고 오르는 식물이에요. 지지대가 있으면 더 큰 잎과 정돈된 수형에 도움이 됩니다."; else -> "Monsteras are natural climbers. Support can encourage larger leaves and a tidier growth habit as the plant matures." },
+            keyTakeaway = when (lang) { "de" -> "Belohnung: Climber Coach-Abzeichen — führe stärkeres Wachstum."; "ko" -> "보상: Climber Coach 배지 — 더 탄탄한 성장 습관을 만들어요."; else -> "Reward: Climber Coach badge — guide a stronger growth habit." },
+            quiz = LessonQuiz(QuizType.MULTIPLE_CHOICE, when (lang) { "de" -> "Warum sollte man eine wachsende Monstera stützen?"; "ko" -> "자라는 몬스테라에 지지대를 주는 이유는 무엇일까요?"; else -> "Why add support to a growing Monstera?" }, listOf(
+                when (lang) { "de" -> "Um natürliches Kletterwachstum zu fördern"; "ko" -> "자연스러운 climbing 성장을 돕기 위해"; else -> "To encourage natural climbing growth" },
+                when (lang) { "de" -> "Um die Erde dauerhaft nass zu halten"; "ko" -> "흙을 계속 젖은 상태로 유지하기 위해"; else -> "To keep the soil permanently wet" },
+                when (lang) { "de" -> "Um Licht vollständig zu ersetzen"; "ko" -> "빛의 필요를 대신하기 위해"; else -> "To replace the need for light" },
+            ), 0), rewardXp = 30, rewardLabel = when (lang) { "de" -> "Climber Coach-Abzeichen"; "ko" -> "Climber Coach 배지"; else -> "Climber Coach badge" }),
     )
 
-    private val basilLessons = listOf(
-        Lesson(
-            id = "basil_sun",
-            title = "Chase kitchen-window sun",
-            summary = "Basil is happiest with strong daily light and steady moisture, especially on a bright sill.",
-            concept = "Basil grows fast when it gets several hours of sun. Weak light quickly leads to pale, stretched stems.",
-            keyTakeaway = "Reward: Sun Sipper badge — set up a productive herb corner.",
-            quiz = LessonQuiz(
-                type = QuizType.MULTIPLE_CHOICE,
-                prompt = "What does basil want most from its starter setup?",
-                options = listOf("Strong light and regular moisture", "Total shade and dry soil", "Cold drafts and infrequent watering"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 20,
-            rewardLabel = "Sun Sipper badge",
-        ),
-        Lesson(
-            id = "basil_harvest",
-            title = "Pinch above leaf pairs",
-            summary = "Small, frequent harvests make basil bushier and keep it from becoming a tall bare stick.",
-            concept = "Pinching top growth above a leaf pair encourages side shoots. That means more leaves to harvest and a fuller plant.",
-            keyTakeaway = "Reward: Bushy Builder badge — shape better kitchen harvests.",
-            quiz = LessonQuiz(
-                type = QuizType.TRUE_FALSE,
-                prompt = "True or false: Regularly pinching basil tips can encourage bushier growth.",
-                options = listOf("True", "False"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 25,
-            rewardLabel = "Bushy Builder badge",
-        ),
-        Lesson(
-            id = "basil_flower",
-            title = "Catch flowers early",
-            summary = "Once basil focuses on flowers, leaf quality and flavor often drop off.",
-            concept = "Flowering shifts the plant toward reproduction. Removing flower buds early helps keep growth leafy for longer.",
-            keyTakeaway = "Reward: Flavor Keeper badge — extend the tasty stage.",
-            quiz = LessonQuiz(
-                type = QuizType.SCENARIO_CHOICE,
-                prompt = "You notice tiny flower buds forming on your basil, but you want more leaves for cooking. What is the best move?",
-                options = listOf("Pinch off the buds and keep harvesting", "Move it into deeper shade", "Stop watering for a week"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 25,
-            rewardLabel = "Flavor Keeper badge",
-        ),
-        Lesson(
-            id = "basil_moisture",
-            title = "Keep the soil evenly moist",
-            summary = "Basil dislikes the dramatic swing between bone-dry and soaked roots.",
-            concept = "Aim for lightly moist soil most of the time. Consistency helps basil stay tender and less stressed.",
-            keyTakeaway = "Reward: Harvest Rhythm badge — build a dependable care loop.",
-            quiz = LessonQuiz(
-                type = QuizType.MULTIPLE_CHOICE,
-                prompt = "Which watering rhythm suits basil best?",
-                options = listOf("Consistent, lightly moist soil", "Let it fully dry for many days", "Flood it daily until water pools"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 30,
-            rewardLabel = "Harvest Rhythm badge",
-        ),
+    private fun basilLessons(lang: String) = listOf(
+        Lesson("basil_sun", when (lang) { "de" -> "Küchenfenster-Sonne suchen"; "ko" -> "주방 창가 햇빛 따라가기"; else -> "Chase kitchen-window sun" }, when (lang) { "de" -> "Basilikum ist mit starkem täglichem Licht und gleichmäßiger Feuchte am glücklichsten, besonders auf einer hellen Fensterbank."; "ko" -> "바질은 밝은 창가에서 매일 충분한 빛과 일정한 수분을 받을 때 가장 잘 자라요."; else -> "Basil is happiest with strong daily light and steady moisture, especially on a bright sill." }, when (lang) { "de" -> "Basilikum wächst schnell mit mehreren Stunden Sonne. Schwaches Licht führt rasch zu blassen, vergeilten Stielen."; "ko" -> "바질은 몇 시간의 햇빛만 있어도 빠르게 자라요. 빛이 약하면 줄기가 웃자라고 색이 옅어집니다."; else -> "Basil grows fast when it gets several hours of sun. Weak light quickly leads to pale, stretched stems." }, when (lang) { "de" -> "Belohnung: Sun Sipper-Abzeichen — richte eine produktive Kräuterecke ein."; "ko" -> "보상: Sun Sipper 배지 — 생산적인 허브 코너를 만들어요."; else -> "Reward: Sun Sipper badge — set up a productive herb corner." }, LessonQuiz(QuizType.MULTIPLE_CHOICE, when (lang) { "de" -> "Was braucht Basilikum am meisten für einen guten Start?"; "ko" -> "바질 스타터가 가장 먼저 원하는 환경은 무엇일까요?"; else -> "What does basil want most from its starter setup?" }, listOf(when (lang) { "de" -> "Starkes Licht und regelmäßige Feuchtigkeit"; "ko" -> "강한 빛과 규칙적인 수분"; else -> "Strong light and regular moisture" }, when (lang) { "de" -> "Voller Schatten und trockene Erde"; "ko" -> "완전한 그늘과 마른 흙"; else -> "Total shade and dry soil" }, when (lang) { "de" -> "Kalte Zugluft und seltenes Gießen"; "ko" -> "찬바람과 드문 물주기"; else -> "Cold drafts and infrequent watering" }), 0), 20, when (lang) { "de" -> "Sun Sipper-Abzeichen"; "ko" -> "Sun Sipper 배지"; else -> "Sun Sipper badge" }),
+        Lesson("basil_harvest", when (lang) { "de" -> "Über Blattpaaren abknipsen"; "ko" -> "잎 마디 위를 따 주기"; else -> "Pinch above leaf pairs" }, when (lang) { "de" -> "Kleine häufige Ernten machen Basilikum buschiger und verhindern kahle, lange Stiele."; "ko" -> "조금씩 자주 수확하면 바질이 더 풍성해지고 길쭉한 막대처럼 되지 않아요."; else -> "Small, frequent harvests make basil bushier and keep it from becoming a tall bare stick." }, when (lang) { "de" -> "Das Abknipsen oberhalb eines Blattpaars fördert Seitentriebe. Das bedeutet mehr Ernte und eine vollere Pflanze."; "ko" -> "잎 마디 위를 집어 주면 곁가지가 나와요. 더 많은 수확과 더 풍성한 형태로 이어집니다."; else -> "Pinching top growth above a leaf pair encourages side shoots. That means more leaves to harvest and a fuller plant." }, when (lang) { "de" -> "Belohnung: Bushy Builder-Abzeichen — forme bessere Küchenernten."; "ko" -> "보상: Bushy Builder 배지 — 더 풍성한 수확을 만들어요."; else -> "Reward: Bushy Builder badge — shape better kitchen harvests." }, LessonQuiz(QuizType.TRUE_FALSE, when (lang) { "de" -> "Wahr oder falsch: Regelmäßiges Abknipsen der Basilikumspitzen kann buschigeres Wachstum fördern."; "ko" -> "참 또는 거짓: 바질 끝순을 자주 따 주면 더 풍성하게 자랄 수 있다."; else -> "True or false: Regularly pinching basil tips can encourage bushier growth." }, listOf(if (lang == "de") "Wahr" else if (lang == "ko") "참" else "True", if (lang == "de") "Falsch" else if (lang == "ko") "거짓" else "False"), 0), 25, when (lang) { "de" -> "Bushy Builder-Abzeichen"; "ko" -> "Bushy Builder 배지"; else -> "Bushy Builder badge" }),
+        Lesson("basil_flower", when (lang) { "de" -> "Blüten früh erwischen"; "ko" -> "꽃대는 일찍 잡기"; else -> "Catch flowers early" }, when (lang) { "de" -> "Sobald Basilikum auf Blüte schaltet, nehmen Blattqualität und Aroma oft ab."; "ko" -> "바질이 꽃을 피우기 시작하면 잎의 품질과 향이 떨어질 수 있어요."; else -> "Once basil focuses on flowers, leaf quality and flavor often drop off." }, when (lang) { "de" -> "Blühen lenkt die Pflanze auf Fortpflanzung um. Frühes Entfernen von Knospen hält das Wachstum länger blättrig."; "ko" -> "개화가 시작되면 식물의 에너지가 번식으로 향해요. 꽃봉오리를 일찍 제거하면 잎 성장을 더 오래 유지할 수 있어요."; else -> "Flowering shifts the plant toward reproduction. Removing flower buds early helps keep growth leafy for longer." }, when (lang) { "de" -> "Belohnung: Flavor Keeper-Abzeichen — verlängere die aromatische Phase."; "ko" -> "보상: Flavor Keeper 배지 — 맛있는 시기를 더 오래 유지해요."; else -> "Reward: Flavor Keeper badge — extend the tasty stage." }, LessonQuiz(QuizType.SCENARIO_CHOICE, when (lang) { "de" -> "Du entdeckst kleine Blütenknospen an deinem Basilikum, möchtest aber mehr Blätter zum Kochen. Was ist am besten?"; "ko" -> "바질에 작은 꽃봉오리가 보이지만 요리에 쓸 잎을 더 원해요. 가장 좋은 선택은 무엇일까요?"; else -> "You notice tiny flower buds forming on your basil, but you want more leaves for cooking. What is the best move?" }, listOf(when (lang) { "de" -> "Knospen abknipsen und weiter ernten"; "ko" -> "꽃봉오리를 따고 계속 수확하기"; else -> "Pinch off the buds and keep harvesting" }, when (lang) { "de" -> "In tieferen Schatten stellen"; "ko" -> "더 그늘진 곳으로 옮기기"; else -> "Move it into deeper shade" }, when (lang) { "de" -> "Eine Woche lang nicht gießen"; "ko" -> "일주일 동안 물을 끊기"; else -> "Stop watering for a week" }), 0), 25, when (lang) { "de" -> "Flavor Keeper-Abzeichen"; "ko" -> "Flavor Keeper 배지"; else -> "Flavor Keeper badge" }),
+        Lesson("basil_moisture", when (lang) { "de" -> "Erde gleichmäßig leicht feucht halten"; "ko" -> "흙을 고르게 촉촉하게 유지하기"; else -> "Keep the soil evenly moist" }, when (lang) { "de" -> "Basilikum mag keine extremen Wechsel zwischen knochentrocken und patschnass."; "ko" -> "바질은 바싹 마름과 과습을 오가는 극단적인 변화를 싫어해요."; else -> "Basil dislikes the dramatic swing between bone-dry and soaked roots." }, when (lang) { "de" -> "Ziele auf meist leicht feuchte Erde. Konstanz hält Basilikum zart und weniger gestresst."; "ko" -> "대부분의 시간에 흙이 살짝 촉촉한 상태를 목표로 하세요. 일정함이 바질을 더 부드럽고 덜 스트레스받게 합니다."; else -> "Aim for lightly moist soil most of the time. Consistency helps basil stay tender and less stressed." }, when (lang) { "de" -> "Belohnung: Harvest Rhythm-Abzeichen — baue eine verlässliche Pflegeroutine auf."; "ko" -> "보상: Harvest Rhythm 배지 — 믿을 수 있는 관리 루틴을 만들어요."; else -> "Reward: Harvest Rhythm badge — build a dependable care loop." }, LessonQuiz(QuizType.MULTIPLE_CHOICE, when (lang) { "de" -> "Welcher Gießrhythmus passt am besten zu Basilikum?"; "ko" -> "바질에 가장 잘 맞는 물주기 리듬은 무엇일까요?"; else -> "Which watering rhythm suits basil best?" }, listOf(when (lang) { "de" -> "Gleichmäßig leicht feuchte Erde"; "ko" -> "일정하게 살짝 촉촉한 흙"; else -> "Consistent, lightly moist soil" }, when (lang) { "de" -> "Viele Tage komplett austrocknen lassen"; "ko" -> "며칠씩 완전히 말리기"; else -> "Let it fully dry for many days" }, when (lang) { "de" -> "Täglich fluten, bis Wasser steht"; "ko" -> "물이 고일 정도로 매일 흠뻑 주기"; else -> "Flood it daily until water pools" }), 0), 30, when (lang) { "de" -> "Harvest Rhythm-Abzeichen"; "ko" -> "Harvest Rhythm 배지"; else -> "Harvest Rhythm badge" }),
     )
 
-    private val tomatoLessons = listOf(
-        Lesson(
-            id = "tomato_support",
-            title = "Support fruiting stems early",
-            summary = "Tomatoes grow fast and benefit from cages or stakes before they get heavy.",
-            concept = "Early support prevents stem damage, improves airflow, and makes later fruit load easier to manage.",
-            keyTakeaway = "Reward: Stem Saver badge — prepare for bigger growth.",
-            quiz = LessonQuiz(
-                type = QuizType.MULTIPLE_CHOICE,
-                prompt = "What should you prioritize for a tomato starter?",
-                options = listOf("Support and strong sun", "Deep shade and dry soil", "No airflow around the plant"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 20,
-            rewardLabel = "Stem Saver badge",
-        ),
-        Lesson(
-            id = "tomato_deep_water",
-            title = "Water deeply, not constantly",
-            summary = "Tomatoes do better with thorough watering sessions than with tiny splashes all day.",
-            concept = "Deep watering encourages stronger root systems, while shallow frequent splashes often leave roots near the surface.",
-            keyTakeaway = "Reward: Root Runner badge — train deeper roots.",
-            quiz = LessonQuiz(
-                type = QuizType.TRUE_FALSE,
-                prompt = "True or false: Deep, consistent watering is usually better for tomatoes than frequent tiny splashes.",
-                options = listOf("True", "False"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 25,
-            rewardLabel = "Root Runner badge",
-        ),
-        Lesson(
-            id = "tomato_feeding",
-            title = "Feed the flowering plant",
-            summary = "Tomatoes burn a lot of energy once they start pushing flowers and fruit.",
-            concept = "Balanced feeding supports blooms, fruit set, and stronger stems. It does not replace sunlight or watering.",
-            keyTakeaway = "Reward: Bloom Booster badge — support the fruiting phase.",
-            quiz = LessonQuiz(
-                type = QuizType.SCENARIO_CHOICE,
-                prompt = "Your tomato has flowers forming, pale older leaves, and strong sun exposure. What care change helps most?",
-                options = listOf("Start a consistent feeding routine", "Move it into shade", "Stop watering completely"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 25,
-            rewardLabel = "Bloom Booster badge",
-        ),
-        Lesson(
-            id = "tomato_airflow",
-            title = "Leave room for airflow",
-            summary = "Crowded foliage traps humidity and makes tomato care harder as the plant thickens up.",
-            concept = "Good spacing and airflow help reduce disease pressure and keep leaves drying faster after watering.",
-            keyTakeaway = "Reward: Garden Coach badge — manage a more resilient plant.",
-            quiz = LessonQuiz(
-                type = QuizType.MULTIPLE_CHOICE,
-                prompt = "Why does airflow matter around tomatoes?",
-                options = listOf("It helps reduce moisture-related disease pressure", "It replaces fertilizer", "It makes sunlight unnecessary"),
-                correctAnswerIndex = 0,
-            ),
-            rewardXp = 30,
-            rewardLabel = "Garden Coach badge",
-        ),
+    private fun tomatoLessons(lang: String) = listOf(
+        Lesson("tomato_support", when (lang) { "de" -> "Fruchttragende Stiele früh stützen"; "ko" -> "열매 맺는 줄기를 미리 지지하기"; else -> "Support fruiting stems early" }, when (lang) { "de" -> "Tomaten wachsen schnell und profitieren von Käfigen oder Stäben, bevor sie schwer werden."; "ko" -> "토마토는 빠르게 자라므로 무거워지기 전에 케이지나 지지대가 있으면 좋아요."; else -> "Tomatoes grow fast and benefit from cages or stakes before they get heavy." }, when (lang) { "de" -> "Frühe Stütze verhindert Stängelschäden, verbessert die Luftzirkulation und macht spätere Fruchtlast leichter beherrschbar."; "ko" -> "초기 지지는 줄기 손상을 막고 통풍을 좋게 하며, 나중의 열매 무게도 더 쉽게 관리하게 해 줍니다."; else -> "Early support prevents stem damage, improves airflow, and makes later fruit load easier to manage." }, when (lang) { "de" -> "Belohnung: Stem Saver-Abzeichen — bereite größeres Wachstum vor."; "ko" -> "보상: Stem Saver 배지 — 더 큰 성장을 준비해요."; else -> "Reward: Stem Saver badge — prepare for bigger growth." }, LessonQuiz(QuizType.MULTIPLE_CHOICE, when (lang) { "de" -> "Was sollte bei einer Tomaten-Starterpflanze Priorität haben?"; "ko" -> "토마토 스타터에서 가장 우선해야 할 것은 무엇일까요?"; else -> "What should you prioritize for a tomato starter?" }, listOf(when (lang) { "de" -> "Stütze und starke Sonne"; "ko" -> "지지대와 강한 햇빛"; else -> "Support and strong sun" }, when (lang) { "de" -> "Tiefer Schatten und trockene Erde"; "ko" -> "깊은 그늘과 마른 흙"; else -> "Deep shade and dry soil" }, when (lang) { "de" -> "Keine Luftzirkulation um die Pflanze"; "ko" -> "통풍이 전혀 없는 환경"; else -> "No airflow around the plant" }), 0), 20, when (lang) { "de" -> "Stem Saver-Abzeichen"; "ko" -> "Stem Saver 배지"; else -> "Stem Saver badge" }),
+        Lesson("tomato_deep_water", when (lang) { "de" -> "Tief gießen, nicht ständig"; "ko" -> "자주 조금씩 말고 깊게 물 주기"; else -> "Water deeply, not constantly" }, when (lang) { "de" -> "Tomaten kommen mit gründlichen Gießgängen besser zurecht als mit winzigen Spritzern über den ganzen Tag."; "ko" -> "토마토는 하루 종일 조금씩보다 한 번에 충분히 주는 깊은 물주기에 더 잘 반응해요."; else -> "Tomatoes do better with thorough watering sessions than with tiny splashes all day." }, when (lang) { "de" -> "Tiefes Gießen fördert stärkere Wurzeln, während häufige Oberflächenspritzer Wurzeln oben halten."; "ko" -> "깊은 물주기는 더 강한 뿌리를 만들고, 잦은 표면 물주기는 뿌리를 얕게 남게 합니다."; else -> "Deep watering encourages stronger root systems, while shallow frequent splashes often leave roots near the surface." }, when (lang) { "de" -> "Belohnung: Root Runner-Abzeichen — trainiere tiefere Wurzeln."; "ko" -> "보상: Root Runner 배지 — 더 깊은 뿌리를 길러요."; else -> "Reward: Root Runner badge — train deeper roots." }, LessonQuiz(QuizType.TRUE_FALSE, when (lang) { "de" -> "Wahr oder falsch: Tiefes, konstantes Gießen ist für Tomaten meist besser als häufige kleine Wassergaben."; "ko" -> "참 또는 거짓: 토마토에는 자주 조금씩보다 깊고 일정한 물주기가 보통 더 좋다."; else -> "True or false: Deep, consistent watering is usually better for tomatoes than frequent tiny splashes." }, listOf(if (lang == "de") "Wahr" else if (lang == "ko") "참" else "True", if (lang == "de") "Falsch" else if (lang == "ko") "거짓" else "False"), 0), 25, when (lang) { "de" -> "Root Runner-Abzeichen"; "ko" -> "Root Runner 배지"; else -> "Root Runner badge" }),
+        Lesson("tomato_feeding", when (lang) { "de" -> "Die blühende Pflanze versorgen"; "ko" -> "꽃이 피기 시작하면 영양 보충"; else -> "Feed the flowering plant" }, when (lang) { "de" -> "Tomaten verbrauchen viel Energie, sobald sie Blüten und Früchte bilden."; "ko" -> "토마토는 꽃과 열매를 만들기 시작하면 에너지를 많이 써요."; else -> "Tomatoes burn a lot of energy once they start pushing flowers and fruit." }, when (lang) { "de" -> "Ausgewogene Düngung unterstützt Blüten, Fruchtansatz und kräftigere Stiele. Sie ersetzt weder Sonne noch Wasser."; "ko" -> "균형 잡힌 영양 공급은 꽃, 착과, 튼튼한 줄기에 도움을 줍니다. 하지만 햇빛과 물을 대신하지는 않아요."; else -> "Balanced feeding supports blooms, fruit set, and stronger stems. It does not replace sunlight or watering." }, when (lang) { "de" -> "Belohnung: Bloom Booster-Abzeichen — unterstütze die Fruchtphase."; "ko" -> "보상: Bloom Booster 배지 — 결실 시기를 잘 받쳐 주세요."; else -> "Reward: Bloom Booster badge — support the fruiting phase." }, LessonQuiz(QuizType.SCENARIO_CHOICE, when (lang) { "de" -> "Deine Tomate hat Blüten, blasse ältere Blätter und bekommt viel Sonne. Welche Pflegeänderung hilft am meisten?"; "ko" -> "토마토에 꽃이 맺히고 오래된 잎이 창백하며 햇빛은 충분해요. 어떤 관리 변화가 가장 도움이 될까요?"; else -> "Your tomato has flowers forming, pale older leaves, and strong sun exposure. What care change helps most?" }, listOf(when (lang) { "de" -> "Eine regelmäßige Düngerroutine starten"; "ko" -> "규칙적인 영양 공급 루틴 시작하기"; else -> "Start a consistent feeding routine" }, when (lang) { "de" -> "In den Schatten stellen"; "ko" -> "그늘로 옮기기"; else -> "Move it into shade" }, when (lang) { "de" -> "Komplett aufhören zu gießen"; "ko" -> "물을 완전히 끊기"; else -> "Stop watering completely" }), 0), 25, when (lang) { "de" -> "Bloom Booster-Abzeichen"; "ko" -> "Bloom Booster 배지"; else -> "Bloom Booster badge" }),
+        Lesson("tomato_airflow", when (lang) { "de" -> "Platz für Luftzirkulation lassen"; "ko" -> "통풍을 위한 공간 남기기"; else -> "Leave room for airflow" }, when (lang) { "de" -> "Dichtes Laub hält Feuchtigkeit fest und macht die Tomatenpflege mit zunehmender Größe schwieriger."; "ko" -> "잎이 너무 빽빽하면 습기가 갇히고 식물이 커질수록 관리가 어려워져요."; else -> "Crowded foliage traps humidity and makes tomato care harder as the plant thickens up." }, when (lang) { "de" -> "Gute Abstände und Luftbewegung helfen, Krankheitsdruck zu senken und Blätter nach dem Gießen schneller trocknen zu lassen."; "ko" -> "적절한 간격과 통풍은 병해 압력을 줄이고 물 준 뒤 잎이 더 빨리 마르게 도와줍니다."; else -> "Good spacing and airflow help reduce disease pressure and keep leaves drying faster after watering." }, when (lang) { "de" -> "Belohnung: Garden Coach-Abzeichen — manage eine robustere Pflanze."; "ko" -> "보상: Garden Coach 배지 — 더 튼튼한 식물 관리에 도움을 줘요."; else -> "Reward: Garden Coach badge — manage a more resilient plant." }, LessonQuiz(QuizType.MULTIPLE_CHOICE, when (lang) { "de" -> "Warum ist Luftzirkulation bei Tomaten wichtig?"; "ko" -> "토마토 주변의 통풍이 중요한 이유는 무엇일까요?"; else -> "Why does airflow matter around tomatoes?" }, listOf(when (lang) { "de" -> "Sie hilft, feuchtigkeitsbedingten Krankheitsdruck zu verringern"; "ko" -> "습기 관련 병해 압력을 줄이는 데 도움이 되기 때문"; else -> "It helps reduce moisture-related disease pressure" }, when (lang) { "de" -> "Sie ersetzt Dünger"; "ko" -> "비료를 대신하기 때문"; else -> "It replaces fertilizer" }, when (lang) { "de" -> "Sie macht Sonnenlicht überflüssig"; "ko" -> "햇빛이 필요 없어지기 때문"; else -> "It makes sunlight unnecessary" }), 0), 30, when (lang) { "de" -> "Garden Coach-Abzeichen"; "ko" -> "Garden Coach 배지"; else -> "Garden Coach badge" }),
     )
 }

@@ -24,10 +24,10 @@ object ReminderNotifier {
         val manager = context.getSystemService(NotificationManager::class.java)
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "GreenBuddy reminders",
+            context.getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_DEFAULT,
         ).apply {
-            description = "Gentle reminders for lessons, care, and routine check-ins."
+            description = context.getString(R.string.notification_channel_description)
         }
         manager.createNotificationChannel(channel)
     }
