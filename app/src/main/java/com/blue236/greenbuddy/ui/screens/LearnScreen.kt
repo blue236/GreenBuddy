@@ -2,6 +2,7 @@ package com.blue236.greenbuddy.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
+import com.blue236.greenbuddy.model.QuizType
 import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
@@ -46,6 +48,7 @@ fun LearnScreen(
     val allLessonsComplete = progress.isComplete(lessons)
     val alreadyCompleted = lesson?.id in progress.completedLessonIds
     val lessonKey = lesson?.id ?: "track_complete"
+    val quiz = lesson?.quiz
     var selectedAnswerIndex by rememberSaveable(lessonKey) { mutableIntStateOf(-1) }
     var feedbackMessage by rememberSaveable(lessonKey) { mutableStateOf<String?>(null) }
 
@@ -73,43 +76,55 @@ fun LearnScreen(
                 Text(lesson?.summary.orEmpty())
                 Spacer(Modifier.height(8.dp))
                 Text(lesson?.concept.orEmpty())
+                Spacer(Modifier.height(8.dp))
+                Text(lesson?.keyTakeaway.orEmpty(), color = MaterialTheme.colorScheme.primary)
             }
             StatCard("Quiz") {
-                Text(lesson?.quizPrompt.orEmpty())
+                Text(
+                    text = when (quiz?.type) {
+                        QuizType.TRUE_FALSE -> "True / False"
+                        QuizType.SCENARIO_CHOICE -> "Scenario choice"
+                        else -> "Multiple choice"
+                    },
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(quiz?.prompt.orEmpty())
                 Spacer(Modifier.height(12.dp))
-                lesson?.quizOptions?.forEachIndexed { index, option ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = selectedAnswerIndex == index,
-                            enabled = !alreadyCompleted,
-                            onClick = {
-                                selectedAnswerIndex = index
-                                feedbackMessage = null
-                            },
-                        ),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (selectedAnswerIndex == index) {
-                            MaterialTheme.colorScheme.secondaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        },
-                    ),
-                ) {
-                    androidx.compose.foundation.layout.Row(
+                quiz?.options?.forEachIndexed { index, option ->
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                            .selectable(
+                                selected = selectedAnswerIndex == index,
+                                enabled = !alreadyCompleted,
+                                onClick = {
+                                    selectedAnswerIndex = index
+                                    feedbackMessage = null
+                                },
+                            ),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (selectedAnswerIndex == index) {
+                                MaterialTheme.colorScheme.secondaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            },
+                        ),
                     ) {
-                        RadioButton(selected = selectedAnswerIndex == index, onClick = null, enabled = !alreadyCompleted)
-                        Text(option, modifier = Modifier.padding(start = 8.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = selectedAnswerIndex == index, onClick = null, enabled = !alreadyCompleted)
+                            Text(option, modifier = Modifier.padding(start = 8.dp))
+                        }
                     }
+                    Spacer(Modifier.height(8.dp))
                 }
-                Spacer(Modifier.height(8.dp))
-            }
 
                 if (feedbackMessage != null) {
                     Text(
@@ -120,6 +135,7 @@ fun LearnScreen(
             }
             StatCard("Reward") {
                 Text("Correct answer reward: XP +${lesson?.rewardXp ?: 0}")
+                Text(lesson?.rewardLabel.orEmpty())
                 Text(
                     if (alreadyCompleted) {
                         "Lesson completed. Reward already claimed."
@@ -140,7 +156,7 @@ fun LearnScreen(
                         if (progress.completedCount + 1 >= lessons.size) {
                             "Correct! You finished the full starter track."
                         } else {
-                            "Correct! You earned XP and advanced to the next lesson."
+                            "Correct! You earned XP, claimed ${lesson?.rewardLabel.orEmpty()}, and advanced to the next lesson."
                         }
                     } else {
                         "Not quite — try again."

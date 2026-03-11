@@ -98,7 +98,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val state = uiState.value
         val lessons = LessonCatalog.forSpecies(state.selectedStarter.companion.species)
         val currentLesson = state.lessonProgress.currentLessonOrNull(lessons) ?: return false
-        if (selectedAnswerIndex != currentLesson.correctAnswerIndex) return false
+        if (selectedAnswerIndex != currentLesson.quiz.correctAnswerIndex) return false
 
         val today = LocalDate.now()
         val updatedLessonProgress = state.lessonProgress.advanceWith(
