@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.blue236.greenbuddy.model.DailyMissionSet
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
@@ -25,6 +26,7 @@ fun ProfileScreen(
     lessons: List<Lesson>,
     progress: LessonProgress,
     careState: PlantCareState,
+    dailyMissionSet: DailyMissionSet? = null,
 ) {
     val allLessonsComplete = progress.isComplete(lessons)
     val nextLesson = progress.currentLessonOrNull(lessons)
@@ -49,6 +51,21 @@ fun ProfileScreen(
             Text("Current mood: ${careState.mood}")
             Text("Current health: ${careState.health}")
             Text(if (allLessonsComplete) "Next lesson: starter track completed" else "Next lesson: ${nextLesson?.title.orEmpty()}")
+        }
+        dailyMissionSet?.let { missions ->
+            StatCard("Daily streak") {
+                Text("Today: ${missions.completedCount}/${missions.totalCount} missions")
+                Text("Current streak: ${missions.currentStreak} day(s)")
+                Text("Longest streak: ${missions.longestStreak} day(s)")
+                Text("Leaf tokens: ${missions.leafTokens}")
+                Text(
+                    if (missions.pendingStreakReward) {
+                        "Streak reward ready: +${missions.streakRewardTokens} leaf tokens"
+                    } else {
+                        "Daily reward: +${missions.dailyRewardTokens} leaf tokens when all missions are done"
+                    },
+                )
+            }
         }
         StatCard("Roadmap focus") {
             Text("MVP: onboarding, daily lesson, care loop, growth state, PlantDex")
