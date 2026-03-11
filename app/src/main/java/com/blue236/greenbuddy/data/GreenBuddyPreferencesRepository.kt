@@ -12,6 +12,7 @@ import com.blue236.greenbuddy.model.AppPreferences
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
 import com.blue236.greenbuddy.model.StarterPlants
+import com.blue236.greenbuddy.model.defaultOwnedStarterIds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -22,24 +23,61 @@ class GreenBuddyPreferencesRepository(context: Context) {
 
     val preferences: Flow<AppPreferences> = dataStore.data.map { prefs ->
         val selectedStarterId = prefs[SelectedStarterIdKey] ?: StarterPlants.options.first().id
+        val ownedStarterIds = prefs[OwnedStarterIdsKey]
+            ?.split(COMPLETED_IDS_SEPARATOR)
+            ?.filter { it.isNotBlank() }
+            ?.toSet()
+            ?.ifEmpty { defaultOwnedStarterIds(selectedStarterId) }
+            ?: defaultOwnedStarterIds(selectedStarterId)
+        val resolvedSelectedStarterId = when {
+            selectedStarterId in ownedStarterIds -> selectedStarterId
+            else -> ownedStarterIds.firstOrNull() ?: StarterPlants.options.first().id
+        }
+
         AppPreferences(
             onboardingComplete = prefs[OnboardingCompleteKey] ?: false,
-            selectedStarterId = selectedStarterId,
-            lessonProgress = readLessonProgress(prefs, selectedStarterId),
-            plantCareState = readPlantCareState(prefs, selectedStarterId),
+            selectedStarterId = resolvedSelectedStarterId,
+            ownedStarterIds = ownedStarterIds,
+            lessonProgressByStarterId = StarterPlants.options.associate { option ->
+                option.id to readLessonProgress(prefs, option.id)
+            },
+            plantCareStateByStarterId = StarterPlants.options.associate { option ->
+                option.id to readPlantCareState(prefs, option.id)
+            },
         )
     }
 
     suspend fun setSelectedStarter(id: String) {
         dataStore.edit { prefs ->
-            prefs[SelectedStarterIdKey] = id
+            val ownedStarterIds = prefs[OwnedStarterIdsKey]
+                ?.split(COMPLETED_IDS_SEPARATOR)
+                ?.filter { it.isNotBlank() }
+                ?.toSet()
+                ?: defaultOwnedStarterIds(prefs[SelectedStarterIdKey] ?: StarterPlants.options.first().id)
+            if (id in ownedStarterIds) {
+                prefs[SelectedStarterIdKey] = id
+            }
         }
     }
 
     suspend fun completeOnboarding(selectedStarterId: String) {
         dataStore.edit { prefs ->
             prefs[SelectedStarterIdKey] = selectedStarterId
+            prefs[OwnedStarterIdsKey] = defaultOwnedStarterIds(selectedStarterId).joinToString(COMPLETED_IDS_SEPARATOR)
             prefs[OnboardingCompleteKey] = true
+        }
+    }
+
+    suspend fun unlockStarter(starterId: String) {
+        dataStore.edit { prefs ->
+            val selectedStarterId = prefs[SelectedStarterIdKey] ?: StarterPlants.options.first().id
+            val ownedStarterIds = prefs[OwnedStarterIdsKey]
+                ?.split(COMPLETED_IDS_SEPARATOR)
+                ?.filter { it.isNotBlank() }
+                ?.toMutableSet()
+                ?: defaultOwnedStarterIds(selectedStarterId).toMutableSet()
+            ownedStarterIds += starterId
+            prefs[OwnedStarterIdsKey] = ownedStarterIds.joinToString(COMPLETED_IDS_SEPARATOR)
         }
     }
 
@@ -65,6 +103,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
 
         private val OnboardingCompleteKey = booleanPreferencesKey("onboarding_complete")
         private val SelectedStarterIdKey = stringPreferencesKey("selected_starter_id")
+        private val OwnedStarterIdsKey = stringPreferencesKey("owned_starter_ids")
 
         private fun currentLessonIndexKey(starterId: String) = intPreferencesKey("${starterId}_current_lesson_index")
         private fun completedLessonIdsKey(starterId: String) = stringPreferencesKey("${starterId}_completed_lesson_ids")

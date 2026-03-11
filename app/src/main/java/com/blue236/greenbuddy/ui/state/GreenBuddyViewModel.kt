@@ -7,9 +7,12 @@ import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
+import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.advanceWith
 import com.blue236.greenbuddy.model.currentLessonOrNull
+import com.blue236.greenbuddy.model.isComplete
+import com.blue236.greenbuddy.model.nextUnlockableStarterId
 import com.blue236.greenbuddy.model.normalizedFor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,16 +29,16 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         repository.preferences,
         selectedTab,
     ) { preferences, tab ->
-        val lessons = LessonCatalog.forSpecies(
-            preferences.selectedStarter.companion.species,
-        )
-
         GreenBuddyUiState(
             selectedTab = tab,
-            selectedStarterId = preferences.selectedStarterId,
+            selectedStarterId = preferences.selectedStarter.id,
+            ownedStarterIds = preferences.ownedStarterIds,
             onboardingComplete = preferences.onboardingComplete,
-            lessonProgress = preferences.lessonProgress.normalizedFor(lessons),
-            plantCareState = preferences.plantCareState,
+            lessonProgressByStarterId = preferences.lessonProgressByStarterId.mapValues { (starterId, progress) ->
+                val starter = StarterPlants.options.first { it.id == starterId }
+                progress.normalizedFor(LessonCatalog.forSpecies(starter.companion.species))
+            },
+            plantCareStateByStarterId = preferences.plantCareStateByStarterId,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -70,8 +73,13 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             rewardXp = currentLesson.rewardXp,
             totalLessons = lessons.size,
         )
+        val shouldUnlockNextPlant = updatedProgress.isComplete(lessons) && nextUnlockableStarterId(state.ownedStarterIds) != null
+
         viewModelScope.launch {
             repository.saveLessonProgress(state.selectedStarterId, updatedProgress)
+            if (shouldUnlockNextPlant) {
+                nextUnlockableStarterId(state.ownedStarterIds)?.let { repository.unlockStarter(it) }
+            }
         }
         return true
     }

@@ -25,6 +25,7 @@ fun ProfileScreen(
     lessons: List<Lesson>,
     progress: LessonProgress,
     careState: PlantCareState,
+    ownedPlantCount: Int,
 ) {
     val allLessonsComplete = progress.isComplete(lessons)
     val nextLesson = progress.currentLessonOrNull(lessons)
@@ -41,17 +42,17 @@ fun ProfileScreen(
             Text("Starter journey progress ${progress.completedCount}/${lessons.size}")
             Text("XP ${progress.totalXp}")
             Text(if (allLessonsComplete) "Track status: complete" else "Track status: in progress")
-            Text("Plants unlocked 3")
+            Text("Plants owned $ownedPlantCount")
         }
-        StatCard("Starter setup") {
-            Text("Chosen starter: ${starter.title}")
+        StatCard("Greenhouse setup") {
+            Text("Active plant: ${starter.title}")
             Text("Companion: ${starter.companion.name}")
             Text("Current mood: ${careState.mood}")
             Text("Current health: ${careState.health}")
             Text(if (allLessonsComplete) "Next lesson: starter track completed" else "Next lesson: ${nextLesson?.title.orEmpty()}")
         }
         StatCard("Roadmap focus") {
-            Text("MVP: onboarding, daily lesson, care loop, growth state, PlantDex")
+            Text("MVP: onboarding, active plant switching, per-plant care/progress, greenhouse inventory")
         }
     }
 }

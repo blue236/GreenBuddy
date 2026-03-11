@@ -43,6 +43,7 @@ fun HomeScreen(
     lessons: List<Lesson>,
     progress: LessonProgress,
     careState: PlantCareState,
+    greenhouseCount: Int,
     onPerformCareAction: (CareAction) -> Unit,
 ) {
     val plant = starter.companion
@@ -59,7 +60,10 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("GreenBuddy", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("Your starter companion is now tuned to ${plant.species} care.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            "Active companion: ${plant.species}. Greenhouse size: $greenhouseCount.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
 
         Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
             Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -86,7 +90,10 @@ fun HomeScreen(
                 )
                 if (allLessonsComplete) {
                     Text("You’ve finished the ${starter.title} starter track. Nice work.")
-                    Text("Switch starters in PlantDex to begin a new path, or check your profile for total XP.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        "Visit the Greenhouse to switch plants or claim the next unlock in your collection loop.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 } else {
                     Text(currentLesson?.title.orEmpty())
                     Text(currentLesson?.summary.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -104,7 +111,7 @@ fun HomeScreen(
         }
 
         StatCard("Care actions") {
-            Text("Quick actions change your plant’s live care stats and persist per starter.")
+            Text("Quick actions change your plant’s live care stats and persist per plant in your greenhouse.")
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -130,14 +137,14 @@ fun HomeScreen(
         StatCard("Growth progress") {
             Text(
                 if (allLessonsComplete) {
-                    "${progress.totalXp} / $nextStageXp XP collected — Young Plant unlocked"
+                    "${progress.totalXp} / $nextStageXp XP collected — starter track complete"
                 } else {
-                    "${progress.totalXp} / $nextStageXp XP toward Young Plant"
+                    "${progress.totalXp} / $nextStageXp XP toward starter track completion"
                 }
             )
             Spacer(Modifier.size(8.dp))
             Text("Lessons completed: ${progress.completedCount}/${lessons.size} ($completionPercent%)")
-            Text(if (allLessonsComplete) "This starter’s intro journey is complete." else "Daily loop: Learn → Quiz → Care → Reward")
+            Text(if (allLessonsComplete) "Completion helps unlock the next greenhouse companion." else "Daily loop: Learn → Quiz → Care → Reward")
         }
     }
 }

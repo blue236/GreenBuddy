@@ -84,6 +84,7 @@ fun GreenBuddyAppContent(
                 lessons = lessons,
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
+                greenhouseCount = uiState.ownedStarterIds.size,
                 onPerformCareAction = onPerformCareAction,
             )
             Tab.LEARN -> LearnScreen(
@@ -93,13 +94,18 @@ fun GreenBuddyAppContent(
                 progress = uiState.lessonProgress,
                 onSubmitAnswer = onSubmitLessonAnswer,
             )
-            Tab.DEX -> DexScreen(modifier = modifier, options = uiState.starterOptions, selectedStarterId = uiState.selectedStarterId)
+            Tab.DEX -> DexScreen(
+                modifier = modifier,
+                entries = uiState.inventoryEntries,
+                onSelectStarter = onSelectStarter,
+            )
             Tab.PROFILE -> ProfileScreen(
                 modifier = modifier,
                 starter = uiState.selectedStarter,
                 lessons = lessons,
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
+                ownedPlantCount = uiState.ownedStarterIds.size,
             )
         }
     }
