@@ -89,9 +89,14 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     fun performCareAction(action: CareAction) {
         val state = uiState.value
         val updatedCareState = state.plantCareState.apply(action)
-        val updatedRewardState = state.rewardState.rewardForCareAction()
+        val wasHelpful = updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)
+        val updatedRewardState = state.rewardState.rewardForCareAction(wasHelpful)
         val tokenReward = RewardState.careTokenReward()
-        rewardFeedback.value = "${action.label} complete · +$tokenReward leaf tokens"
+        rewardFeedback.value = if (wasHelpful) {
+            "${action.label} helped · +$tokenReward leaf tokens"
+        } else {
+            "${action.label} had no helpful effect · no leaf tokens"
+        }
         viewModelScope.launch {
             repository.savePlantCareState(state.selectedStarterId, updatedCareState)
             repository.saveRewardState(updatedRewardState)
@@ -103,7 +108,15 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         if (!state.rewardState.canPurchase(item)) return
 
         val updatedRewardState = state.rewardState.purchase(item)
-        rewardFeedback.value = "Unlocked ${item.name} ${item.emoji}"
+        val spent = state.rewardState.leafTokens - updatedRewardState.leafTokens
+        val autoEquipped = updatedRewardState.equippedCosmeticId == item.id && state.rewardState.equippedCosmeticId == null
+        rewardFeedback.value = buildString {
+            append("Unlocked ${item.name} ${item.emoji} · -$spent leaf tokens")
+            append(" · ${updatedRewardState.leafTokens} left")
+            if (autoEquipped) {
+                append(" · auto-equipped")
+            }
+        }
         viewModelScope.launch {
             repository.saveRewardState(updatedRewardState)
         }

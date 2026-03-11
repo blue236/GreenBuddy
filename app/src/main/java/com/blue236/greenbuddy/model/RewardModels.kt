@@ -51,9 +51,11 @@ data class RewardState(
         leafTokens = leafTokens + lessonTokenReward(rewardXp),
     )
 
-    fun rewardForCareAction(): RewardState = copy(
-        leafTokens = leafTokens + DEFAULT_CARE_TOKEN_REWARD,
-    )
+    fun rewardForCareAction(isHelpful: Boolean): RewardState = if (isHelpful) {
+        copy(leafTokens = leafTokens + DEFAULT_CARE_TOKEN_REWARD)
+    } else {
+        this
+    }
 
     fun canPurchase(item: CosmeticItem): Boolean = item.id !in unlockedCosmeticIds && leafTokens >= item.cost
 
