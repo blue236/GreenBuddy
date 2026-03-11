@@ -7,16 +7,19 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.blue236.greenbuddy.model.AppPreferences
 import com.blue236.greenbuddy.model.DailyMissionProgress
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.ReminderState
 import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.defaultOwnedStarterIds
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class GreenBuddyPreferencesRepository(context: Context) {
@@ -50,8 +53,11 @@ class GreenBuddyPreferencesRepository(context: Context) {
             dailyMissionProgress = readDailyMissionProgress(prefs, resolvedSelectedStarterId),
             seenGrowthStageRank = prefs[seenGrowthStageRankKey(resolvedSelectedStarterId)] ?: 0,
             rewardState = readRewardState(prefs),
+            reminderState = readReminderState(prefs),
         )
     }
+
+    suspend fun currentPreferences(): AppPreferences = preferences.first()
 
     suspend fun setSelectedStarter(id: String) {
         dataStore.edit { prefs ->
@@ -141,6 +147,30 @@ class GreenBuddyPreferencesRepository(context: Context) {
         }
     }
 
+    suspend fun recordAppOpen(atMillis: Long) {
+        dataStore.edit { prefs ->
+            prefs[lastAppOpenAtKey] = atMillis
+        }
+    }
+
+    suspend fun recordLessonCompleted(atMillis: Long) {
+        dataStore.edit { prefs ->
+            prefs[lastLessonCompletedAtKey] = atMillis
+        }
+    }
+
+    suspend fun recordCareAction(atMillis: Long) {
+        dataStore.edit { prefs ->
+            prefs[lastCareActionAtKey] = atMillis
+        }
+    }
+
+    suspend fun recordNotificationSent(atMillis: Long) {
+        dataStore.edit { prefs ->
+            prefs[lastNotificationSentAtKey] = atMillis
+        }
+    }
+
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
         private const val COMPLETED_IDS_SEPARATOR = ","
@@ -151,6 +181,10 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private val globalLeafTokensKey = intPreferencesKey("leaf_tokens")
         private val unlockedCosmeticIdsKey = stringPreferencesKey("unlocked_cosmetic_ids")
         private val equippedCosmeticIdKey = stringPreferencesKey("equipped_cosmetic_id")
+        private val lastAppOpenAtKey = longPreferencesKey("last_app_open_at")
+        private val lastLessonCompletedAtKey = longPreferencesKey("last_lesson_completed_at")
+        private val lastCareActionAtKey = longPreferencesKey("last_care_action_at")
+        private val lastNotificationSentAtKey = longPreferencesKey("last_notification_sent_at")
 
         private fun currentLessonIndexKey(starterId: String) = intPreferencesKey("${starterId}_current_lesson_index")
         private fun completedLessonIdsKey(starterId: String) = stringPreferencesKey("${starterId}_completed_lesson_ids")
@@ -215,6 +249,13 @@ class GreenBuddyPreferencesRepository(context: Context) {
             equippedCosmeticId = prefs[equippedCosmeticIdKey],
         )
     }
+
+    private fun readReminderState(prefs: Preferences): ReminderState = ReminderState(
+        lastAppOpenAtMillis = prefs[lastAppOpenAtKey],
+        lastLessonCompletedAtMillis = prefs[lastLessonCompletedAtKey],
+        lastCareActionAtMillis = prefs[lastCareActionAtKey],
+        lastNotificationSentAtMillis = prefs[lastNotificationSentAtKey],
+    )
 
     private fun writeLessonProgress(prefs: MutablePreferences, starterId: String, progress: LessonProgress) {
         prefs[currentLessonIndexKey(starterId)] = progress.currentLessonIndex

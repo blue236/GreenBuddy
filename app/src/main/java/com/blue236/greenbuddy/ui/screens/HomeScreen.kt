@@ -345,10 +345,22 @@ fun HomeScreen(
             Text("${plant.name} feels ${careState.mood.lowercase()} and is currently ${careState.health.lowercase()}.")
         }
 
+        StatCard("Reminder loop") {
+            Text("GreenBuddy now uses gentle local reminders for lesson-ready moments, care dips, and routine check-ins.")
+            Text("You should only hear from it when you have been away for a while or your plant actually needs attention.")
+        }
+
         StatCard("Reward loop") {
             Text("Leaf tokens: ${rewardState.leafTokens}")
             Text("Unlocked cosmetics: ${rewardState.unlockedCosmeticIds.size}/${RewardCatalog.cosmetics.size}")
             Spacer(Modifier.size(8.dp))
+            Text(
+                nextShopUnlock?.let { "Next shop item: ${it.name} ${it.emoji} · ${it.cost} tokens" }
+                    ?: "Shop cleared — every cosmetic is unlocked.",
+            )
+            Text("Lessons, care wins, and daily missions now feed the same wallet.")
+        }
+
             Text(
                 nextShopUnlock?.let { "Next shop item: ${it.name} ${it.emoji} · ${it.cost} tokens" }
                     ?: "Shop cleared — every cosmetic is unlocked.",

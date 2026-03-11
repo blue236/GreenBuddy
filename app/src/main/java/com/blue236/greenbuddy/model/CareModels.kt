@@ -16,6 +16,14 @@ data class PlantCareState(
 ) {
     val totalScore: Int = hydration + sunlight + nutrition
     val averageScore: Int = totalScore / 3
+    val lowestStat: Int = minOf(hydration, sunlight, nutrition)
+
+    val lowestNeed: CareAction
+        get() = when (lowestStat) {
+            hydration -> CareAction.WATER
+            sunlight -> CareAction.MOVE_TO_SUNLIGHT
+            else -> CareAction.FERTILIZE
+        }
 
     val health: String
         get() = when {

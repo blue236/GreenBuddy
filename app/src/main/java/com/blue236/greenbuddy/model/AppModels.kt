@@ -9,6 +9,7 @@ data class AppPreferences(
     val dailyMissionProgress: DailyMissionProgress = DailyMissionProgress(),
     val seenGrowthStageRank: Int = 0,
     val rewardState: RewardState = RewardState(),
+    val reminderState: ReminderState = ReminderState(),
 ) {
     val selectedStarter: StarterPlantOption
         get() = StarterPlants.options.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }

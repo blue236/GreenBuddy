@@ -25,6 +25,7 @@ import com.blue236.greenbuddy.model.recordCareAction
 import com.blue236.greenbuddy.model.recordLessonCompletion
 import com.blue236.greenbuddy.model.resolveForToday
 import com.blue236.greenbuddy.model.resolveGrowthStageState
+import com.blue236.greenbuddy.notifications.ReminderScheduler
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,6 +40,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val rewardFeedback = MutableStateFlow<String?>(null)
 
     init {
+        ReminderScheduler.schedule(application)
         viewModelScope.launch {
             repository.preferences.collect { preferences ->
                 val normalizedMissionProgress = preferences.dailyMissionProgress.normalizedFor(LocalDate.now())
@@ -92,6 +94,12 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         initialValue = GreenBuddyUiState(),
     )
 
+    fun onAppVisible() {
+        viewModelScope.launch {
+            repository.recordAppOpen(System.currentTimeMillis())
+        }
+    }
+
     fun selectTab(tab: Tab) {
         selectedTab.value = tab
     }
@@ -105,6 +113,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     fun completeOnboarding() {
         viewModelScope.launch {
             repository.completeOnboarding(uiState.value.selectedStarterId)
+            repository.recordAppOpen(System.currentTimeMillis())
         }
     }
 
@@ -136,12 +145,15 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         }
 
         viewModelScope.launch {
+            val now = System.currentTimeMillis()
             repository.saveLessonAndMissionProgress(
                 starterId = state.selectedStarterId,
                 lessonProgress = updatedLessonProgress,
                 missionProgress = rewardOutcome.progress,
             )
             repository.saveRewardState(rewardOutcome.rewardState)
+            repository.recordLessonCompleted(now)
+            repository.recordAppOpen(now)
             if (shouldUnlockNextPlant) {
                 nextUnlockableStarterId(state.ownedStarterIds)?.let { repository.unlockStarter(it) }
             }
@@ -163,24 +175,21 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             today = today,
         )
         rewardFeedback.value = buildString {
-            append(
-                if (wasHelpful) {
-                    "${action.label} helped · +$careReward leaf tokens"
-                } else {
-                    "${action.label} had no helpful effect · no leaf tokens"
-                },
-            )
+            append(if (wasHelpful) "${action.label} helped · +$careReward leaf tokens" else "${action.label} had no helpful effect · no leaf tokens")
             if (rewardOutcome.dailyAwarded) append(" · daily missions cleared +${rewardOutcome.dailyRewardTokensAwarded}")
             if (rewardOutcome.streakAwarded) append(" · streak bonus +${rewardOutcome.streakRewardTokensAwarded}")
         }
 
         viewModelScope.launch {
+            val now = System.currentTimeMillis()
             repository.saveCareStateAndMissionProgress(
                 starterId = state.selectedStarterId,
                 careState = updatedCareState,
                 missionProgress = rewardOutcome.progress,
             )
             repository.saveRewardState(rewardOutcome.rewardState)
+            repository.recordCareAction(now)
+            repository.recordAppOpen(now)
         }
     }
 
@@ -194,9 +203,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         rewardFeedback.value = buildString {
             append("Unlocked ${item.name} ${item.emoji} · -$spent leaf tokens")
             append(" · ${updatedRewardState.leafTokens} left")
-            if (autoEquipped) {
-                append(" · auto-equipped")
-            }
+            if (autoEquipped) append(" · auto-equipped")
         }
         viewModelScope.launch {
             repository.saveRewardState(updatedRewardState)
