@@ -24,15 +24,22 @@ import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.model.StarterPlantOption
 
 @Composable
-fun StatCard(title: String, content: @Composable () -> Unit) {
-    Card {
+fun StatCard(
+    title: String,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    content: @Composable () -> Unit,
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        shape = RoundedCornerShape(20.dp),
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             content()
         }
     }
@@ -42,7 +49,7 @@ fun StatCard(title: String, content: @Composable () -> Unit) {
 fun CareStatRow(label: String, value: Int) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label)
-        Text("$value%")
+        Text("$value%", fontWeight = FontWeight.SemiBold)
     }
 }
 

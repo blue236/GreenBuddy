@@ -273,7 +273,10 @@ fun HomeScreen(
             }
         }
 
-        StatCard("Care actions") {
+        StatCard(
+            title = "Care actions",
+            containerColor = Color(0xFFE7F4EA),
+        ) {
             Text("Quick actions change live care stats and can unlock the next evolution when thresholds are met.")
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -298,7 +301,10 @@ fun HomeScreen(
             )
         }
 
-        StatCard(title = "Care status") {
+        StatCard(
+            title = "Care status",
+            containerColor = Color(0xFFFFFFFF),
+        ) {
             CareStatRow("Hydration", careState.hydration)
             CareStatRow("Sunlight", careState.sunlight)
             CareStatRow("Nutrition", careState.nutrition)
@@ -306,7 +312,10 @@ fun HomeScreen(
             Text("${plant.name} feels ${careState.mood.lowercase()} and is currently ${careState.health.lowercase()}.")
         }
 
-        StatCard(title = "Growth progress") {
+        StatCard(
+            title = "Growth progress",
+            containerColor = Color(0xFFF4F1FF),
+        ) {
             Text(
                 if (growthStageState.nextStage == null) {
                     "${progress.totalXp} XP collected — ${growthStageState.currentStage.title} unlocked"
