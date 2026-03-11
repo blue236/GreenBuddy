@@ -1,6 +1,7 @@
 package com.blue236.greenbuddy.data
 
 import android.content.Context
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
@@ -27,9 +28,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class GreenBuddyPreferencesRepository(context: Context) {
-    private val dataStore = PreferenceDataStoreFactory.create(
-        produceFile = { context.preferencesDataStoreFile(DATASTORE_NAME) },
-    )
+    private val dataStore = getDataStore(context.applicationContext)
 
     val preferences: Flow<AppPreferences> = dataStore.data.map { prefs ->
         val storedSelectedStarterId = prefs[SelectedStarterIdKey] ?: StarterPlants.options.first().id
@@ -70,6 +69,16 @@ class GreenBuddyPreferencesRepository(context: Context) {
 
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
+
+        @Volatile
+        private var sharedDataStore: DataStore<Preferences>? = null
+
+        private fun getDataStore(context: Context): DataStore<Preferences> =
+            sharedDataStore ?: synchronized(this) {
+                sharedDataStore ?: PreferenceDataStoreFactory.create(
+                    produceFile = { context.preferencesDataStoreFile(DATASTORE_NAME) },
+                ).also { sharedDataStore = it }
+            }
         private const val COMPLETED_IDS_SEPARATOR = ","
         private const val LOG_ENTRY_SEPARATOR = ";"
         private const val LOG_FIELD_SEPARATOR = "|"
