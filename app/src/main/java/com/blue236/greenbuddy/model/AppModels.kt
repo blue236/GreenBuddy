@@ -11,6 +11,7 @@ data class AppPreferences(
     val rewardState: RewardState = RewardState(),
     val reminderState: ReminderState = ReminderState(),
     val realPlantModeStateByStarterId: Map<String, RealPlantModeState> = emptyMap(),
+    val appLanguage: AppLanguage = AppLanguage.SYSTEM,
 ) {
     val selectedStarter: StarterPlantOption
         get() = StarterPlants.options.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }
@@ -45,6 +46,7 @@ data class GreenBuddyUiState(
     val rewardState: RewardState = RewardState(),
     val rewardFeedback: String? = null,
     val realPlantModeState: RealPlantModeState = RealPlantModeState(),
+    val appLanguage: AppLanguage = AppLanguage.SYSTEM,
 ) {
     val selectedStarter: StarterPlantOption
         get() = starterOptions.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }

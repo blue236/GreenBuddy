@@ -18,6 +18,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.os.LocaleListCompat
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -30,6 +32,7 @@ import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.StarterPlants
+import com.blue236.greenbuddy.model.AppLanguage
 import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.ui.screens.DexScreen
@@ -52,16 +55,20 @@ fun GreenBuddyApp(initialTab: Tab = Tab.HOME, viewModel: GreenBuddyViewModel = v
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-    GreenBuddyAppContent(uiState, viewModel::selectTab, viewModel::selectStarter, viewModel::completeOnboarding, viewModel::submitCurrentLessonAnswer, viewModel::performCareAction, viewModel::acknowledgeGrowthStage, viewModel::purchaseCosmetic, viewModel::equipCosmetic, viewModel::setRealPlantModeEnabled, viewModel::logRealPlantCare)
+    GreenBuddyAppContent(uiState, viewModel::selectTab, viewModel::selectStarter, viewModel::completeOnboarding, viewModel::submitCurrentLessonAnswer, viewModel::performCareAction, viewModel::acknowledgeGrowthStage, viewModel::purchaseCosmetic, viewModel::equipCosmetic, viewModel::setRealPlantModeEnabled, viewModel::logRealPlantCare, viewModel::setAppLanguage)
 }
 
 @Composable
-fun GreenBuddyAppContent(uiState: GreenBuddyUiState, onSelectTab: (Tab) -> Unit, onSelectStarter: (String) -> Unit, onContinueOnboarding: () -> Unit, onSubmitLessonAnswer: (Int) -> Boolean, onPerformCareAction: (CareAction) -> Unit, onAcknowledgeGrowthStage: () -> Unit, onPurchaseCosmetic: (CosmeticItem) -> Unit, onEquipCosmetic: (String) -> Unit, onSetRealPlantModeEnabled: (Boolean) -> Unit, onLogRealPlantCare: (RealPlantCareAction) -> Unit) {
+fun GreenBuddyAppContent(uiState: GreenBuddyUiState, onSelectTab: (Tab) -> Unit, onSelectStarter: (String) -> Unit, onContinueOnboarding: () -> Unit, onSubmitLessonAnswer: (Int) -> Boolean, onPerformCareAction: (CareAction) -> Unit, onAcknowledgeGrowthStage: () -> Unit, onPurchaseCosmetic: (CosmeticItem) -> Unit, onEquipCosmetic: (String) -> Unit, onSetRealPlantModeEnabled: (Boolean) -> Unit, onLogRealPlantCare: (RealPlantCareAction) -> Unit, onSetAppLanguage: (AppLanguage) -> Unit) {
+    LaunchedEffect(uiState.appLanguage) {
+        val locales = uiState.appLanguage.languageTag?.let(LocaleListCompat::forLanguageTags) ?: LocaleListCompat.getEmptyLocaleList()
+        AppCompatDelegate.setApplicationLocales(locales)
+    }
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species, localeTag)
     val currentLesson = uiState.lessonProgress.currentLessonOrNull(lessons)
     if (!uiState.onboardingComplete) {
-        OnboardingScreen(uiState.starterOptions, uiState.selectedStarterId, currentLesson?.title ?: "Starter setup", onSelectStarter, onContinueOnboarding)
+        OnboardingScreen(uiState.starterOptions, uiState.selectedStarterId, currentLesson?.title ?: stringResource(R.string.starter_setup), onSelectStarter, onContinueOnboarding)
         return
     }
     Scaffold(bottomBar = {
@@ -76,14 +83,14 @@ fun GreenBuddyAppContent(uiState: GreenBuddyUiState, onSelectTab: (Tab) -> Unit,
             Tab.HOME -> HomeScreen(modifier, uiState.selectedStarter, lessons, uiState.lessonProgress, uiState.plantCareState, uiState.dailyMissionSet, uiState.growthStageState, uiState.ownedStarterIds.size, uiState.rewardState, uiState.rewardFeedback, uiState.realPlantModeState, onPerformCareAction, onAcknowledgeGrowthStage, onSetRealPlantModeEnabled, onLogRealPlantCare)
             Tab.LEARN -> LearnScreen(modifier, uiState.selectedStarter, lessons, uiState.lessonProgress, uiState.plantCareState, onSubmitLessonAnswer)
             Tab.DEX -> DexScreen(modifier, uiState.inventoryEntries, uiState.ownedStarterIds, onSelectStarter)
-            Tab.PROFILE -> ProfileScreen(modifier, uiState.selectedStarter, lessons, uiState.lessonProgress, uiState.plantCareState, uiState.dailyMissionSet, uiState.growthStageState, uiState.ownedStarterIds.size, uiState.rewardState, uiState.realPlantModeState, onAcknowledgeGrowthStage, onPurchaseCosmetic, onEquipCosmetic)
+            Tab.PROFILE -> ProfileScreen(modifier, uiState.selectedStarter, uiState.lessonProgress, uiState.dailyMissionSet, uiState.growthStageState, uiState.ownedStarterIds.size, uiState.rewardState, uiState.realPlantModeState, uiState.appLanguage, onAcknowledgeGrowthStage, onPurchaseCosmetic, onEquipCosmetic, onSetAppLanguage)
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun GreenBuddyAppPreview() { GreenBuddyTheme { GreenBuddyAppContent(GreenBuddyUiState(onboardingComplete = true, starterOptions = StarterPlants.options), {}, {}, {}, { false }, {}, {}, {}, {}, {}, {}) } }
+private fun GreenBuddyAppPreview() { GreenBuddyTheme { GreenBuddyAppContent(GreenBuddyUiState(onboardingComplete = true, starterOptions = StarterPlants.options), {}, {}, {}, { false }, {}, {}, {}, {}, {}, {}, {}) } }
 
 private val Tab.labelRes: Int
     get() = when (this) {

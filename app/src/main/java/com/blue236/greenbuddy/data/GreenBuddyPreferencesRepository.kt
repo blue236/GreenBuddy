@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.blue236.greenbuddy.model.AppLanguage
 import com.blue236.greenbuddy.model.AppPreferences
 import com.blue236.greenbuddy.model.DailyMissionProgress
 import com.blue236.greenbuddy.model.LessonProgress
@@ -46,6 +47,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
             rewardState = readRewardState(prefs),
             reminderState = readReminderState(prefs),
             realPlantModeStateByStarterId = StarterPlants.options.associate { it.id to readRealPlantModeState(prefs, it.id) },
+            appLanguage = AppLanguage.fromStorageValue(prefs[appLanguageKey]),
         )
     }
 
@@ -64,6 +66,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
     suspend fun recordNotificationSent(atMillis: Long) { dataStore.edit { it[lastNotificationSentAtKey] = atMillis } }
     suspend fun saveRealPlantModeState(starterId: String, realPlantModeState: RealPlantModeState) { dataStore.edit { it[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled; it[realPlantLogKey(starterId)] = encodeRealPlantEntries(realPlantModeState.entries) } }
     suspend fun saveRealPlantModeAndPlantCareState(starterId: String, realPlantModeState: RealPlantModeState, careState: PlantCareState) { dataStore.edit { prefs -> prefs[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled; prefs[realPlantLogKey(starterId)] = encodeRealPlantEntries(realPlantModeState.entries); writePlantCareState(prefs, starterId, careState) } }
+    suspend fun saveAppLanguage(appLanguage: AppLanguage) { dataStore.edit { it[appLanguageKey] = appLanguage.storageValue } }
 
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
@@ -80,6 +83,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private val lastLessonCompletedAtKey = longPreferencesKey("last_lesson_completed_at")
         private val lastCareActionAtKey = longPreferencesKey("last_care_action_at")
         private val lastNotificationSentAtKey = longPreferencesKey("last_notification_sent_at")
+        private val appLanguageKey = stringPreferencesKey("app_language")
         private fun currentLessonIndexKey(starterId: String) = intPreferencesKey("${starterId}_current_lesson_index")
         private fun completedLessonIdsKey(starterId: String) = stringPreferencesKey("${starterId}_completed_lesson_ids")
         private fun totalXpKey(starterId: String) = intPreferencesKey("${starterId}_total_xp")

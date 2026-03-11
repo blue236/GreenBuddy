@@ -20,4 +20,12 @@ class LocalizationTest {
         assertNotEquals(english, german)
         assertNotEquals(english, korean)
     }
+
+    @Test
+    fun appLanguage_storageRoundTripAndEffectiveTagWork() {
+        assertEquals(AppLanguage.GERMAN, AppLanguage.fromStorageValue("de"))
+        assertEquals(AppLanguage.SYSTEM, AppLanguage.fromStorageValue(null))
+        assertEquals("ko", AppLanguage.SYSTEM.effectiveLanguageTag("ko-KR"))
+        assertEquals("en", AppLanguage.ENGLISH.effectiveLanguageTag("de-DE"))
+    }
 }

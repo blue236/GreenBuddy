@@ -37,6 +37,7 @@ import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
+import com.blue236.greenbuddy.model.localizedGrowthTitle
 import com.blue236.greenbuddy.model.localizedLabel
 import com.blue236.greenbuddy.ui.components.StatCard
 import java.time.LocalDate
@@ -53,7 +54,7 @@ fun HomeScreen(modifier: Modifier = Modifier, starter: StarterPlantOption, lesso
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
-        if (growthStageState.newlyUnlocked) Card { Column(Modifier.padding(16.dp)) { Text(stringResource(R.string.new_evolution_unlocked, growthStageState.currentStage.title)); Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.nice)) } } }
+        if (growthStageState.newlyUnlocked) Card { Column(Modifier.padding(16.dp)) { Text(stringResource(R.string.new_evolution_unlocked, growthStageState.currentStage.localizedGrowthTitle(localeTag))); Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.nice)) } } }
         StatCard(stringResource(R.string.companion)) { Text(dialogue.headline); Text(dialogue.line); Text(stringResource(R.string.wallet_value, rewardState.leafTokens)) }
         rewardFeedback?.let { StatCard(stringResource(R.string.reward_pulse)) { Text(it) } }
         dailyMissionSet?.let { StatCard(stringResource(R.string.daily_missions)) { Text(stringResource(R.string.completed_of_total, it.completedCount, it.totalCount)); Text(stringResource(R.string.streak_value, it.currentStreak)) } }
