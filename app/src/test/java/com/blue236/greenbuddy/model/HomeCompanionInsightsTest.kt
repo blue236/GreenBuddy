@@ -6,10 +6,10 @@ import org.junit.Test
 
 class HomeCompanionInsightsTest {
     private val lessons = listOf(
-        Lesson("l1", "Light basics", "", "", "", listOf("A"), 0, 10),
-        Lesson("l2", "Watering rhythm", "", "", "", listOf("A"), 0, 10),
-        Lesson("l3", "Feeding time", "", "", "", listOf("A"), 0, 10),
-        Lesson("l4", "Growth signals", "", "", "", listOf("A"), 0, 10),
+        lesson("l1", "Light basics"),
+        lesson("l2", "Watering rhythm"),
+        lesson("l3", "Feeding time"),
+        lesson("l4", "Growth signals"),
     )
 
     @Test
@@ -35,4 +35,20 @@ class HomeCompanionInsightsTest {
         assertTrue(feedback.title.contains("needs a drink"))
         assertEquals("Water now", feedback.focusLabel)
     }
+
+    private fun lesson(id: String, title: String) = Lesson(
+        id = id,
+        title = title,
+        summary = "",
+        concept = "",
+        keyTakeaway = "",
+        quiz = LessonQuiz(
+            type = QuizType.MULTIPLE_CHOICE,
+            prompt = "Prompt",
+            options = listOf("A"),
+            correctAnswerIndex = 0,
+        ),
+        rewardXp = 10,
+        rewardLabel = "+10 XP",
+    )
 }

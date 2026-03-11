@@ -13,6 +13,7 @@ import com.blue236.greenbuddy.model.AppPreferences
 import com.blue236.greenbuddy.model.DailyMissionProgress
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.defaultOwnedStarterIds
 import kotlinx.coroutines.flow.Flow
@@ -48,6 +49,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
             },
             dailyMissionProgress = readDailyMissionProgress(prefs, resolvedSelectedStarterId),
             seenGrowthStageRank = prefs[seenGrowthStageRankKey(resolvedSelectedStarterId)] ?: 0,
+            rewardState = readRewardState(prefs),
         )
     }
 
@@ -131,6 +133,14 @@ class GreenBuddyPreferencesRepository(context: Context) {
         }
     }
 
+    suspend fun saveRewardState(rewardState: RewardState) {
+        dataStore.edit { prefs ->
+            prefs[globalLeafTokensKey] = rewardState.leafTokens
+            prefs[unlockedCosmeticIdsKey] = rewardState.unlockedCosmeticIds.joinToString(COMPLETED_IDS_SEPARATOR)
+            rewardState.equippedCosmeticId?.let { prefs[equippedCosmeticIdKey] = it } ?: prefs.remove(equippedCosmeticIdKey)
+        }
+    }
+
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
         private const val COMPLETED_IDS_SEPARATOR = ","
@@ -138,6 +148,9 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private val OnboardingCompleteKey = booleanPreferencesKey("onboarding_complete")
         private val SelectedStarterIdKey = stringPreferencesKey("selected_starter_id")
         private val OwnedStarterIdsKey = stringPreferencesKey("owned_starter_ids")
+        private val globalLeafTokensKey = intPreferencesKey("leaf_tokens")
+        private val unlockedCosmeticIdsKey = stringPreferencesKey("unlocked_cosmetic_ids")
+        private val equippedCosmeticIdKey = stringPreferencesKey("equipped_cosmetic_id")
 
         private fun currentLessonIndexKey(starterId: String) = intPreferencesKey("${starterId}_current_lesson_index")
         private fun completedLessonIdsKey(starterId: String) = stringPreferencesKey("${starterId}_completed_lesson_ids")
@@ -152,7 +165,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private fun currentStreakKey(starterId: String) = intPreferencesKey("${starterId}_current_streak")
         private fun longestStreakKey(starterId: String) = intPreferencesKey("${starterId}_longest_streak")
         private fun lastCompletedDateKey(starterId: String) = stringPreferencesKey("${starterId}_last_completed_date")
-        private fun leafTokensKey(starterId: String) = intPreferencesKey("${starterId}_leaf_tokens")
+        private fun legacyLeafTokensKey(starterId: String) = intPreferencesKey("${starterId}_leaf_tokens")
         private fun streakRewardClaimedForStreakKey(starterId: String) = intPreferencesKey("${starterId}_streak_reward_claimed_for_streak")
         private fun seenGrowthStageRankKey(starterId: String) = intPreferencesKey("${starterId}_seen_growth_stage_rank")
     }
@@ -185,9 +198,23 @@ class GreenBuddyPreferencesRepository(context: Context) {
         currentStreak = prefs[currentStreakKey(starterId)] ?: 0,
         longestStreak = prefs[longestStreakKey(starterId)] ?: 0,
         lastCompletedDate = prefs[lastCompletedDateKey(starterId)],
-        leafTokens = prefs[leafTokensKey(starterId)] ?: 0,
         streakRewardClaimedForStreak = prefs[streakRewardClaimedForStreakKey(starterId)],
     )
+
+    private fun readRewardState(prefs: Preferences): RewardState {
+        val migratedLegacyTokens = StarterPlants.options.sumOf { option ->
+            prefs[legacyLeafTokensKey(option.id)] ?: 0
+        }
+        return RewardState(
+            leafTokens = (prefs[globalLeafTokensKey] ?: 0) + migratedLegacyTokens,
+            unlockedCosmeticIds = prefs[unlockedCosmeticIdsKey]
+                ?.split(COMPLETED_IDS_SEPARATOR)
+                ?.filter { it.isNotBlank() }
+                ?.toSet()
+                ?: emptySet(),
+            equippedCosmeticId = prefs[equippedCosmeticIdKey],
+        )
+    }
 
     private fun writeLessonProgress(prefs: MutablePreferences, starterId: String, progress: LessonProgress) {
         prefs[currentLessonIndexKey(starterId)] = progress.currentLessonIndex
@@ -209,7 +236,6 @@ class GreenBuddyPreferencesRepository(context: Context) {
         prefs[currentStreakKey(starterId)] = progress.currentStreak
         prefs[longestStreakKey(starterId)] = progress.longestStreak
         progress.lastCompletedDate?.let { prefs[lastCompletedDateKey(starterId)] = it } ?: prefs.remove(lastCompletedDateKey(starterId))
-        prefs[leafTokensKey(starterId)] = progress.leafTokens
         progress.streakRewardClaimedForStreak?.let { prefs[streakRewardClaimedForStreakKey(starterId)] = it } ?: prefs.remove(streakRewardClaimedForStreakKey(starterId))
     }
 }

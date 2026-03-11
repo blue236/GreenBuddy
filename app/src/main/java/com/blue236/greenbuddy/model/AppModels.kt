@@ -8,6 +8,7 @@ data class AppPreferences(
     val plantCareStateByStarterId: Map<String, PlantCareState> = emptyMap(),
     val dailyMissionProgress: DailyMissionProgress = DailyMissionProgress(),
     val seenGrowthStageRank: Int = 0,
+    val rewardState: RewardState = RewardState(),
 ) {
     val selectedStarter: StarterPlantOption
         get() = StarterPlants.options.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }
@@ -36,6 +37,8 @@ data class GreenBuddyUiState(
         progress = LessonProgress(),
         careState = PlantCareState.from(StarterPlants.options.first().companion),
     ),
+    val rewardState: RewardState = RewardState(),
+    val rewardFeedback: String? = null,
 ) {
     val selectedStarter: StarterPlantOption
         get() = starterOptions.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }

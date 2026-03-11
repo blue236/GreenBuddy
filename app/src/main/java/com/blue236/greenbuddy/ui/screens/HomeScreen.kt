@@ -36,6 +36,8 @@ import com.blue236.greenbuddy.model.GrowthStageState
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.RewardCatalog
+import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.companionFeedback
 import com.blue236.greenbuddy.model.currentLessonOrNull
@@ -56,6 +58,8 @@ fun HomeScreen(
     dailyMissionSet: DailyMissionSet? = null,
     growthStageState: GrowthStageState,
     greenhouseCount: Int,
+    rewardState: RewardState,
+    rewardFeedback: String?,
     onPerformCareAction: (CareAction) -> Unit,
     onAcknowledgeGrowthStage: () -> Unit,
 ) {
@@ -70,6 +74,8 @@ fun HomeScreen(
         progress = progress,
         lessons = lessons,
     )
+    val equippedCosmetic = rewardState.equippedCosmetic
+    val nextShopUnlock = RewardCatalog.cosmetics.firstOrNull { it.id !in rewardState.unlockedCosmeticIds }
 
     Column(
         modifier = modifier
@@ -138,6 +144,12 @@ fun HomeScreen(
                             color = Color(0xFFB8F2C5),
                             fontWeight = FontWeight.SemiBold,
                         )
+                        equippedCosmetic?.let {
+                            Text(
+                                "Equipped: ${it.name} ${it.emoji}",
+                                color = Color(0xFFD7F3DE),
+                            )
+                        }
                     }
                     Box(
                         modifier = Modifier
@@ -146,7 +158,16 @@ fun HomeScreen(
                             .border(2.dp, Color(0xFFE8FFF0), RoundedCornerShape(28.dp)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(growthStageState.currentStage.emoji, style = MaterialTheme.typography.displayMedium)
+                        Text(
+                            buildString {
+                                append(growthStageState.currentStage.emoji)
+                                equippedCosmetic?.let {
+                                    append(" ")
+                                    append(it.emoji)
+                                }
+                            },
+                            style = MaterialTheme.typography.displayMedium,
+                        )
                     }
                 }
 
@@ -154,7 +175,7 @@ fun HomeScreen(
                     HeroPill(label = "Mood", value = careState.mood)
                     HeroPill(label = "Lessons", value = "${progress.completedCount}/${lessons.size}")
                     HeroPill(label = "XP", value = progress.totalXp.toString())
-                    HeroPill(label = "Leafs", value = (dailyMissionSet?.leafTokens ?: 0).toString())
+                    HeroPill(label = "Leafs", value = rewardState.leafTokens.toString())
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -174,6 +195,16 @@ fun HomeScreen(
                         trackColor = Color(0xFF2F7448),
                     )
                     Text(growthStageState.milestoneText(), color = Color(0xFFD7F3DE))
+                }
+            }
+        }
+
+        if (rewardFeedback != null) {
+            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1))) {
+                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Reward pulse", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(rewardFeedback)
+                    Text("Wallet: ${rewardState.leafTokens} leaf tokens", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -211,7 +242,7 @@ fun HomeScreen(
                                 "All set today. Daily reward claimed: +${missions.dailyRewardTokens} leaf tokens."
                             }
                         } else {
-                            "Finish all ${missions.totalCount} missions for +${missions.dailyRewardTokens} leaf tokens. Every ${com.blue236.greenbuddy.model.DailyMissionSet.STREAK_REWARD_EVERY_DAYS} days adds +${missions.streakRewardTokens}."
+                            "Finish all ${missions.totalCount} missions for +${missions.dailyRewardTokens} leaf tokens. Every ${DailyMissionSet.STREAK_REWARD_EVERY_DAYS} days adds +${missions.streakRewardTokens}."
                         },
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -270,6 +301,7 @@ fun HomeScreen(
                     Text(currentLesson?.title.orEmpty(), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                     Text(currentLesson?.summary.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("Starter tip: ${plant.careTip}", color = Color(0xFF1F5A36), fontWeight = FontWeight.Medium)
+                    Text("Lesson reward: +${RewardState.lessonTokenReward(currentLesson?.rewardXp ?: 0)} leaf tokens", color = Color(0xFF1F5A36))
                 }
             }
         }
@@ -278,7 +310,7 @@ fun HomeScreen(
             title = "Care actions",
             containerColor = Color(0xFFE7F4EA),
         ) {
-            Text("Quick actions change your plant’s live care stats, count toward missions, and persist per plant in your greenhouse.")
+            Text("Quick actions change your plant’s live care stats, count toward missions, persist per plant, and award ${RewardState.careTokenReward()} leaf tokens when they help.")
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -313,6 +345,17 @@ fun HomeScreen(
             Text("${plant.name} feels ${careState.mood.lowercase()} and is currently ${careState.health.lowercase()}.")
         }
 
+        StatCard("Reward loop") {
+            Text("Leaf tokens: ${rewardState.leafTokens}")
+            Text("Unlocked cosmetics: ${rewardState.unlockedCosmeticIds.size}/${RewardCatalog.cosmetics.size}")
+            Spacer(Modifier.size(8.dp))
+            Text(
+                nextShopUnlock?.let { "Next shop item: ${it.name} ${it.emoji} · ${it.cost} tokens" }
+                    ?: "Shop cleared — every cosmetic is unlocked.",
+            )
+            Text("Lessons, care wins, and daily missions now feed the same wallet.")
+        }
+
         StatCard(
             title = "Growth progress",
             containerColor = Color(0xFFF4F1FF),
@@ -327,7 +370,7 @@ fun HomeScreen(
             Spacer(Modifier.height(4.dp))
             Text("Lessons completed: ${progress.completedCount}/${lessons.size} ($completionPercent%)")
             Text("Current stage: ${growthStageState.currentStage.title}")
-            Text(if (allLessonsComplete) "Lesson track complete. Care now decides whether you can evolve further." else "Daily loop: Learn → Quiz → Care → Grow")
+            Text(if (allLessonsComplete) "Lesson track complete. Care now decides whether you can evolve further." else "Daily loop: Learn → Quiz → Care → Reward → Shop")
         }
     }
 }

@@ -27,7 +27,6 @@ data class DailyMissionSet(
     val missions: List<DailyMission>,
     val currentStreak: Int,
     val longestStreak: Int,
-    val leafTokens: Int,
     val allCompletedToday: Boolean,
     val dailyRewardClaimed: Boolean,
     val streakRewardClaimedForStreak: Int?,
@@ -54,7 +53,6 @@ data class DailyMissionProgress(
     val currentStreak: Int = 0,
     val longestStreak: Int = 0,
     val lastCompletedDate: String? = null,
-    val leafTokens: Int = 0,
     val streakRewardClaimedForStreak: Int? = null,
 )
 
@@ -111,7 +109,6 @@ fun DailyMissionProgress.resolveForToday(
         ),
         currentStreak = normalized.currentStreak,
         longestStreak = normalized.longestStreak,
-        leafTokens = normalized.leafTokens,
         allCompletedToday = allCompletedToday,
         dailyRewardClaimed = normalized.claimedDailyRewardDate == today.toString(),
         streakRewardClaimedForStreak = normalized.streakRewardClaimedForStreak,
@@ -171,7 +168,6 @@ fun DailyMissionProgress.completeDailyMissions(today: LocalDate): DailyMissionPr
         currentStreak = newStreak,
         longestStreak = maxOf(normalized.longestStreak, newStreak),
         lastCompletedDate = todayString,
-        leafTokens = normalized.leafTokens + DailyMissionSet.DAILY_REWARD_TOKENS,
     )
 }
 
@@ -180,10 +176,7 @@ fun DailyMissionProgress.claimStreakRewardIfEligible(today: LocalDate): DailyMis
     val streak = normalized.currentStreak
     if (streak == 0 || streak % DailyMissionSet.STREAK_REWARD_EVERY_DAYS != 0) return normalized
     if (normalized.streakRewardClaimedForStreak == streak) return normalized
-    return normalized.copy(
-        leafTokens = normalized.leafTokens + DailyMissionSet.STREAK_REWARD_TOKENS,
-        streakRewardClaimedForStreak = streak,
-    )
+    return normalized.copy(streakRewardClaimedForStreak = streak)
 }
 
 private fun thresholdConfigFor(date: LocalDate): ThresholdConfig {

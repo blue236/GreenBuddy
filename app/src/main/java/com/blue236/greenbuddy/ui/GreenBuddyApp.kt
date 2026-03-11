@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.blue236.greenbuddy.model.CareAction
+import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.StarterPlants
@@ -37,6 +38,8 @@ fun GreenBuddyApp(viewModel: GreenBuddyViewModel = viewModel()) {
         onSubmitLessonAnswer = viewModel::submitCurrentLessonAnswer,
         onPerformCareAction = viewModel::performCareAction,
         onAcknowledgeGrowthStage = viewModel::acknowledgeGrowthStage,
+        onPurchaseCosmetic = viewModel::purchaseCosmetic,
+        onEquipCosmetic = viewModel::equipCosmetic,
     )
 }
 
@@ -49,6 +52,8 @@ fun GreenBuddyAppContent(
     onSubmitLessonAnswer: (Int) -> Boolean,
     onPerformCareAction: (CareAction) -> Unit,
     onAcknowledgeGrowthStage: () -> Unit,
+    onPurchaseCosmetic: (CosmeticItem) -> Unit,
+    onEquipCosmetic: (String) -> Unit,
 ) {
     val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species)
     val currentLesson = uiState.lessonProgress.currentLessonOrNull(lessons)
@@ -89,6 +94,8 @@ fun GreenBuddyAppContent(
                 dailyMissionSet = uiState.dailyMissionSet,
                 growthStageState = uiState.growthStageState,
                 greenhouseCount = uiState.ownedStarterIds.size,
+                rewardState = uiState.rewardState,
+                rewardFeedback = uiState.rewardFeedback,
                 onPerformCareAction = onPerformCareAction,
                 onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
             )
@@ -113,7 +120,10 @@ fun GreenBuddyAppContent(
                 dailyMissionSet = uiState.dailyMissionSet,
                 growthStageState = uiState.growthStageState,
                 ownedPlantCount = uiState.ownedStarterIds.size,
+                rewardState = uiState.rewardState,
                 onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
+                onPurchaseCosmetic = onPurchaseCosmetic,
+                onEquipCosmetic = onEquipCosmetic,
             )
         }
     }
@@ -134,6 +144,8 @@ private fun GreenBuddyAppPreview() {
             onSubmitLessonAnswer = { false },
             onPerformCareAction = {},
             onAcknowledgeGrowthStage = {},
+            onPurchaseCosmetic = {},
+            onEquipCosmetic = {},
         )
     }
 }

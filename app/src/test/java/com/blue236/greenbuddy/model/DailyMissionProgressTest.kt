@@ -30,7 +30,7 @@ class DailyMissionProgressTest {
     }
 
     @Test
-    fun completeDailyMissions_awardsDailyAndStreakRewardOnlyOnce() {
+    fun completeDailyMissions_updatesStreakAndClaimsOnlyOnce() {
         val base = DailyMissionProgress(
             missionDate = today.toString(),
             currentStreak = 2,
@@ -42,9 +42,9 @@ class DailyMissionProgressTest {
         val rewardedAgain = rewarded.completeDailyMissions(today).claimStreakRewardIfEligible(today)
 
         assertEquals(3, rewarded.currentStreak)
-        assertEquals(25, rewarded.leafTokens)
-        assertEquals(25, rewardedAgain.leafTokens)
-        assertEquals(3, rewardedAgain.streakRewardClaimedForStreak)
+        assertEquals(today.toString(), rewarded.claimedDailyRewardDate)
+        assertEquals(3, rewarded.streakRewardClaimedForStreak)
+        assertEquals(rewarded, rewardedAgain)
     }
 
     @Test

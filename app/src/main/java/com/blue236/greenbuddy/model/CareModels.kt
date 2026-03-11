@@ -14,7 +14,8 @@ data class PlantCareState(
     val sunlight: Int,
     val nutrition: Int,
 ) {
-    val averageScore: Int = (hydration + sunlight + nutrition) / 3
+    val totalScore: Int = hydration + sunlight + nutrition
+    val averageScore: Int = totalScore / 3
 
     val health: String
         get() = when {
@@ -48,6 +49,8 @@ data class PlantCareState(
             hydration = (hydration - 4).coerceAtLeast(0),
         )
     }
+
+    fun isMeaningfullyImprovedFrom(previous: PlantCareState): Boolean = totalScore > previous.totalScore
 
     companion object {
         fun from(companion: PlantCompanion) = PlantCareState(
