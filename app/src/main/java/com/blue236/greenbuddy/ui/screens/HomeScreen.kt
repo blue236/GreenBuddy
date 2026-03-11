@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.model.CareAction
+import com.blue236.greenbuddy.model.CompanionPersonalitySystem
 import com.blue236.greenbuddy.model.DailyMissionSet
 import com.blue236.greenbuddy.model.GrowthStageState
 import com.blue236.greenbuddy.model.Lesson
@@ -64,133 +65,71 @@ fun HomeScreen(
     onAcknowledgeGrowthStage: () -> Unit,
 ) {
     val plant = starter.companion
+    val personality = CompanionPersonalitySystem.personalityFor(plant.species)
+    val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons)
     val currentLesson = progress.currentLessonOrNull(lessons)
     val nextStageXp = growthStageState.nextStage?.requiredXp ?: progress.totalXp
     val completionPercent = if (lessons.isEmpty()) 0 else (progress.completedCount * 100) / lessons.size
     val allLessonsComplete = progress.isComplete(lessons)
-    val feedback = companionFeedback(
-        plantName = plant.name,
-        careState = careState,
-        progress = progress,
-        lessons = lessons,
-    )
+    val feedback = companionFeedback(plantName = plant.name, careState = careState, progress = progress, lessons = lessons)
     val equippedCosmetic = rewardState.equippedCosmetic
     val nextShopUnlock = RewardCatalog.cosmetics.firstOrNull { it.id !in rewardState.unlockedCosmeticIds }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Text("GreenBuddy", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(
-            "${plant.name} is your ${plant.species.lowercase()} study companion. Greenhouse size: $greenhouseCount.",
+            "${plant.name} brings a ${personality.tone.lowercase()} ${plant.species.lowercase()} vibe to your routine. Greenhouse size: $greenhouseCount.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         if (growthStageState.newlyUnlocked) {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3D8)),
-                shape = RoundedCornerShape(20.dp),
-            ) {
+            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3D8)), shape = RoundedCornerShape(20.dp)) {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(
-                        "New evolution unlocked: ${growthStageState.currentStage.title}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
+                    Text("New evolution unlocked: ${growthStageState.currentStage.title}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(growthStageState.currentStage.unlockedMessage)
-                    Button(onClick = onAcknowledgeGrowthStage) {
-                        Text("Nice")
-                    }
+                    Button(onClick = onAcknowledgeGrowthStage) { Text("Nice") }
                 }
             }
         }
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1F5A36)),
-            shape = RoundedCornerShape(24.dp),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(
-                            plant.name,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                        )
-                        Text(
-                            "${growthStageState.currentStage.title} • ${careState.health}",
-                            color = Color(0xFFE9F6EC),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        Text(
-                            growthStageState.currentStage.accentLabel,
-                            color = Color(0xFFB8F2C5),
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        equippedCosmetic?.let {
-                            Text(
-                                "Equipped: ${it.name} ${it.emoji}",
-                                color = Color(0xFFD7F3DE),
-                            )
-                        }
+        Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF1F5A36)), shape = RoundedCornerShape(24.dp)) {
+            Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text(dialogue.headline, color = Color(0xFFB8F2C5), fontWeight = FontWeight.SemiBold)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(plant.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("${growthStageState.currentStage.title} • ${careState.health}", color = Color(0xFFE9F6EC), style = MaterialTheme.typography.bodyLarge)
+                        Text(growthStageState.currentStage.accentLabel, color = Color(0xFFB8F2C5), fontWeight = FontWeight.SemiBold)
+                        equippedCosmetic?.let { Text("Equipped: ${it.name} ${it.emoji}", color = Color(0xFFD7F3DE)) }
                     }
                     Box(
-                        modifier = Modifier
-                            .size(96.dp)
-                            .background(Color(0xFFB8E6C1), RoundedCornerShape(28.dp))
-                            .border(2.dp, Color(0xFFE8FFF0), RoundedCornerShape(28.dp)),
+                        modifier = Modifier.size(96.dp).background(Color(0xFFB8E6C1), RoundedCornerShape(28.dp)).border(2.dp, Color(0xFFE8FFF0), RoundedCornerShape(28.dp)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            buildString {
-                                append(growthStageState.currentStage.emoji)
-                                equippedCosmetic?.let {
-                                    append(" ")
-                                    append(it.emoji)
-                                }
-                            },
-                            style = MaterialTheme.typography.displayMedium,
-                        )
+                        Text(buildString {
+                            append(growthStageState.currentStage.emoji)
+                            equippedCosmetic?.let { append(" "); append(it.emoji) }
+                        }, style = MaterialTheme.typography.displayMedium)
                     }
                 }
-
+                Text("\"${dialogue.line}\"", color = Color.White)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    HeroPill(label = "Mood", value = careState.mood)
-                    HeroPill(label = "Lessons", value = "${progress.completedCount}/${lessons.size}")
-                    HeroPill(label = "XP", value = progress.totalXp.toString())
-                    HeroPill(label = "Leafs", value = rewardState.leafTokens.toString())
+                    HeroPill("Mood", careState.mood)
+                    HeroPill("Lessons", "${progress.completedCount}/${lessons.size}")
+                    HeroPill("XP", progress.totalXp.toString())
+                    HeroPill("Leafs", rewardState.leafTokens.toString())
                 }
-
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Evolution progress", color = Color.White, fontWeight = FontWeight.SemiBold)
                         Text("${growthStageState.readinessPercent}%", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                     LinearProgressIndicator(
                         progress = { growthStageState.heroProgress() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(10.dp),
+                        modifier = Modifier.fillMaxWidth().height(10.dp),
                         color = Color(0xFF9BE7AE),
                         trackColor = Color(0xFF2F7448),
                     )
@@ -209,10 +148,7 @@ fun HomeScreen(
             }
         }
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF6ECD2)),
-            shape = RoundedCornerShape(20.dp),
-        ) {
+        Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFF6ECD2)), shape = RoundedCornerShape(20.dp)) {
             Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Growth rules", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(growthStageState.requirementSummary, color = Color(0xFF3D3421))
@@ -221,37 +157,23 @@ fun HomeScreen(
         }
 
         dailyMissionSet?.let { missions ->
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF7FF)),
-                shape = RoundedCornerShape(20.dp),
-            ) {
+            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF7FF)), shape = RoundedCornerShape(20.dp)) {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Text("Daily missions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text("Streak ${missions.currentStreak}", color = Color(0xFF0A5D8F), fontWeight = FontWeight.SemiBold)
                     }
                     Text(
                         if (missions.allCompletedToday) {
-                            if (missions.pendingStreakReward) {
-                                "All set today. Daily reward claimed, plus streak bonus +${missions.streakRewardTokens} leaf tokens."
-                            } else {
-                                "All set today. Daily reward claimed: +${missions.dailyRewardTokens} leaf tokens."
-                            }
+                            if (missions.pendingStreakReward) "All set today. Daily reward claimed, plus streak bonus +${missions.streakRewardTokens} leaf tokens."
+                            else "All set today. Daily reward claimed: +${missions.dailyRewardTokens} leaf tokens."
                         } else {
                             "Finish all ${missions.totalCount} missions for +${missions.dailyRewardTokens} leaf tokens. Every ${DailyMissionSet.STREAK_REWARD_EVERY_DAYS} days adds +${missions.streakRewardTokens}."
                         },
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     missions.missions.forEach { mission ->
-                        Text(
-                            text = if (mission.isCompleted) "✓ ${mission.title}" else "○ ${mission.title}",
-                            fontWeight = if (mission.isCompleted) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (mission.isCompleted) Color(0xFF1F5A36) else MaterialTheme.colorScheme.onSurface,
-                        )
+                        Text(if (mission.isCompleted) "✓ ${mission.title}" else "○ ${mission.title}", fontWeight = if (mission.isCompleted) FontWeight.SemiBold else FontWeight.Normal, color = if (mission.isCompleted) Color(0xFF1F5A36) else MaterialTheme.colorScheme.onSurface)
                         Text(mission.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text("Completed ${missions.completedCount}/${missions.totalCount} • Longest streak ${missions.longestStreak}")
@@ -259,10 +181,19 @@ fun HomeScreen(
             }
         }
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF6ECD2)),
-            shape = RoundedCornerShape(20.dp),
-        ) {
+        StatCard("Today’s lesson") {
+            if (allLessonsComplete) {
+                Text(dialogue.lessonNudge)
+                Text("Check your profile for personality details, or switch starters in PlantDex for a whole new voice.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            } else {
+                Text(currentLesson?.title.orEmpty(), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(currentLesson?.summary.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(dialogue.lessonNudge, color = MaterialTheme.colorScheme.primary)
+                Text("Lesson reward: +${RewardState.lessonTokenReward(currentLesson?.rewardXp ?: 0)} leaf tokens")
+            }
+        }
+
+        Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFF6ECD2)), shape = RoundedCornerShape(20.dp)) {
             Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(feedback.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(feedback.message, color = Color(0xFF3D3421))
@@ -270,74 +201,17 @@ fun HomeScreen(
             }
         }
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F8F2)),
-            shape = RoundedCornerShape(20.dp),
-        ) {
-            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        if (allLessonsComplete) "Track complete" else "Up next",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        if (allLessonsComplete) "All lessons done" else "Quick win",
-                        color = Color(0xFF1F5A36),
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
-                if (allLessonsComplete) {
-                    Text("You’ve finished the ${starter.title} starter track. Growth still depends on keeping care strong.")
-                    Text(
-                        "Your next greenhouse companion unlocks automatically, and you can switch plants from the Greenhouse anytime.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                } else {
-                    Text(currentLesson?.title.orEmpty(), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                    Text(currentLesson?.summary.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Starter tip: ${plant.careTip}", color = Color(0xFF1F5A36), fontWeight = FontWeight.Medium)
-                    Text("Lesson reward: +${RewardState.lessonTokenReward(currentLesson?.rewardXp ?: 0)} leaf tokens", color = Color(0xFF1F5A36))
-                }
-            }
-        }
-
-        StatCard(
-            title = "Care actions",
-            containerColor = Color(0xFFE7F4EA),
-        ) {
+        StatCard(title = "Care actions", containerColor = Color(0xFFE7F4EA)) {
             Text("Quick actions change your plant’s live care stats, count toward missions, persist per plant, and award ${RewardState.careTokenReward()} leaf tokens when they help.")
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 CareAction.entries.forEach { action ->
-                    AssistChip(
-                        onClick = { onPerformCareAction(action) },
-                        label = { Text(action.label) },
-                    )
+                    AssistChip(onClick = { onPerformCareAction(action) }, label = { Text(action.label) })
                 }
             }
-            Text(
-                when {
-                    careState.hydration <= 35 -> "Try watering next — hydration is low."
-                    careState.sunlight <= 35 -> "Sunlight is lagging — a brighter spot helps most."
-                    careState.nutrition <= 35 -> "Nutrition is the weakest stat — fertilize soon."
-                    else -> "Everything looks balanced. Keep rotating actions to stay in the thriving range."
-                },
-                color = Color(0xFF1F5A36),
-                fontWeight = FontWeight.Medium,
-            )
+            Text(dialogue.careGuidance, color = Color(0xFF1F5A36), fontWeight = FontWeight.Medium)
         }
 
-        StatCard(
-            title = "Care status",
-            containerColor = Color(0xFFFFFFFF),
-        ) {
+        StatCard(title = "Care status", containerColor = Color(0xFFFFFFFF)) {
             CareStatRow("Hydration", careState.hydration)
             CareStatRow("Sunlight", careState.sunlight)
             CareStatRow("Nutrition", careState.nutrition)
@@ -354,31 +228,12 @@ fun HomeScreen(
             Text("Leaf tokens: ${rewardState.leafTokens}")
             Text("Unlocked cosmetics: ${rewardState.unlockedCosmeticIds.size}/${RewardCatalog.cosmetics.size}")
             Spacer(Modifier.size(8.dp))
-            Text(
-                nextShopUnlock?.let { "Next shop item: ${it.name} ${it.emoji} · ${it.cost} tokens" }
-                    ?: "Shop cleared — every cosmetic is unlocked.",
-            )
+            Text(nextShopUnlock?.let { "Next shop item: ${it.name} ${it.emoji} · ${it.cost} tokens" } ?: "Shop cleared — every cosmetic is unlocked.")
             Text("Lessons, care wins, and daily missions now feed the same wallet.")
         }
 
-            Text(
-                nextShopUnlock?.let { "Next shop item: ${it.name} ${it.emoji} · ${it.cost} tokens" }
-                    ?: "Shop cleared — every cosmetic is unlocked.",
-            )
-            Text("Lessons, care wins, and daily missions now feed the same wallet.")
-        }
-
-        StatCard(
-            title = "Growth progress",
-            containerColor = Color(0xFFF4F1FF),
-        ) {
-            Text(
-                if (growthStageState.nextStage == null) {
-                    "${progress.totalXp} XP collected — ${growthStageState.currentStage.title} unlocked"
-                } else {
-                    "${progress.totalXp} / $nextStageXp XP toward ${growthStageState.nextStage.title}"
-                }
-            )
+        StatCard(title = "Growth progress", containerColor = Color(0xFFF4F1FF)) {
+            Text(if (growthStageState.nextStage == null) "${progress.totalXp} XP collected — ${growthStageState.currentStage.title} unlocked" else "${progress.totalXp} / $nextStageXp XP toward ${growthStageState.nextStage.title}")
             Spacer(Modifier.height(4.dp))
             Text("Lessons completed: ${progress.completedCount}/${lessons.size} ($completionPercent%)")
             Text("Current stage: ${growthStageState.currentStage.title}")
@@ -390,9 +245,7 @@ fun HomeScreen(
 @Composable
 private fun HeroPill(label: String, value: String) {
     Column(
-        modifier = Modifier
-            .background(Color(0xFF2F7448), RoundedCornerShape(16.dp))
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+        modifier = Modifier.background(Color(0xFF2F7448), RoundedCornerShape(16.dp)).padding(horizontal = 12.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Text(label, color = Color(0xFFD7F3DE), style = MaterialTheme.typography.labelMedium)

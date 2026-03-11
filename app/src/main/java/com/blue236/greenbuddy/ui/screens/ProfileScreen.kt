@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.blue236.greenbuddy.model.CompanionPersonalitySystem
 import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.DailyMissionSet
 import com.blue236.greenbuddy.model.GrowthStageState
@@ -44,14 +45,13 @@ fun ProfileScreen(
     onPurchaseCosmetic: (CosmeticItem) -> Unit,
     onEquipCosmetic: (String) -> Unit,
 ) {
+    val personality = CompanionPersonalitySystem.personalityFor(starter.companion.species)
+    val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons)
     val allLessonsComplete = progress.isComplete(lessons)
     val nextLesson = progress.currentLessonOrNull(lessons)
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text("Profile", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
@@ -70,16 +70,21 @@ fun ProfileScreen(
             Text(if (growthStageState.nextStage == null) "Final stage reached" else "Readiness ${growthStageState.readinessPercent}%")
             if (growthStageState.newlyUnlocked) {
                 Text(growthStageState.currentStage.unlockedMessage)
-                Button(onClick = onAcknowledgeGrowthStage) {
-                    Text("Celebrate growth")
-                }
+                Button(onClick = onAcknowledgeGrowthStage) { Text("Celebrate growth") }
             }
         }
-        StatCard("Greenhouse setup") {
-            Text("Active plant: ${starter.title}")
+        StatCard("Companion personality") {
+            Text("Chosen starter: ${starter.title}")
             Text("Companion: ${starter.companion.name}")
+            Text("Personality: ${personality.archetype}")
+            Text("Tone: ${personality.tone}")
+            Text("Role: ${personality.profileLabel}")
+        }
+        StatCard("Current vibe") {
             Text("Current mood: ${careState.mood}")
             Text("Current health: ${careState.health}")
+            Text(dialogue.line)
+            Text(dialogue.careGuidance, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(if (allLessonsComplete) "Next lesson: starter track completed" else "Next lesson: ${nextLesson?.title.orEmpty()}")
         }
         dailyMissionSet?.let { missions ->
@@ -88,24 +93,13 @@ fun ProfileScreen(
                 Text("Current streak: ${missions.currentStreak} day(s)")
                 Text("Longest streak: ${missions.longestStreak} day(s)")
                 Text("Wallet balance: ${rewardState.leafTokens} leaf tokens")
-                Text(
-                    if (missions.pendingStreakReward) {
-                        "Streak reward ready: +${missions.streakRewardTokens} leaf tokens"
-                    } else {
-                        "Daily reward: +${missions.dailyRewardTokens} leaf tokens when all missions are done"
-                    },
-                )
+                Text(if (missions.pendingStreakReward) "Streak reward ready: +${missions.streakRewardTokens} leaf tokens" else "Daily reward: +${missions.dailyRewardTokens} leaf tokens when all missions are done")
             }
         }
         StatCard("Reward shop") {
             Text("Spend leaf tokens on cosmetic unlocks, then equip your favorite look.")
             RewardCatalog.cosmetics.forEach { item ->
-                CosmeticShopRow(
-                    item = item,
-                    rewardState = rewardState,
-                    onPurchase = { onPurchaseCosmetic(item) },
-                    onEquip = { onEquipCosmetic(item.id) },
-                )
+                CosmeticShopRow(item = item, rewardState = rewardState, onPurchase = { onPurchaseCosmetic(item) }, onEquip = { onEquipCosmetic(item.id) })
             }
         }
         StatCard("Roadmap focus") {
@@ -115,20 +109,12 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun CosmeticShopRow(
-    item: CosmeticItem,
-    rewardState: RewardState,
-    onPurchase: () -> Unit,
-    onEquip: () -> Unit,
-) {
+private fun CosmeticShopRow(item: CosmeticItem, rewardState: RewardState, onPurchase: () -> Unit, onEquip: () -> Unit) {
     val isUnlocked = item.id in rewardState.unlockedCosmeticIds
     val isEquipped = rewardState.equippedCosmeticId == item.id
     val canAfford = rewardState.leafTokens >= item.cost
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("${item.emoji} ${item.name}", fontWeight = FontWeight.SemiBold)
             Text(item.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -142,7 +128,6 @@ private fun CosmeticShopRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-
         when {
             isEquipped -> OutlinedButton(onClick = {}, enabled = false) { Text("Equipped") }
             isUnlocked -> Button(onClick = onEquip) { Text("Equip") }

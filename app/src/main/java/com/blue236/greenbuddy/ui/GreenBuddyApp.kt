@@ -144,6 +144,7 @@ fun GreenBuddyAppContent(
                 starter = uiState.selectedStarter,
                 lessons = lessons,
                 progress = uiState.lessonProgress,
+                careState = uiState.plantCareState,
                 onSubmitAnswer = onSubmitLessonAnswer,
             )
             Tab.DEX -> DexScreen(
