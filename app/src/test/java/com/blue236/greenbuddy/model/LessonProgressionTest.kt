@@ -22,15 +22,18 @@ class LessonProgressionTest {
         assertEquals(lessons.first().rewardXp, firstStep.totalXp)
         assertFalse(firstStep.isComplete(lessons))
 
-        val completedTrack = firstStep.advanceWith(
-            completedLessonId = lessons.last().id,
-            rewardXp = lessons.last().rewardXp,
-            totalLessons = lessons.size,
-        )
+        val completedTrack = lessons.drop(1).fold(firstStep) { progress, lesson ->
+            progress.advanceWith(
+                completedLessonId = lesson.id,
+                rewardXp = lesson.rewardXp,
+                totalLessons = lessons.size,
+            )
+        }
 
         assertEquals(lessons.size, completedTrack.currentLessonIndex)
         assertTrue(completedTrack.isComplete(lessons))
         assertNull(completedTrack.currentLessonOrNull(lessons))
+        assertEquals(lessons.sumOf { it.rewardXp }, completedTrack.totalXp)
     }
 
     @Test

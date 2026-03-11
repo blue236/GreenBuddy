@@ -5,12 +5,31 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
 import com.blue236.greenbuddy.model.CareAction
+import com.blue236.greenbuddy.model.CosmeticItem
+import com.blue236.greenbuddy.model.DailyMissionProgress
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
+import com.blue236.greenbuddy.model.LessonProgress
+import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.RealPlantCareAction
+import com.blue236.greenbuddy.model.RewardState
+import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.advanceWith
+import com.blue236.greenbuddy.model.claimStreakRewardIfEligible
+import com.blue236.greenbuddy.model.completeDailyMissions
 import com.blue236.greenbuddy.model.currentLessonOrNull
+import com.blue236.greenbuddy.model.isComplete
+import com.blue236.greenbuddy.model.nextUnlockableStarterId
 import com.blue236.greenbuddy.model.normalizedFor
+import com.blue236.greenbuddy.model.recordCareAction
+import com.blue236.greenbuddy.model.recordLessonCompletion
+import com.blue236.greenbuddy.model.resolveForToday
+import com.blue236.greenbuddy.model.resolveGrowthStageState
+import com.blue236.greenbuddy.notifications.ReminderScheduler
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,66 +40,112 @@ import kotlinx.coroutines.launch
 class GreenBuddyViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = GreenBuddyPreferencesRepository(application)
     private val selectedTab = MutableStateFlow(Tab.HOME)
+    private val rewardFeedback = MutableStateFlow<String?>(null)
 
-    val uiState: StateFlow<GreenBuddyUiState> = combine(
-        repository.preferences,
-        selectedTab,
-    ) { preferences, tab ->
-        val lessons = LessonCatalog.forSpecies(
-            preferences.selectedStarter.companion.species,
-        )
+    init {
+        ReminderScheduler.schedule(application)
+        viewModelScope.launch {
+            repository.preferences.collect { preferences ->
+                val normalizedMissionProgress = preferences.dailyMissionProgress.normalizedFor(LocalDate.now())
+                if (normalizedMissionProgress != preferences.dailyMissionProgress) {
+                    repository.saveDailyMissionProgress(preferences.selectedStarter.id, normalizedMissionProgress)
+                }
+            }
+        }
+    }
 
+    val uiState: StateFlow<GreenBuddyUiState> = combine(repository.preferences, selectedTab, rewardFeedback) { preferences, tab, feedback ->
+        val normalizedLessonProgressByStarterId = preferences.lessonProgressByStarterId.mapValues { (starterId, progress) ->
+            val starter = StarterPlants.options.first { it.id == starterId }
+            progress.normalizedFor(LessonCatalog.forSpecies(starter.companion.species))
+        }
+        val selectedLessonProgress = normalizedLessonProgressByStarterId[preferences.selectedStarter.id] ?: LessonProgress()
+        val selectedCareState = preferences.plantCareState
+        val normalizedDailyMissionProgress = preferences.dailyMissionProgress.normalizedFor(LocalDate.now())
+        val todayMissions = normalizedDailyMissionProgress.resolveForToday(LocalDate.now(), selectedLessonProgress, selectedCareState)
+        val growthStageState = resolveGrowthStageState(preferences.selectedStarter.id, selectedLessonProgress, selectedCareState, preferences.seenGrowthStageRank)
         GreenBuddyUiState(
             selectedTab = tab,
-            selectedStarterId = preferences.selectedStarterId,
+            selectedStarterId = preferences.selectedStarter.id,
+            ownedStarterIds = preferences.ownedStarterIds,
             onboardingComplete = preferences.onboardingComplete,
-            lessonProgress = preferences.lessonProgress.normalizedFor(lessons),
-            plantCareState = preferences.plantCareState,
+            lessonProgressByStarterId = normalizedLessonProgressByStarterId,
+            plantCareStateByStarterId = preferences.plantCareStateByStarterId,
+            dailyMissionProgress = normalizedDailyMissionProgress,
+            dailyMissionSet = todayMissions,
+            growthStageState = growthStageState,
+            rewardState = preferences.rewardState,
+            rewardFeedback = feedback,
+            realPlantModeState = preferences.realPlantModeState,
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = GreenBuddyUiState(),
-    )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GreenBuddyUiState())
 
-    fun selectTab(tab: Tab) {
-        selectedTab.value = tab
-    }
-
-    fun selectStarter(starterId: String) {
-        viewModelScope.launch {
-            repository.setSelectedStarter(starterId)
-        }
-    }
-
-    fun completeOnboarding() {
-        viewModelScope.launch {
-            repository.completeOnboarding(uiState.value.selectedStarterId)
-        }
-    }
+    fun onAppVisible() { viewModelScope.launch { repository.recordAppOpen(System.currentTimeMillis()) } }
+    fun selectTab(tab: Tab) { selectedTab.value = tab }
+    fun selectStarter(starterId: String) { viewModelScope.launch { repository.setSelectedStarter(starterId) } }
+    fun completeOnboarding() { viewModelScope.launch { repository.completeOnboarding(uiState.value.selectedStarterId); repository.recordAppOpen(System.currentTimeMillis()) } }
 
     fun submitCurrentLessonAnswer(selectedAnswerIndex: Int): Boolean {
         val state = uiState.value
         val lessons = LessonCatalog.forSpecies(state.selectedStarter.companion.species)
         val currentLesson = state.lessonProgress.currentLessonOrNull(lessons) ?: return false
-        if (selectedAnswerIndex != currentLesson.correctAnswerIndex) return false
-
-        val updatedProgress = state.lessonProgress.advanceWith(
-            completedLessonId = currentLesson.id,
-            rewardXp = currentLesson.rewardXp,
-            totalLessons = lessons.size,
-        )
+        if (selectedAnswerIndex != currentLesson.quiz.correctAnswerIndex) return false
+        val today = LocalDate.now()
+        val updatedLessonProgress = state.lessonProgress.advanceWith(currentLesson.id, currentLesson.rewardXp, lessons.size)
+        val rewardOutcome = rewardIfMissionSetCompleted(state.dailyMissionProgress.recordLessonCompletion(today), state.rewardState.rewardForLesson(currentLesson.rewardXp), updatedLessonProgress, state.plantCareState, today)
+        rewardFeedback.value = "Lesson complete · +${currentLesson.rewardXp} XP · +${RewardState.lessonTokenReward(currentLesson.rewardXp)} leaf tokens"
         viewModelScope.launch {
-            repository.saveLessonProgress(state.selectedStarterId, updatedProgress)
+            val now = System.currentTimeMillis()
+            repository.saveLessonAndMissionProgress(state.selectedStarterId, updatedLessonProgress, rewardOutcome.progress)
+            repository.saveRewardState(rewardOutcome.rewardState)
+            repository.recordLessonCompleted(now)
+            repository.recordAppOpen(now)
+            if (updatedLessonProgress.isComplete(lessons)) nextUnlockableStarterId(state.ownedStarterIds)?.let { repository.unlockStarter(it) }
         }
         return true
     }
 
     fun performCareAction(action: CareAction) {
         val state = uiState.value
+        val today = LocalDate.now()
         val updatedCareState = state.plantCareState.apply(action)
+        val rewardOutcome = rewardIfMissionSetCompleted(state.dailyMissionProgress.recordCareAction(today), state.rewardState.rewardForCareAction(updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)), state.lessonProgress, updatedCareState, today)
+        rewardFeedback.value = if (updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)) "${action.label} helped · +${RewardState.careTokenReward()} leaf tokens" else "${action.label} had no helpful effect · no leaf tokens"
         viewModelScope.launch {
-            repository.savePlantCareState(state.selectedStarterId, updatedCareState)
+            val now = System.currentTimeMillis()
+            repository.saveCareStateAndMissionProgress(state.selectedStarterId, updatedCareState, rewardOutcome.progress)
+            repository.saveRewardState(rewardOutcome.rewardState)
+            repository.recordCareAction(now)
+            repository.recordAppOpen(now)
         }
     }
+
+    fun setRealPlantModeEnabled(enabled: Boolean) { viewModelScope.launch { repository.saveRealPlantModeState(uiState.value.selectedStarterId, uiState.value.realPlantModeState.copy(enabled = enabled)) } }
+    fun logRealPlantCare(action: RealPlantCareAction) {
+        val state = uiState.value
+        val zoneId = ZoneId.systemDefault()
+        val now = System.currentTimeMillis()
+        val date = Instant.ofEpochMilli(now).atZone(zoneId).toLocalDate()
+        if (!state.realPlantModeState.canLogActionOn(action, date, zoneId)) return
+        val updatedReal = state.realPlantModeState.logAction(action, now, zoneId)
+        val updatedCare = state.plantCareState.apply(action.linkedCareAction)
+        viewModelScope.launch { repository.saveRealPlantModeAndPlantCareState(state.selectedStarterId, updatedReal, updatedCare) }
+    }
+    fun purchaseCosmetic(item: CosmeticItem) { val s = uiState.value; if (!s.rewardState.canPurchase(item)) return; val updated = s.rewardState.purchase(item); rewardFeedback.value = "Unlocked ${item.name} ${item.emoji}"; viewModelScope.launch { repository.saveRewardState(updated) } }
+    fun equipCosmetic(itemId: String) { val s = uiState.value; val updated = s.rewardState.equip(itemId); if (updated != s.rewardState) viewModelScope.launch { repository.saveRewardState(updated) } }
+    fun acknowledgeGrowthStage() { viewModelScope.launch { repository.saveSeenGrowthStageRank(uiState.value.selectedStarterId, uiState.value.growthStageState.currentStage.rank) } }
+
+    private fun rewardIfMissionSetCompleted(progress: DailyMissionProgress, rewardState: RewardState, lessonProgress: LessonProgress, careState: PlantCareState, today: LocalDate): RewardOutcome {
+        val missionSet = progress.resolveForToday(today, lessonProgress, careState)
+        if (!missionSet.allCompletedToday) return RewardOutcome(progress.normalizedFor(today), rewardState)
+        var updatedProgress = progress.completeDailyMissions(today)
+        var updatedRewardState = rewardState
+        var daily = false; var streak = false
+        if (updatedProgress.claimedDailyRewardDate == today.toString() && progress.claimedDailyRewardDate != today.toString()) { updatedRewardState = updatedRewardState.rewardForDailyMissionCompletion(); daily = true }
+        val before = updatedProgress.streakRewardClaimedForStreak; updatedProgress = updatedProgress.claimStreakRewardIfEligible(today)
+        if (updatedProgress.streakRewardClaimedForStreak != before) { updatedRewardState = updatedRewardState.rewardForStreakBonus(); streak = true }
+        return RewardOutcome(updatedProgress, updatedRewardState, daily, streak)
+    }
 }
+
+private data class RewardOutcome(val progress: DailyMissionProgress, val rewardState: RewardState, val dailyAwarded: Boolean = false, val streakAwarded: Boolean = false)

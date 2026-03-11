@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.blue236.greenbuddy.model.CompanionPersonalitySystem
 import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.ui.components.StatCard
 import com.blue236.greenbuddy.ui.components.StarterPlantCard
@@ -32,6 +33,7 @@ fun OnboardingScreen(
     onContinue: () -> Unit,
 ) {
     val selectedOption = options.first { it.id == selectedStarterId }
+    val personality = CompanionPersonalitySystem.personalityFor(selectedOption.companion.species)
 
     Column(
         modifier = Modifier
@@ -43,7 +45,7 @@ fun OnboardingScreen(
         Spacer(Modifier.height(12.dp))
         Text("Welcome to GreenBuddy", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(
-            "Build your first plant companion in under a minute. Pick a starter and begin the daily care + learning loop.",
+            "Build your first plant companion in under a minute. Pick a starter whose voice fits your vibe, then begin the daily care + learning loop.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
@@ -70,6 +72,8 @@ fun OnboardingScreen(
         StatCard("Your current pick") {
             Text("${selectedOption.companion.name} · ${selectedOption.title}", fontWeight = FontWeight.SemiBold)
             Text(selectedOption.subtitle)
+            Text("Personality: ${personality.archetype}")
+            Text("Tone: ${personality.tone}")
             Text("First lesson: $currentLessonTitle")
         }
 
