@@ -10,6 +10,7 @@ data class AppPreferences(
     val seenGrowthStageRank: Int = 0,
     val rewardState: RewardState = RewardState(),
     val reminderState: ReminderState = ReminderState(),
+    val realPlantModeStateByStarterId: Map<String, RealPlantModeState> = emptyMap(),
 ) {
     val selectedStarter: StarterPlantOption
         get() = StarterPlants.options.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }
@@ -21,6 +22,9 @@ data class AppPreferences(
 
     val plantCareState: PlantCareState
         get() = plantCareStateByStarterId[selectedStarter.id] ?: PlantCareState.from(selectedStarter.companion)
+
+    val realPlantModeState: RealPlantModeState
+        get() = realPlantModeStateByStarterId[selectedStarter.id] ?: RealPlantModeState()
 }
 
 data class GreenBuddyUiState(
@@ -40,6 +44,7 @@ data class GreenBuddyUiState(
     ),
     val rewardState: RewardState = RewardState(),
     val rewardFeedback: String? = null,
+    val realPlantModeState: RealPlantModeState = RealPlantModeState(),
 ) {
     val selectedStarter: StarterPlantOption
         get() = starterOptions.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }

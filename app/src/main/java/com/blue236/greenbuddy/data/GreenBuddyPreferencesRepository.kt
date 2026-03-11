@@ -14,6 +14,9 @@ import com.blue236.greenbuddy.model.AppPreferences
 import com.blue236.greenbuddy.model.DailyMissionProgress
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.RealPlantCareAction
+import com.blue236.greenbuddy.model.RealPlantLogEntry
+import com.blue236.greenbuddy.model.RealPlantModeState
 import com.blue236.greenbuddy.model.ReminderState
 import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlants
@@ -29,152 +32,44 @@ class GreenBuddyPreferencesRepository(context: Context) {
 
     val preferences: Flow<AppPreferences> = dataStore.data.map { prefs ->
         val storedSelectedStarterId = prefs[SelectedStarterIdKey] ?: StarterPlants.options.first().id
-        val ownedStarterIds = prefs[OwnedStarterIdsKey]
-            ?.split(COMPLETED_IDS_SEPARATOR)
-            ?.filter { it.isNotBlank() }
-            ?.toSet()
-            ?.ifEmpty { defaultOwnedStarterIds(storedSelectedStarterId) }
+        val ownedStarterIds = prefs[OwnedStarterIdsKey]?.split(COMPLETED_IDS_SEPARATOR)?.filter { it.isNotBlank() }?.toSet()?.ifEmpty { defaultOwnedStarterIds(storedSelectedStarterId) }
             ?: defaultOwnedStarterIds(storedSelectedStarterId)
-        val resolvedSelectedStarterId = when {
-            storedSelectedStarterId in ownedStarterIds -> storedSelectedStarterId
-            else -> ownedStarterIds.firstOrNull() ?: StarterPlants.options.first().id
-        }
-
+        val resolvedSelectedStarterId = if (storedSelectedStarterId in ownedStarterIds) storedSelectedStarterId else ownedStarterIds.firstOrNull() ?: StarterPlants.options.first().id
         AppPreferences(
             onboardingComplete = prefs[OnboardingCompleteKey] ?: false,
             selectedStarterId = resolvedSelectedStarterId,
             ownedStarterIds = ownedStarterIds,
-            lessonProgressByStarterId = StarterPlants.options.associate { option ->
-                option.id to readLessonProgress(prefs, option.id)
-            },
-            plantCareStateByStarterId = StarterPlants.options.associate { option ->
-                option.id to readPlantCareState(prefs, option.id)
-            },
+            lessonProgressByStarterId = StarterPlants.options.associate { it.id to readLessonProgress(prefs, it.id) },
+            plantCareStateByStarterId = StarterPlants.options.associate { it.id to readPlantCareState(prefs, it.id) },
             dailyMissionProgress = readDailyMissionProgress(prefs, resolvedSelectedStarterId),
             seenGrowthStageRank = prefs[seenGrowthStageRankKey(resolvedSelectedStarterId)] ?: 0,
             rewardState = readRewardState(prefs),
             reminderState = readReminderState(prefs),
+            realPlantModeStateByStarterId = StarterPlants.options.associate { it.id to readRealPlantModeState(prefs, it.id) },
         )
     }
 
     suspend fun currentPreferences(): AppPreferences = preferences.first()
-
-    suspend fun setSelectedStarter(id: String) {
-        dataStore.edit { prefs ->
-            val ownedStarterIds = prefs[OwnedStarterIdsKey]
-                ?.split(COMPLETED_IDS_SEPARATOR)
-                ?.filter { it.isNotBlank() }
-                ?.toSet()
-                ?: defaultOwnedStarterIds(prefs[SelectedStarterIdKey] ?: StarterPlants.options.first().id)
-            if (id in ownedStarterIds) {
-                prefs[SelectedStarterIdKey] = id
-            }
-        }
-    }
-
-    suspend fun completeOnboarding(selectedStarterId: String) {
-        dataStore.edit { prefs ->
-            prefs[SelectedStarterIdKey] = selectedStarterId
-            prefs[OwnedStarterIdsKey] = defaultOwnedStarterIds(selectedStarterId).joinToString(COMPLETED_IDS_SEPARATOR)
-            prefs[OnboardingCompleteKey] = true
-        }
-    }
-
-    suspend fun unlockStarter(starterId: String) {
-        dataStore.edit { prefs ->
-            val selectedStarterId = prefs[SelectedStarterIdKey] ?: StarterPlants.options.first().id
-            val ownedStarterIds = prefs[OwnedStarterIdsKey]
-                ?.split(COMPLETED_IDS_SEPARATOR)
-                ?.filter { it.isNotBlank() }
-                ?.toMutableSet()
-                ?: defaultOwnedStarterIds(selectedStarterId).toMutableSet()
-            ownedStarterIds += starterId
-            prefs[OwnedStarterIdsKey] = ownedStarterIds.joinToString(COMPLETED_IDS_SEPARATOR)
-        }
-    }
-
-    suspend fun saveLessonProgress(starterId: String, progress: LessonProgress) {
-        dataStore.edit { prefs ->
-            writeLessonProgress(prefs, starterId, progress)
-        }
-    }
-
-    suspend fun savePlantCareState(starterId: String, careState: PlantCareState) {
-        dataStore.edit { prefs ->
-            writePlantCareState(prefs, starterId, careState)
-        }
-    }
-
-    suspend fun saveLessonAndMissionProgress(
-        starterId: String,
-        lessonProgress: LessonProgress,
-        missionProgress: DailyMissionProgress,
-    ) {
-        dataStore.edit { prefs ->
-            writeLessonProgress(prefs, starterId, lessonProgress)
-            writeDailyMissionProgress(prefs, starterId, missionProgress)
-        }
-    }
-
-    suspend fun saveCareStateAndMissionProgress(
-        starterId: String,
-        careState: PlantCareState,
-        missionProgress: DailyMissionProgress,
-    ) {
-        dataStore.edit { prefs ->
-            writePlantCareState(prefs, starterId, careState)
-            writeDailyMissionProgress(prefs, starterId, missionProgress)
-        }
-    }
-
-    suspend fun saveDailyMissionProgress(starterId: String, progress: DailyMissionProgress) {
-        dataStore.edit { prefs ->
-            writeDailyMissionProgress(prefs, starterId, progress)
-        }
-    }
-
-    suspend fun saveSeenGrowthStageRank(starterId: String, seenGrowthStageRank: Int) {
-        dataStore.edit { prefs ->
-            prefs[seenGrowthStageRankKey(starterId)] = seenGrowthStageRank
-        }
-    }
-
-    suspend fun saveRewardState(rewardState: RewardState) {
-        dataStore.edit { prefs ->
-            prefs[globalLeafTokensKey] = rewardState.leafTokens
-            prefs[unlockedCosmeticIdsKey] = rewardState.unlockedCosmeticIds.joinToString(COMPLETED_IDS_SEPARATOR)
-            rewardState.equippedCosmeticId?.let { prefs[equippedCosmeticIdKey] = it } ?: prefs.remove(equippedCosmeticIdKey)
-        }
-    }
-
-    suspend fun recordAppOpen(atMillis: Long) {
-        dataStore.edit { prefs ->
-            prefs[lastAppOpenAtKey] = atMillis
-        }
-    }
-
-    suspend fun recordLessonCompleted(atMillis: Long) {
-        dataStore.edit { prefs ->
-            prefs[lastLessonCompletedAtKey] = atMillis
-        }
-    }
-
-    suspend fun recordCareAction(atMillis: Long) {
-        dataStore.edit { prefs ->
-            prefs[lastCareActionAtKey] = atMillis
-        }
-    }
-
-    suspend fun recordNotificationSent(atMillis: Long) {
-        dataStore.edit { prefs ->
-            prefs[lastNotificationSentAtKey] = atMillis
-        }
-    }
+    suspend fun setSelectedStarter(id: String) { dataStore.edit { if (id in ((it[OwnedStarterIdsKey]?.split(COMPLETED_IDS_SEPARATOR)?.filter(String::isNotBlank)?.toSet()) ?: defaultOwnedStarterIds(it[SelectedStarterIdKey] ?: StarterPlants.options.first().id))) it[SelectedStarterIdKey] = id } }
+    suspend fun completeOnboarding(selectedStarterId: String) { dataStore.edit { it[SelectedStarterIdKey] = selectedStarterId; it[OwnedStarterIdsKey] = defaultOwnedStarterIds(selectedStarterId).joinToString(COMPLETED_IDS_SEPARATOR); it[OnboardingCompleteKey] = true } }
+    suspend fun unlockStarter(starterId: String) { dataStore.edit { prefs -> val owned = ((prefs[OwnedStarterIdsKey]?.split(COMPLETED_IDS_SEPARATOR)?.filter(String::isNotBlank)?.toMutableSet()) ?: defaultOwnedStarterIds(prefs[SelectedStarterIdKey] ?: StarterPlants.options.first().id).toMutableSet()); owned += starterId; prefs[OwnedStarterIdsKey] = owned.joinToString(COMPLETED_IDS_SEPARATOR) } }
+    suspend fun saveLessonAndMissionProgress(starterId: String, lessonProgress: LessonProgress, missionProgress: DailyMissionProgress) { dataStore.edit { writeLessonProgress(it, starterId, lessonProgress); writeDailyMissionProgress(it, starterId, missionProgress) } }
+    suspend fun saveCareStateAndMissionProgress(starterId: String, careState: PlantCareState, missionProgress: DailyMissionProgress) { dataStore.edit { writePlantCareState(it, starterId, careState); writeDailyMissionProgress(it, starterId, missionProgress) } }
+    suspend fun saveDailyMissionProgress(starterId: String, progress: DailyMissionProgress) { dataStore.edit { writeDailyMissionProgress(it, starterId, progress) } }
+    suspend fun saveSeenGrowthStageRank(starterId: String, seenGrowthStageRank: Int) { dataStore.edit { it[seenGrowthStageRankKey(starterId)] = seenGrowthStageRank } }
+    suspend fun saveRewardState(rewardState: RewardState) { dataStore.edit { it[globalLeafTokensKey] = rewardState.leafTokens; it[unlockedCosmeticIdsKey] = rewardState.unlockedCosmeticIds.joinToString(COMPLETED_IDS_SEPARATOR); rewardState.equippedCosmeticId?.let { id -> it[equippedCosmeticIdKey] = id } ?: it.remove(equippedCosmeticIdKey) } }
+    suspend fun recordAppOpen(atMillis: Long) { dataStore.edit { it[lastAppOpenAtKey] = atMillis } }
+    suspend fun recordLessonCompleted(atMillis: Long) { dataStore.edit { it[lastLessonCompletedAtKey] = atMillis } }
+    suspend fun recordCareAction(atMillis: Long) { dataStore.edit { it[lastCareActionAtKey] = atMillis } }
+    suspend fun recordNotificationSent(atMillis: Long) { dataStore.edit { it[lastNotificationSentAtKey] = atMillis } }
+    suspend fun saveRealPlantModeState(starterId: String, realPlantModeState: RealPlantModeState) { dataStore.edit { it[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled; it[realPlantLogKey(starterId)] = encodeRealPlantEntries(realPlantModeState.entries) } }
+    suspend fun saveRealPlantModeAndPlantCareState(starterId: String, realPlantModeState: RealPlantModeState, careState: PlantCareState) { dataStore.edit { prefs -> prefs[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled; prefs[realPlantLogKey(starterId)] = encodeRealPlantEntries(realPlantModeState.entries); writePlantCareState(prefs, starterId, careState) } }
 
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
         private const val COMPLETED_IDS_SEPARATOR = ","
-
+        private const val LOG_ENTRY_SEPARATOR = ";"
+        private const val LOG_FIELD_SEPARATOR = "|"
         private val OnboardingCompleteKey = booleanPreferencesKey("onboarding_complete")
         private val SelectedStarterIdKey = stringPreferencesKey("selected_starter_id")
         private val OwnedStarterIdsKey = stringPreferencesKey("owned_starter_ids")
@@ -185,7 +80,6 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private val lastLessonCompletedAtKey = longPreferencesKey("last_lesson_completed_at")
         private val lastCareActionAtKey = longPreferencesKey("last_care_action_at")
         private val lastNotificationSentAtKey = longPreferencesKey("last_notification_sent_at")
-
         private fun currentLessonIndexKey(starterId: String) = intPreferencesKey("${starterId}_current_lesson_index")
         private fun completedLessonIdsKey(starterId: String) = stringPreferencesKey("${starterId}_completed_lesson_ids")
         private fun totalXpKey(starterId: String) = intPreferencesKey("${starterId}_total_xp")
@@ -202,81 +96,18 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private fun legacyLeafTokensKey(starterId: String) = intPreferencesKey("${starterId}_leaf_tokens")
         private fun streakRewardClaimedForStreakKey(starterId: String) = intPreferencesKey("${starterId}_streak_reward_claimed_for_streak")
         private fun seenGrowthStageRankKey(starterId: String) = intPreferencesKey("${starterId}_seen_growth_stage_rank")
+        private fun realPlantModeEnabledKey(starterId: String) = booleanPreferencesKey("${starterId}_real_plant_mode_enabled")
+        private fun realPlantLogKey(starterId: String) = stringPreferencesKey("${starterId}_real_plant_log")
     }
 
-    private fun readLessonProgress(prefs: Preferences, starterId: String): LessonProgress = LessonProgress(
-        currentLessonIndex = prefs[currentLessonIndexKey(starterId)] ?: 0,
-        completedLessonIds = prefs[completedLessonIdsKey(starterId)]
-            ?.split(COMPLETED_IDS_SEPARATOR)
-            ?.filter { it.isNotBlank() }
-            ?.toSet()
-            ?: emptySet(),
-        totalXp = prefs[totalXpKey(starterId)] ?: 0,
-    )
-
-    private fun readPlantCareState(prefs: Preferences, starterId: String): PlantCareState {
-        val starter = StarterPlants.options.firstOrNull { it.id == starterId } ?: StarterPlants.options.first()
-        val defaultCare = PlantCareState.from(starter.companion)
-        return PlantCareState(
-            hydration = prefs[hydrationKey(starterId)] ?: defaultCare.hydration,
-            sunlight = prefs[sunlightKey(starterId)] ?: defaultCare.sunlight,
-            nutrition = prefs[nutritionKey(starterId)] ?: defaultCare.nutrition,
-        )
-    }
-
-    private fun readDailyMissionProgress(prefs: Preferences, starterId: String): DailyMissionProgress = DailyMissionProgress(
-        missionDate = prefs[missionDateKey(starterId)] ?: "",
-        completedCareActionsToday = prefs[completedCareActionsTodayKey(starterId)] ?: 0,
-        completedLessonsToday = prefs[completedLessonsTodayKey(starterId)] ?: 0,
-        claimedDailyRewardDate = prefs[claimedDailyRewardDateKey(starterId)],
-        currentStreak = prefs[currentStreakKey(starterId)] ?: 0,
-        longestStreak = prefs[longestStreakKey(starterId)] ?: 0,
-        lastCompletedDate = prefs[lastCompletedDateKey(starterId)],
-        streakRewardClaimedForStreak = prefs[streakRewardClaimedForStreakKey(starterId)],
-    )
-
-    private fun readRewardState(prefs: Preferences): RewardState {
-        val migratedLegacyTokens = StarterPlants.options.sumOf { option ->
-            prefs[legacyLeafTokensKey(option.id)] ?: 0
-        }
-        return RewardState(
-            leafTokens = (prefs[globalLeafTokensKey] ?: 0) + migratedLegacyTokens,
-            unlockedCosmeticIds = prefs[unlockedCosmeticIdsKey]
-                ?.split(COMPLETED_IDS_SEPARATOR)
-                ?.filter { it.isNotBlank() }
-                ?.toSet()
-                ?: emptySet(),
-            equippedCosmeticId = prefs[equippedCosmeticIdKey],
-        )
-    }
-
-    private fun readReminderState(prefs: Preferences): ReminderState = ReminderState(
-        lastAppOpenAtMillis = prefs[lastAppOpenAtKey],
-        lastLessonCompletedAtMillis = prefs[lastLessonCompletedAtKey],
-        lastCareActionAtMillis = prefs[lastCareActionAtKey],
-        lastNotificationSentAtMillis = prefs[lastNotificationSentAtKey],
-    )
-
-    private fun writeLessonProgress(prefs: MutablePreferences, starterId: String, progress: LessonProgress) {
-        prefs[currentLessonIndexKey(starterId)] = progress.currentLessonIndex
-        prefs[completedLessonIdsKey(starterId)] = progress.completedLessonIds.joinToString(COMPLETED_IDS_SEPARATOR)
-        prefs[totalXpKey(starterId)] = progress.totalXp
-    }
-
-    private fun writePlantCareState(prefs: MutablePreferences, starterId: String, careState: PlantCareState) {
-        prefs[hydrationKey(starterId)] = careState.hydration
-        prefs[sunlightKey(starterId)] = careState.sunlight
-        prefs[nutritionKey(starterId)] = careState.nutrition
-    }
-
-    private fun writeDailyMissionProgress(prefs: MutablePreferences, starterId: String, progress: DailyMissionProgress) {
-        prefs[missionDateKey(starterId)] = progress.missionDate
-        prefs[completedCareActionsTodayKey(starterId)] = progress.completedCareActionsToday
-        prefs[completedLessonsTodayKey(starterId)] = progress.completedLessonsToday
-        progress.claimedDailyRewardDate?.let { prefs[claimedDailyRewardDateKey(starterId)] = it } ?: prefs.remove(claimedDailyRewardDateKey(starterId))
-        prefs[currentStreakKey(starterId)] = progress.currentStreak
-        prefs[longestStreakKey(starterId)] = progress.longestStreak
-        progress.lastCompletedDate?.let { prefs[lastCompletedDateKey(starterId)] = it } ?: prefs.remove(lastCompletedDateKey(starterId))
-        progress.streakRewardClaimedForStreak?.let { prefs[streakRewardClaimedForStreakKey(starterId)] = it } ?: prefs.remove(streakRewardClaimedForStreakKey(starterId))
-    }
+    private fun encodeRealPlantEntries(entries: List<RealPlantLogEntry>) = entries.joinToString(LOG_ENTRY_SEPARATOR) { "${it.loggedAtEpochMillis}${LOG_FIELD_SEPARATOR}${it.action.name}" }
+    private fun readLessonProgress(prefs: Preferences, starterId: String) = LessonProgress(prefs[currentLessonIndexKey(starterId)] ?: 0, prefs[completedLessonIdsKey(starterId)]?.split(COMPLETED_IDS_SEPARATOR)?.filter(String::isNotBlank)?.toSet() ?: emptySet(), prefs[totalXpKey(starterId)] ?: 0)
+    private fun readPlantCareState(prefs: Preferences, starterId: String): PlantCareState { val starter = StarterPlants.options.firstOrNull { it.id == starterId } ?: StarterPlants.options.first(); val d = PlantCareState.from(starter.companion); return PlantCareState(prefs[hydrationKey(starterId)] ?: d.hydration, prefs[sunlightKey(starterId)] ?: d.sunlight, prefs[nutritionKey(starterId)] ?: d.nutrition) }
+    private fun readDailyMissionProgress(prefs: Preferences, starterId: String) = DailyMissionProgress(prefs[missionDateKey(starterId)] ?: "", prefs[completedCareActionsTodayKey(starterId)] ?: 0, prefs[completedLessonsTodayKey(starterId)] ?: 0, prefs[claimedDailyRewardDateKey(starterId)], prefs[currentStreakKey(starterId)] ?: 0, prefs[longestStreakKey(starterId)] ?: 0, prefs[lastCompletedDateKey(starterId)], prefs[streakRewardClaimedForStreakKey(starterId)])
+    private fun readRewardState(prefs: Preferences): RewardState { val migrated = StarterPlants.options.sumOf { prefs[legacyLeafTokensKey(it.id)] ?: 0 }; return RewardState((prefs[globalLeafTokensKey] ?: 0) + migrated, prefs[unlockedCosmeticIdsKey]?.split(COMPLETED_IDS_SEPARATOR)?.filter(String::isNotBlank)?.toSet() ?: emptySet(), prefs[equippedCosmeticIdKey]) }
+    private fun readReminderState(prefs: Preferences) = ReminderState(prefs[lastAppOpenAtKey], prefs[lastLessonCompletedAtKey], prefs[lastCareActionAtKey], prefs[lastNotificationSentAtKey])
+    private fun readRealPlantModeState(prefs: Preferences, starterId: String) = RealPlantModeState(prefs[realPlantModeEnabledKey(starterId)] ?: false, prefs[realPlantLogKey(starterId)]?.split(LOG_ENTRY_SEPARATOR)?.mapNotNull { val parts = it.split(LOG_FIELD_SEPARATOR); val ts = parts.getOrNull(0)?.toLongOrNull() ?: return@mapNotNull null; val action = parts.getOrNull(1)?.let { n -> RealPlantCareAction.entries.firstOrNull { a -> a.name == n } } ?: return@mapNotNull null; RealPlantLogEntry(action, ts) }?.sortedByDescending { it.loggedAtEpochMillis }?.take(RealPlantModeState.MAX_LOG_ENTRIES) ?: emptyList())
+    private fun writeLessonProgress(prefs: MutablePreferences, starterId: String, progress: LessonProgress) { prefs[currentLessonIndexKey(starterId)] = progress.currentLessonIndex; prefs[completedLessonIdsKey(starterId)] = progress.completedLessonIds.joinToString(COMPLETED_IDS_SEPARATOR); prefs[totalXpKey(starterId)] = progress.totalXp }
+    private fun writePlantCareState(prefs: MutablePreferences, starterId: String, careState: PlantCareState) { prefs[hydrationKey(starterId)] = careState.hydration; prefs[sunlightKey(starterId)] = careState.sunlight; prefs[nutritionKey(starterId)] = careState.nutrition }
+    private fun writeDailyMissionProgress(prefs: MutablePreferences, starterId: String, progress: DailyMissionProgress) { prefs[missionDateKey(starterId)] = progress.missionDate; prefs[completedCareActionsTodayKey(starterId)] = progress.completedCareActionsToday; prefs[completedLessonsTodayKey(starterId)] = progress.completedLessonsToday; progress.claimedDailyRewardDate?.let { prefs[claimedDailyRewardDateKey(starterId)] = it } ?: prefs.remove(claimedDailyRewardDateKey(starterId)); prefs[currentStreakKey(starterId)] = progress.currentStreak; prefs[longestStreakKey(starterId)] = progress.longestStreak; progress.lastCompletedDate?.let { prefs[lastCompletedDateKey(starterId)] = it } ?: prefs.remove(lastCompletedDateKey(starterId)); progress.streakRewardClaimedForStreak?.let { prefs[streakRewardClaimedForStreakKey(starterId)] = it } ?: prefs.remove(streakRewardClaimedForStreakKey(starterId)) }
 }

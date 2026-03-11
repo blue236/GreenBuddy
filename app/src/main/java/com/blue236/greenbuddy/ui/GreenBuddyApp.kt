@@ -25,6 +25,7 @@ import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
+import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.currentLessonOrNull
@@ -37,156 +38,36 @@ import com.blue236.greenbuddy.ui.state.GreenBuddyViewModel
 import com.blue236.greenbuddy.ui.theme.GreenBuddyTheme
 
 @Composable
-fun GreenBuddyApp(
-    initialTab: Tab = Tab.HOME,
-    viewModel: GreenBuddyViewModel = viewModel(),
-) {
+fun GreenBuddyApp(initialTab: Tab = Tab.HOME, viewModel: GreenBuddyViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
-    val notificationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { }
-
-    LaunchedEffect(Unit) {
-        viewModel.onAppVisible()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }
-
-    LaunchedEffect(initialTab) {
-        viewModel.selectTab(initialTab)
-    }
-
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    LaunchedEffect(Unit) { viewModel.onAppVisible(); if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
+    LaunchedEffect(initialTab) { viewModel.selectTab(initialTab) }
     DisposableEffect(lifecycleOwner, viewModel) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) {
-                viewModel.onAppVisible()
-            }
-        }
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_START) viewModel.onAppVisible() }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-
-    GreenBuddyAppContent(
-        uiState = uiState,
-        onSelectTab = viewModel::selectTab,
-        onSelectStarter = viewModel::selectStarter,
-        onContinueOnboarding = viewModel::completeOnboarding,
-        onSubmitLessonAnswer = viewModel::submitCurrentLessonAnswer,
-        onPerformCareAction = viewModel::performCareAction,
-        onAcknowledgeGrowthStage = viewModel::acknowledgeGrowthStage,
-        onPurchaseCosmetic = viewModel::purchaseCosmetic,
-        onEquipCosmetic = viewModel::equipCosmetic,
-    )
+    GreenBuddyAppContent(uiState, viewModel::selectTab, viewModel::selectStarter, viewModel::completeOnboarding, viewModel::submitCurrentLessonAnswer, viewModel::performCareAction, viewModel::acknowledgeGrowthStage, viewModel::purchaseCosmetic, viewModel::equipCosmetic, viewModel::setRealPlantModeEnabled, viewModel::logRealPlantCare)
 }
 
 @Composable
-fun GreenBuddyAppContent(
-    uiState: GreenBuddyUiState,
-    onSelectTab: (Tab) -> Unit,
-    onSelectStarter: (String) -> Unit,
-    onContinueOnboarding: () -> Unit,
-    onSubmitLessonAnswer: (Int) -> Boolean,
-    onPerformCareAction: (CareAction) -> Unit,
-    onAcknowledgeGrowthStage: () -> Unit,
-    onPurchaseCosmetic: (CosmeticItem) -> Unit,
-    onEquipCosmetic: (String) -> Unit,
-) {
+fun GreenBuddyAppContent(uiState: GreenBuddyUiState, onSelectTab: (Tab) -> Unit, onSelectStarter: (String) -> Unit, onContinueOnboarding: () -> Unit, onSubmitLessonAnswer: (Int) -> Boolean, onPerformCareAction: (CareAction) -> Unit, onAcknowledgeGrowthStage: () -> Unit, onPurchaseCosmetic: (CosmeticItem) -> Unit, onEquipCosmetic: (String) -> Unit, onSetRealPlantModeEnabled: (Boolean) -> Unit, onLogRealPlantCare: (RealPlantCareAction) -> Unit) {
     val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species)
     val currentLesson = uiState.lessonProgress.currentLessonOrNull(lessons)
-
-    if (!uiState.onboardingComplete) {
-        OnboardingScreen(
-            options = uiState.starterOptions,
-            selectedStarterId = uiState.selectedStarterId,
-            currentLessonTitle = currentLesson?.title ?: "Starter setup",
-            onSelectStarter = onSelectStarter,
-            onContinue = onContinueOnboarding,
-        )
-        return
-    }
-
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                Tab.entries.forEach { tab ->
-                    NavigationBarItem(
-                        selected = uiState.selectedTab == tab,
-                        onClick = { onSelectTab(tab) },
-                        icon = { Text(if (uiState.selectedTab == tab) "●" else "○") },
-                        label = { Text(tab.label) },
-                    )
-                }
-            }
-        },
-    ) { innerPadding ->
+    if (!uiState.onboardingComplete) { OnboardingScreen(uiState.starterOptions, uiState.selectedStarterId, currentLesson?.title ?: "Starter setup", onSelectStarter, onContinueOnboarding); return }
+    Scaffold(bottomBar = { NavigationBar { Tab.entries.forEach { tab -> NavigationBarItem(selected = uiState.selectedTab == tab, onClick = { onSelectTab(tab) }, icon = { Text(if (uiState.selectedTab == tab) "●" else "○") }, label = { Text(tab.label) }) } } }) { innerPadding ->
         val modifier = Modifier.padding(innerPadding).padding(horizontal = 0.dp)
         when (uiState.selectedTab) {
-            Tab.HOME -> HomeScreen(
-                modifier = modifier,
-                starter = uiState.selectedStarter,
-                lessons = lessons,
-                progress = uiState.lessonProgress,
-                careState = uiState.plantCareState,
-                dailyMissionSet = uiState.dailyMissionSet,
-                growthStageState = uiState.growthStageState,
-                greenhouseCount = uiState.ownedStarterIds.size,
-                rewardState = uiState.rewardState,
-                rewardFeedback = uiState.rewardFeedback,
-                onPerformCareAction = onPerformCareAction,
-                onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
-            )
-            Tab.LEARN -> LearnScreen(
-                modifier = modifier,
-                starter = uiState.selectedStarter,
-                lessons = lessons,
-                progress = uiState.lessonProgress,
-                careState = uiState.plantCareState,
-                onSubmitAnswer = onSubmitLessonAnswer,
-            )
-            Tab.DEX -> DexScreen(
-                modifier = modifier,
-                entries = uiState.inventoryEntries,
-                onSelectStarter = onSelectStarter,
-            )
-            Tab.PROFILE -> ProfileScreen(
-                modifier = modifier,
-                starter = uiState.selectedStarter,
-                lessons = lessons,
-                progress = uiState.lessonProgress,
-                careState = uiState.plantCareState,
-                dailyMissionSet = uiState.dailyMissionSet,
-                growthStageState = uiState.growthStageState,
-                ownedPlantCount = uiState.ownedStarterIds.size,
-                rewardState = uiState.rewardState,
-                onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
-                onPurchaseCosmetic = onPurchaseCosmetic,
-                onEquipCosmetic = onEquipCosmetic,
-            )
+            Tab.HOME -> HomeScreen(modifier, uiState.selectedStarter, lessons, uiState.lessonProgress, uiState.plantCareState, uiState.dailyMissionSet, uiState.growthStageState, uiState.ownedStarterIds.size, uiState.rewardState, uiState.rewardFeedback, uiState.realPlantModeState, onPerformCareAction, onAcknowledgeGrowthStage, onSetRealPlantModeEnabled, onLogRealPlantCare)
+            Tab.LEARN -> LearnScreen(modifier, uiState.selectedStarter, lessons, uiState.lessonProgress, uiState.plantCareState, onSubmitLessonAnswer)
+            Tab.DEX -> DexScreen(modifier, uiState.inventoryEntries, onSelectStarter)
+            Tab.PROFILE -> ProfileScreen(modifier, uiState.selectedStarter, lessons, uiState.lessonProgress, uiState.plantCareState, uiState.dailyMissionSet, uiState.growthStageState, uiState.ownedStarterIds.size, uiState.rewardState, uiState.realPlantModeState, onAcknowledgeGrowthStage, onPurchaseCosmetic, onEquipCosmetic)
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun GreenBuddyAppPreview() {
-    GreenBuddyTheme {
-        GreenBuddyAppContent(
-            uiState = GreenBuddyUiState(
-                onboardingComplete = true,
-                starterOptions = StarterPlants.options,
-            ),
-            onSelectTab = {},
-            onSelectStarter = {},
-            onContinueOnboarding = {},
-            onSubmitLessonAnswer = { false },
-            onPerformCareAction = {},
-            onAcknowledgeGrowthStage = {},
-            onPurchaseCosmetic = {},
-            onEquipCosmetic = {},
-        )
-    }
-}
+private fun GreenBuddyAppPreview() { GreenBuddyTheme { GreenBuddyAppContent(GreenBuddyUiState(onboardingComplete = true, starterOptions = StarterPlants.options), {}, {}, {}, { false }, {}, {}, {}, {}, {}, {}) } }
