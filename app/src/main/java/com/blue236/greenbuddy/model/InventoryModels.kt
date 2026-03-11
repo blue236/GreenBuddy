@@ -1,7 +1,5 @@
 package com.blue236.greenbuddy.model
 
-private const val OWNED_UNLOCKED_COUNT = 1
-
 data class PlantInventoryEntry(
     val option: StarterPlantOption,
     val isOwned: Boolean,
@@ -19,12 +17,11 @@ fun nextUnlockableStarterId(ownedStarterIds: Set<String>): String? =
 fun unlockRequirementFor(
     option: StarterPlantOption,
     ownedStarterIds: Set<String>,
-): String = if (option.id in ownedStarterIds) {
-    "Ready in your greenhouse"
-} else {
-    val neededOwnedCount = StarterPlants.options.indexOfFirst { it.id == option.id }
-        .coerceAtLeast(OWNED_UNLOCKED_COUNT)
-    "Unlock by fully growing $neededOwnedCount plant${if (neededOwnedCount == 1) "" else "s"}."
+): String = when {
+    option.id in ownedStarterIds -> "Ready in your greenhouse"
+    option.id == nextUnlockableStarterId(ownedStarterIds) ->
+        "Automatically unlocks when you complete any current plant track."
+    else -> "Unlock earlier greenhouse companions first."
 }
 
 fun buildInventoryEntries(

@@ -91,7 +91,7 @@ fun HomeScreen(
                 if (allLessonsComplete) {
                     Text("You’ve finished the ${starter.title} starter track. Nice work.")
                     Text(
-                        "Visit the Greenhouse to switch plants or claim the next unlock in your collection loop.",
+                        "Your next greenhouse companion unlocks automatically, and you can switch plants from the Greenhouse anytime.",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {

@@ -66,7 +66,7 @@ fun LearnScreen(
             StatCard("You did it") {
                 Text("You’ve completed every lesson in the ${starter.title} starter track.")
                 Spacer(Modifier.height(8.dp))
-                Text("Try another starter from PlantDex if you want a fresh care path.")
+                Text("Your next greenhouse companion unlocks automatically when a track is complete.")
             }
         } else {
             StatCard("Lesson card") {

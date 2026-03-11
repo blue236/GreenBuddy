@@ -41,4 +41,22 @@ class InventoryModelsTest {
         assertEquals("tomato", nextUnlockableStarterId(setOf("monstera", "basil")))
         assertEquals(null, nextUnlockableStarterId(StarterPlants.options.map { it.id }.toSet()))
     }
+
+    @Test
+    fun unlockRequirementReflectsAutomaticUnlockFlowWithoutPlantCountAssumptions() {
+        assertEquals(
+            "Automatically unlocks when you complete any current plant track.",
+            unlockRequirementFor(
+                option = StarterPlants.options.first { it.id == "basil" },
+                ownedStarterIds = setOf("monstera"),
+            ),
+        )
+        assertEquals(
+            "Unlock earlier greenhouse companions first.",
+            unlockRequirementFor(
+                option = StarterPlants.options.first { it.id == "tomato" },
+                ownedStarterIds = setOf("monstera"),
+            ),
+        )
+    }
 }
