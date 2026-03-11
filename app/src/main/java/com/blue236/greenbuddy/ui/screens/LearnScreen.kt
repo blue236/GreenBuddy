@@ -27,8 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.blue236.greenbuddy.model.CompanionPersonalitySystem
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
+import com.blue236.greenbuddy.model.PlantCareState
 import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
@@ -40,12 +42,14 @@ fun LearnScreen(
     starter: StarterPlantOption,
     lessons: List<Lesson>,
     progress: LessonProgress,
+    careState: PlantCareState,
     onSubmitAnswer: (Int) -> Boolean,
 ) {
     val lesson = progress.currentLessonOrNull(lessons)
     val allLessonsComplete = progress.isComplete(lessons)
     val alreadyCompleted = lesson?.id in progress.completedLessonIds
     val lessonKey = lesson?.id ?: "track_complete"
+    val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons)
     var selectedAnswerIndex by rememberSaveable(lessonKey) { mutableIntStateOf(-1) }
     var feedbackMessage by rememberSaveable(lessonKey) { mutableStateOf<String?>(null) }
 
@@ -61,12 +65,13 @@ fun LearnScreen(
             Text("Current companion: ${starter.companion.name} the ${starter.companion.species}")
             Text(if (allLessonsComplete) "Current lesson: All starter lessons complete" else "Current lesson: ${lesson?.title.orEmpty()}")
             Text("Completed: ${progress.completedCount}/${lessons.size}")
+            Text(dialogue.lessonNudge, color = MaterialTheme.colorScheme.primary)
         }
         if (allLessonsComplete) {
             StatCard("You did it") {
                 Text("You’ve completed every lesson in the ${starter.title} starter track.")
                 Spacer(Modifier.height(8.dp))
-                Text("Try another starter from PlantDex if you want a fresh care path.")
+                Text(dialogue.line)
             }
         } else {
             StatCard("Lesson card") {
@@ -78,38 +83,38 @@ fun LearnScreen(
                 Text(lesson?.quizPrompt.orEmpty())
                 Spacer(Modifier.height(12.dp))
                 lesson?.quizOptions?.forEachIndexed { index, option ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = selectedAnswerIndex == index,
-                            enabled = !alreadyCompleted,
-                            onClick = {
-                                selectedAnswerIndex = index
-                                feedbackMessage = null
-                            },
-                        ),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (selectedAnswerIndex == index) {
-                            MaterialTheme.colorScheme.secondaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        },
-                    ),
-                ) {
-                    androidx.compose.foundation.layout.Row(
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                            .selectable(
+                                selected = selectedAnswerIndex == index,
+                                enabled = !alreadyCompleted,
+                                onClick = {
+                                    selectedAnswerIndex = index
+                                    feedbackMessage = null
+                                },
+                            ),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (selectedAnswerIndex == index) {
+                                MaterialTheme.colorScheme.secondaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            },
+                        ),
                     ) {
-                        RadioButton(selected = selectedAnswerIndex == index, onClick = null, enabled = !alreadyCompleted)
-                        Text(option, modifier = Modifier.padding(start = 8.dp))
+                        androidx.compose.foundation.layout.Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = selectedAnswerIndex == index, onClick = null, enabled = !alreadyCompleted)
+                            Text(option, modifier = Modifier.padding(start = 8.dp))
+                        }
                     }
+                    Spacer(Modifier.height(8.dp))
                 }
-                Spacer(Modifier.height(8.dp))
-            }
 
                 if (feedbackMessage != null) {
                     Text(
@@ -137,13 +142,35 @@ fun LearnScreen(
 
                     val isCorrect = onSubmitAnswer(selectedAnswerIndex)
                     feedbackMessage = if (isCorrect) {
-                        if (progress.completedCount + 1 >= lessons.size) {
-                            "Correct! You finished the full starter track."
-                        } else {
-                            "Correct! You earned XP and advanced to the next lesson."
+                        when (starter.companion.species) {
+                            "Monstera" -> if (progress.completedCount + 1 >= lessons.size) {
+                                "Correct. We’ve completed the whole track in a very calm, leafy fashion."
+                            } else {
+                                "Correct. Nice and steady — we’re unfolding well."
+                            }
+                            "Basil" -> if (progress.completedCount + 1 >= lessons.size) {
+                                "Correct! Full track cleared — that was quick and sharp."
+                            } else {
+                                "Correct! Great pace — let’s keep the energy up."
+                            }
+                            "Tomato" -> if (progress.completedCount + 1 >= lessons.size) {
+                                "Correct. Track complete. Strong work from start to finish."
+                            } else {
+                                "Correct. Good call — that keeps our growth plan moving."
+                            }
+                            else -> if (progress.completedCount + 1 >= lessons.size) {
+                                "Correct! You finished the full starter track."
+                            } else {
+                                "Correct! You earned XP and advanced to the next lesson."
+                            }
                         }
                     } else {
-                        "Not quite — try again."
+                        when (starter.companion.species) {
+                            "Monstera" -> "Not quite. Take another calm look and try again."
+                            "Basil" -> "Almost! One more quick shot."
+                            "Tomato" -> "Not yet. Reset and take the next attempt seriously."
+                            else -> "Not quite — try again."
+                        }
                     }
                 },
                 enabled = !alreadyCompleted,

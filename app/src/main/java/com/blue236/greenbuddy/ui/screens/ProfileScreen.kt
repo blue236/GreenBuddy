@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.blue236.greenbuddy.model.CompanionPersonalitySystem
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
@@ -26,6 +27,8 @@ fun ProfileScreen(
     progress: LessonProgress,
     careState: PlantCareState,
 ) {
+    val personality = CompanionPersonalitySystem.personalityFor(starter.companion.species)
+    val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons)
     val allLessonsComplete = progress.isComplete(lessons)
     val nextLesson = progress.currentLessonOrNull(lessons)
 
@@ -43,11 +46,18 @@ fun ProfileScreen(
             Text(if (allLessonsComplete) "Track status: complete" else "Track status: in progress")
             Text("Plants unlocked 3")
         }
-        StatCard("Starter setup") {
+        StatCard("Companion personality") {
             Text("Chosen starter: ${starter.title}")
             Text("Companion: ${starter.companion.name}")
+            Text("Personality: ${personality.archetype}")
+            Text("Tone: ${personality.tone}")
+            Text("Role: ${personality.profileLabel}")
+        }
+        StatCard("Current vibe") {
             Text("Current mood: ${careState.mood}")
             Text("Current health: ${careState.health}")
+            Text(dialogue.line)
+            Text(dialogue.careGuidance, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(if (allLessonsComplete) "Next lesson: starter track completed" else "Next lesson: ${nextLesson?.title.orEmpty()}")
         }
         StatCard("Roadmap focus") {

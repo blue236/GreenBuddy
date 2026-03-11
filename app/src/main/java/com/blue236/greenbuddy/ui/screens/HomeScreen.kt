@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.model.CareAction
+import com.blue236.greenbuddy.model.CompanionPersonalitySystem
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
@@ -46,6 +47,8 @@ fun HomeScreen(
     onPerformCareAction: (CareAction) -> Unit,
 ) {
     val plant = starter.companion
+    val personality = CompanionPersonalitySystem.personalityFor(plant.species)
+    val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons)
     val currentLesson = progress.currentLessonOrNull(lessons)
     val nextStageXp = lessons.sumOf { it.rewardXp }
     val completionPercent = if (lessons.isEmpty()) 0 else (progress.completedCount * 100) / lessons.size
@@ -59,10 +62,14 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("GreenBuddy", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("Your starter companion is now tuned to ${plant.species} care.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            "${plant.name} brings a ${personality.tone.lowercase()} ${plant.species.lowercase()} vibe to your routine.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
 
         Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
             Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(dialogue.headline, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 Text("${plant.name} · ${plant.species}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                 Text("Stage: ${plant.stage} · Mood: ${careState.mood} · Health: ${careState.health}")
                 Box(
@@ -73,7 +80,7 @@ fun HomeScreen(
                 ) {
                     Text(plant.emoji, style = MaterialTheme.typography.displayMedium)
                 }
-                Text("\"${plant.greeting}\"")
+                Text("\"${dialogue.line}\"")
             }
         }
 
@@ -85,12 +92,12 @@ fun HomeScreen(
                     fontWeight = FontWeight.SemiBold,
                 )
                 if (allLessonsComplete) {
-                    Text("You’ve finished the ${starter.title} starter track. Nice work.")
-                    Text("Switch starters in PlantDex to begin a new path, or check your profile for total XP.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(dialogue.lessonNudge)
+                    Text("Check your profile for personality details, or switch starters in PlantDex for a whole new voice.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     Text(currentLesson?.title.orEmpty())
                     Text(currentLesson?.summary.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Starter tip: ${plant.careTip}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(dialogue.lessonNudge, color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -101,6 +108,7 @@ fun HomeScreen(
             CareStatRow("Nutrition", careState.nutrition)
             CareStatRow("Overall", careState.averageScore)
             Text("${plant.name} feels ${careState.mood.lowercase()} and is currently ${careState.health.lowercase()}.")
+            Text(dialogue.careGuidance, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
 
         StatCard("Care actions") {
@@ -116,15 +124,7 @@ fun HomeScreen(
                     )
                 }
             }
-            Text(
-                when {
-                    careState.hydration <= 35 -> "Try watering next — hydration is getting low."
-                    careState.sunlight <= 35 -> "A brighter spot would help right now."
-                    careState.nutrition <= 35 -> "Nutrients are running thin — fertilizer would help."
-                    else -> "Nice balance. Mix actions over time to keep stats healthy."
-                },
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Text(dialogue.careGuidance, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
 
         StatCard("Growth progress") {
