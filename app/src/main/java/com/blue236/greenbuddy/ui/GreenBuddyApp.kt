@@ -36,7 +36,10 @@ import com.blue236.greenbuddy.ui.state.GreenBuddyViewModel
 import com.blue236.greenbuddy.ui.theme.GreenBuddyTheme
 
 @Composable
-fun GreenBuddyApp(viewModel: GreenBuddyViewModel = viewModel()) {
+fun GreenBuddyApp(
+    initialTab: Tab = Tab.HOME,
+    viewModel: GreenBuddyViewModel = viewModel(),
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -48,6 +51,10 @@ fun GreenBuddyApp(viewModel: GreenBuddyViewModel = viewModel()) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
+
+    LaunchedEffect(initialTab) {
+        viewModel.selectTab(initialTab)
     }
 
     DisposableEffect(lifecycleOwner, viewModel) {

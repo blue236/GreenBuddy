@@ -31,8 +31,8 @@ class ReminderWorker(
             nowMillis = System.currentTimeMillis(),
         ) ?: return Result.success()
 
-        ReminderNotifier.show(applicationContext, reminder)
-        if (ReminderNotifier.canPostNotifications(applicationContext)) {
+        val shown = ReminderNotifier.show(applicationContext, reminder)
+        if (shown) {
             repository.recordNotificationSent(System.currentTimeMillis())
         }
         return Result.success()
