@@ -27,15 +27,29 @@ data class RealPlantModeState(
     val enabled: Boolean = false,
     val entries: List<RealPlantLogEntry> = emptyList(),
 ) {
+    fun canLogActionOn(
+        action: RealPlantCareAction,
+        date: LocalDate,
+        zoneId: ZoneId,
+    ): Boolean = entries.none { entry ->
+        entry.action == action && entry.loggedDate(zoneId) == date
+    }
+
     fun logAction(
         action: RealPlantCareAction,
         loggedAtEpochMillis: Long,
+        zoneId: ZoneId,
         maxEntries: Int = MAX_LOG_ENTRIES,
-    ): RealPlantModeState = copy(
-        entries = (listOf(RealPlantLogEntry(action, loggedAtEpochMillis)) + entries)
-            .sortedByDescending { it.loggedAtEpochMillis }
-            .take(maxEntries),
-    )
+    ): RealPlantModeState {
+        val loggedDate = Instant.ofEpochMilli(loggedAtEpochMillis).atZone(zoneId).toLocalDate()
+        if (!canLogActionOn(action, loggedDate, zoneId)) return this
+
+        return copy(
+            entries = (listOf(RealPlantLogEntry(action, loggedAtEpochMillis)) + entries)
+                .sortedByDescending { it.loggedAtEpochMillis }
+                .take(maxEntries),
+        )
+    }
 
     fun completedActionsOn(date: LocalDate, zoneId: ZoneId): Set<RealPlantCareAction> = entries
         .filter { it.loggedDate(zoneId) == date }

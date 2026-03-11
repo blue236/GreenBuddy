@@ -149,7 +149,7 @@ fun HomeScreen(
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text("Track real care habits")
                     Text(
-                        "Optional MVP mode: log simple real-world plant care and mirror it into your companion’s stats.",
+                        "Optional MVP mode: log simple real-world plant care and mirror the first completion of each habit into your companion’s stats each day.",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -167,9 +167,9 @@ fun HomeScreen(
                 }
                 Text(
                     if (completedRealActionsToday.isEmpty()) {
-                        "Start with one real habit today — your buddy will reflect it right away."
+                        "Start with one real habit today — the first log for each checklist item updates your buddy right away."
                     } else {
-                        "${completedRealActionsToday.size}/${RealPlantCareAction.entries.size} real care habits logged today."
+                        "${completedRealActionsToday.size}/${RealPlantCareAction.entries.size} real care habits logged today. Repeats on the same day don’t add extra checklist credit or companion boosts."
                     },
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

@@ -66,9 +66,21 @@ class GreenBuddyPreferencesRepository(context: Context) {
     suspend fun saveRealPlantModeState(starterId: String, realPlantModeState: RealPlantModeState) {
         dataStore.edit { prefs ->
             prefs[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled
-            prefs[realPlantLogKey(starterId)] = realPlantModeState.entries.joinToString(LOG_ENTRY_SEPARATOR) { entry ->
-                "${entry.loggedAtEpochMillis}${LOG_FIELD_SEPARATOR}${entry.action.name}"
-            }
+            prefs[realPlantLogKey(starterId)] = encodeRealPlantEntries(realPlantModeState.entries)
+        }
+    }
+
+    suspend fun saveRealPlantModeAndPlantCareState(
+        starterId: String,
+        realPlantModeState: RealPlantModeState,
+        careState: PlantCareState,
+    ) {
+        dataStore.edit { prefs ->
+            prefs[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled
+            prefs[realPlantLogKey(starterId)] = encodeRealPlantEntries(realPlantModeState.entries)
+            prefs[hydrationKey(starterId)] = careState.hydration
+            prefs[sunlightKey(starterId)] = careState.sunlight
+            prefs[nutritionKey(starterId)] = careState.nutrition
         }
     }
 
@@ -90,6 +102,11 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private fun realPlantModeEnabledKey(starterId: String) = booleanPreferencesKey("${starterId}_real_plant_mode_enabled")
         private fun realPlantLogKey(starterId: String) = stringPreferencesKey("${starterId}_real_plant_log")
     }
+
+    private fun encodeRealPlantEntries(entries: List<RealPlantLogEntry>): String =
+        entries.joinToString(LOG_ENTRY_SEPARATOR) { entry ->
+            "${entry.loggedAtEpochMillis}${LOG_FIELD_SEPARATOR}${entry.action.name}"
+        }
 
     private fun readLessonProgress(prefs: Preferences, starterId: String): LessonProgress = LessonProgress(
         currentLessonIndex = prefs[currentLessonIndexKey(starterId)] ?: 0,

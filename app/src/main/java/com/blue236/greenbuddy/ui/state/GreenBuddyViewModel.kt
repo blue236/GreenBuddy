@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
 
 class GreenBuddyViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = GreenBuddyPreferencesRepository(application)
@@ -98,14 +100,23 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
 
     fun logRealPlantCare(action: RealPlantCareAction) {
         val state = uiState.value
+        val zoneId = ZoneId.systemDefault()
+        val loggedAtEpochMillis = System.currentTimeMillis()
+        val loggedDate = Instant.ofEpochMilli(loggedAtEpochMillis).atZone(zoneId).toLocalDate()
+        if (!state.realPlantModeState.canLogActionOn(action, loggedDate, zoneId)) return
+
         val updatedRealPlantMode = state.realPlantModeState.logAction(
             action = action,
-            loggedAtEpochMillis = System.currentTimeMillis(),
+            loggedAtEpochMillis = loggedAtEpochMillis,
+            zoneId = zoneId,
         )
         val updatedCareState = state.plantCareState.apply(action.linkedCareAction)
         viewModelScope.launch {
-            repository.saveRealPlantModeState(state.selectedStarterId, updatedRealPlantMode)
-            repository.savePlantCareState(state.selectedStarterId, updatedCareState)
+            repository.saveRealPlantModeAndPlantCareState(
+                starterId = state.selectedStarterId,
+                realPlantModeState = updatedRealPlantMode,
+                careState = updatedCareState,
+            )
         }
     }
 }
