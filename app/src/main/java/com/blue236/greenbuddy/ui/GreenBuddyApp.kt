@@ -84,6 +84,7 @@ fun GreenBuddyAppContent(
                 lessons = lessons,
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
+                dailyMissionSet = uiState.dailyMissionSet,
                 onPerformCareAction = onPerformCareAction,
             )
             Tab.LEARN -> LearnScreen(
@@ -100,6 +101,7 @@ fun GreenBuddyAppContent(
                 lessons = lessons,
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
+                dailyMissionSet = uiState.dailyMissionSet,
             )
         }
     }

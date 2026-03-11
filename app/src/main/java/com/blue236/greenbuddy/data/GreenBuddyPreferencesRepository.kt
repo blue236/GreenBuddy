@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.blue236.greenbuddy.model.AppPreferences
+import com.blue236.greenbuddy.model.DailyMissionProgress
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
 import com.blue236.greenbuddy.model.StarterPlants
@@ -27,6 +28,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
             selectedStarterId = selectedStarterId,
             lessonProgress = readLessonProgress(prefs, selectedStarterId),
             plantCareState = readPlantCareState(prefs, selectedStarterId),
+            dailyMissionProgress = readDailyMissionProgress(prefs, selectedStarterId),
         )
     }
 
@@ -59,6 +61,21 @@ class GreenBuddyPreferencesRepository(context: Context) {
         }
     }
 
+    suspend fun saveDailyMissionProgress(starterId: String, progress: DailyMissionProgress) {
+        dataStore.edit { prefs ->
+            prefs[missionDateKey(starterId)] = progress.missionDate
+            prefs[completedMissionIdsKey(starterId)] = progress.completedMissionIds.joinToString(COMPLETED_IDS_SEPARATOR)
+            prefs[completedCareActionsTodayKey(starterId)] = progress.completedCareActionsToday
+            prefs[completedLessonsTodayKey(starterId)] = progress.completedLessonsToday
+            progress.claimedDailyRewardDate?.let { prefs[claimedDailyRewardDateKey(starterId)] = it } ?: prefs.remove(claimedDailyRewardDateKey(starterId))
+            prefs[currentStreakKey(starterId)] = progress.currentStreak
+            prefs[longestStreakKey(starterId)] = progress.longestStreak
+            progress.lastCompletedDate?.let { prefs[lastCompletedDateKey(starterId)] = it } ?: prefs.remove(lastCompletedDateKey(starterId))
+            prefs[leafTokensKey(starterId)] = progress.leafTokens
+            progress.streakRewardClaimedForStreak?.let { prefs[streakRewardClaimedForStreakKey(starterId)] = it } ?: prefs.remove(streakRewardClaimedForStreakKey(starterId))
+        }
+    }
+
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
         private const val COMPLETED_IDS_SEPARATOR = ","
@@ -72,6 +89,16 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private fun hydrationKey(starterId: String) = intPreferencesKey("${starterId}_hydration")
         private fun sunlightKey(starterId: String) = intPreferencesKey("${starterId}_sunlight")
         private fun nutritionKey(starterId: String) = intPreferencesKey("${starterId}_nutrition")
+        private fun missionDateKey(starterId: String) = stringPreferencesKey("${starterId}_mission_date")
+        private fun completedMissionIdsKey(starterId: String) = stringPreferencesKey("${starterId}_completed_mission_ids")
+        private fun completedCareActionsTodayKey(starterId: String) = intPreferencesKey("${starterId}_completed_care_actions_today")
+        private fun completedLessonsTodayKey(starterId: String) = intPreferencesKey("${starterId}_completed_lessons_today")
+        private fun claimedDailyRewardDateKey(starterId: String) = stringPreferencesKey("${starterId}_claimed_daily_reward_date")
+        private fun currentStreakKey(starterId: String) = intPreferencesKey("${starterId}_current_streak")
+        private fun longestStreakKey(starterId: String) = intPreferencesKey("${starterId}_longest_streak")
+        private fun lastCompletedDateKey(starterId: String) = stringPreferencesKey("${starterId}_last_completed_date")
+        private fun leafTokensKey(starterId: String) = intPreferencesKey("${starterId}_leaf_tokens")
+        private fun streakRewardClaimedForStreakKey(starterId: String) = intPreferencesKey("${starterId}_streak_reward_claimed_for_streak")
     }
 
     private fun readLessonProgress(prefs: Preferences, starterId: String): LessonProgress = LessonProgress(
@@ -93,4 +120,21 @@ class GreenBuddyPreferencesRepository(context: Context) {
             nutrition = prefs[nutritionKey(starterId)] ?: defaultCare.nutrition,
         )
     }
+
+    private fun readDailyMissionProgress(prefs: Preferences, starterId: String): DailyMissionProgress = DailyMissionProgress(
+        missionDate = prefs[missionDateKey(starterId)] ?: "",
+        completedMissionIds = prefs[completedMissionIdsKey(starterId)]
+            ?.split(COMPLETED_IDS_SEPARATOR)
+            ?.filter { it.isNotBlank() }
+            ?.toSet()
+            ?: emptySet(),
+        completedCareActionsToday = prefs[completedCareActionsTodayKey(starterId)] ?: 0,
+        completedLessonsToday = prefs[completedLessonsTodayKey(starterId)] ?: 0,
+        claimedDailyRewardDate = prefs[claimedDailyRewardDateKey(starterId)],
+        currentStreak = prefs[currentStreakKey(starterId)] ?: 0,
+        longestStreak = prefs[longestStreakKey(starterId)] ?: 0,
+        lastCompletedDate = prefs[lastCompletedDateKey(starterId)],
+        leafTokens = prefs[leafTokensKey(starterId)] ?: 0,
+        streakRewardClaimedForStreak = prefs[streakRewardClaimedForStreakKey(starterId)],
+    )
 }
