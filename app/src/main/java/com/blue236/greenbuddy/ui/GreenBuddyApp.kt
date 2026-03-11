@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.blue236.greenbuddy.model.CareAction
+import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.StarterPlants
@@ -36,6 +37,8 @@ fun GreenBuddyApp(viewModel: GreenBuddyViewModel = viewModel()) {
         onContinueOnboarding = viewModel::completeOnboarding,
         onSubmitLessonAnswer = viewModel::submitCurrentLessonAnswer,
         onPerformCareAction = viewModel::performCareAction,
+        onPurchaseCosmetic = viewModel::purchaseCosmetic,
+        onEquipCosmetic = viewModel::equipCosmetic,
     )
 }
 
@@ -47,6 +50,8 @@ fun GreenBuddyAppContent(
     onContinueOnboarding: () -> Unit,
     onSubmitLessonAnswer: (Int) -> Boolean,
     onPerformCareAction: (CareAction) -> Unit,
+    onPurchaseCosmetic: (CosmeticItem) -> Unit,
+    onEquipCosmetic: (String) -> Unit,
 ) {
     val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species)
     val currentLesson = uiState.lessonProgress.currentLessonOrNull(lessons)
@@ -84,6 +89,8 @@ fun GreenBuddyAppContent(
                 lessons = lessons,
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
+                rewardState = uiState.rewardState,
+                rewardFeedback = uiState.rewardFeedback,
                 onPerformCareAction = onPerformCareAction,
             )
             Tab.LEARN -> LearnScreen(
@@ -100,6 +107,9 @@ fun GreenBuddyAppContent(
                 lessons = lessons,
                 progress = uiState.lessonProgress,
                 careState = uiState.plantCareState,
+                rewardState = uiState.rewardState,
+                onPurchaseCosmetic = onPurchaseCosmetic,
+                onEquipCosmetic = onEquipCosmetic,
             )
         }
     }
@@ -119,6 +129,8 @@ private fun GreenBuddyAppPreview() {
             onContinueOnboarding = {},
             onSubmitLessonAnswer = { false },
             onPerformCareAction = {},
+            onPurchaseCosmetic = {},
+            onEquipCosmetic = {},
         )
     }
 }

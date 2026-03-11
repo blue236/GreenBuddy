@@ -29,6 +29,8 @@ import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.RewardCatalog
+import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
@@ -43,6 +45,8 @@ fun HomeScreen(
     lessons: List<Lesson>,
     progress: LessonProgress,
     careState: PlantCareState,
+    rewardState: RewardState,
+    rewardFeedback: String?,
     onPerformCareAction: (CareAction) -> Unit,
 ) {
     val plant = starter.companion
@@ -50,6 +54,8 @@ fun HomeScreen(
     val nextStageXp = lessons.sumOf { it.rewardXp }
     val completionPercent = if (lessons.isEmpty()) 0 else (progress.completedCount * 100) / lessons.size
     val allLessonsComplete = progress.isComplete(lessons)
+    val equippedCosmetic = rewardState.equippedCosmetic
+    val nextShopUnlock = RewardCatalog.cosmetics.firstOrNull { it.id !in rewardState.unlockedCosmeticIds }
 
     Column(
         modifier = modifier
@@ -71,9 +77,32 @@ fun HomeScreen(
                         .background(Color(0xFFC8E6C9), RoundedCornerShape(24.dp)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(plant.emoji, style = MaterialTheme.typography.displayMedium)
+                    Text(
+                        buildString {
+                            append(plant.emoji)
+                            equippedCosmetic?.let {
+                                append(" ")
+                                append(it.emoji)
+                            }
+                        },
+                        style = MaterialTheme.typography.displayMedium,
+                    )
                 }
                 Text("\"${plant.greeting}\"")
+                Text(
+                    equippedCosmetic?.let { "Cosmetic equipped: ${it.name}" } ?: "No cosmetic equipped yet — earn leaf tokens and visit the shop in Profile.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        if (rewardFeedback != null) {
+            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1))) {
+                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Reward pulse", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(rewardFeedback)
+                    Text("Wallet: ${rewardState.leafTokens} leaf tokens", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
 
@@ -91,6 +120,7 @@ fun HomeScreen(
                     Text(currentLesson?.title.orEmpty())
                     Text(currentLesson?.summary.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("Starter tip: ${plant.careTip}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Lesson reward: +${RewardState.lessonTokenReward(currentLesson?.rewardXp ?: 0)} leaf tokens")
                 }
             }
         }
@@ -104,7 +134,7 @@ fun HomeScreen(
         }
 
         StatCard("Care actions") {
-            Text("Quick actions change your plant’s live care stats and persist per starter.")
+            Text("Quick actions change your plant’s live care stats, persist per starter, and award ${RewardState.careTokenReward()} leaf tokens each time.")
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -121,10 +151,21 @@ fun HomeScreen(
                     careState.hydration <= 35 -> "Try watering next — hydration is getting low."
                     careState.sunlight <= 35 -> "A brighter spot would help right now."
                     careState.nutrition <= 35 -> "Nutrients are running thin — fertilizer would help."
-                    else -> "Nice balance. Mix actions over time to keep stats healthy."
+                    else -> "Nice balance. Mix actions over time to keep stats healthy and keep earning tokens."
                 },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+
+        StatCard("Reward loop") {
+            Text("Leaf tokens: ${rewardState.leafTokens}")
+            Text("Unlocked cosmetics: ${rewardState.unlockedCosmeticIds.size}/${RewardCatalog.cosmetics.size}")
+            Spacer(Modifier.size(8.dp))
+            Text(
+                nextShopUnlock?.let { "Next shop item: ${it.name} ${it.emoji} · ${it.cost} tokens" }
+                    ?: "Shop cleared — every cosmetic is unlocked.",
+            )
+            Text("Repeated care and lesson wins now feed cosmetic progression.")
         }
 
         StatCard("Growth progress") {
@@ -137,7 +178,7 @@ fun HomeScreen(
             )
             Spacer(Modifier.size(8.dp))
             Text("Lessons completed: ${progress.completedCount}/${lessons.size} ($completionPercent%)")
-            Text(if (allLessonsComplete) "This starter’s intro journey is complete." else "Daily loop: Learn → Quiz → Care → Reward")
+            Text(if (allLessonsComplete) "This starter’s intro journey is complete." else "Daily loop: Learn → Quiz → Care → Reward → Shop")
         }
     }
 }

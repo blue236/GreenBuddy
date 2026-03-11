@@ -11,6 +11,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.blue236.greenbuddy.model.AppPreferences
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -27,6 +28,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
             selectedStarterId = selectedStarterId,
             lessonProgress = readLessonProgress(prefs, selectedStarterId),
             plantCareState = readPlantCareState(prefs, selectedStarterId),
+            rewardState = readRewardState(prefs),
         )
     }
 
@@ -59,12 +61,23 @@ class GreenBuddyPreferencesRepository(context: Context) {
         }
     }
 
+    suspend fun saveRewardState(rewardState: RewardState) {
+        dataStore.edit { prefs ->
+            prefs[leafTokensKey] = rewardState.leafTokens
+            prefs[unlockedCosmeticIdsKey] = rewardState.unlockedCosmeticIds.joinToString(COMPLETED_IDS_SEPARATOR)
+            rewardState.equippedCosmeticId?.let { prefs[equippedCosmeticIdKey] = it } ?: prefs.remove(equippedCosmeticIdKey)
+        }
+    }
+
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
         private const val COMPLETED_IDS_SEPARATOR = ","
 
         private val OnboardingCompleteKey = booleanPreferencesKey("onboarding_complete")
         private val SelectedStarterIdKey = stringPreferencesKey("selected_starter_id")
+        private val leafTokensKey = intPreferencesKey("leaf_tokens")
+        private val unlockedCosmeticIdsKey = stringPreferencesKey("unlocked_cosmetic_ids")
+        private val equippedCosmeticIdKey = stringPreferencesKey("equipped_cosmetic_id")
 
         private fun currentLessonIndexKey(starterId: String) = intPreferencesKey("${starterId}_current_lesson_index")
         private fun completedLessonIdsKey(starterId: String) = stringPreferencesKey("${starterId}_completed_lesson_ids")
@@ -93,4 +106,14 @@ class GreenBuddyPreferencesRepository(context: Context) {
             nutrition = prefs[nutritionKey(starterId)] ?: defaultCare.nutrition,
         )
     }
+
+    private fun readRewardState(prefs: Preferences): RewardState = RewardState(
+        leafTokens = prefs[leafTokensKey] ?: 0,
+        unlockedCosmeticIds = prefs[unlockedCosmeticIdsKey]
+            ?.split(COMPLETED_IDS_SEPARATOR)
+            ?.filter { it.isNotBlank() }
+            ?.toSet()
+            ?: emptySet(),
+        equippedCosmeticId = prefs[equippedCosmeticIdKey],
+    )
 }
