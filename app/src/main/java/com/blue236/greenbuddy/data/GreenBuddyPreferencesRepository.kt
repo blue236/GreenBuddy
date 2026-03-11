@@ -6,13 +6,16 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.blue236.greenbuddy.model.AppPreferences
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
+import com.blue236.greenbuddy.model.ReminderState
 import com.blue236.greenbuddy.model.StarterPlants
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class GreenBuddyPreferencesRepository(context: Context) {
@@ -27,8 +30,11 @@ class GreenBuddyPreferencesRepository(context: Context) {
             selectedStarterId = selectedStarterId,
             lessonProgress = readLessonProgress(prefs, selectedStarterId),
             plantCareState = readPlantCareState(prefs, selectedStarterId),
+            reminderState = readReminderState(prefs),
         )
     }
+
+    suspend fun currentPreferences(): AppPreferences = preferences.first()
 
     suspend fun setSelectedStarter(id: String) {
         dataStore.edit { prefs ->
@@ -59,12 +65,40 @@ class GreenBuddyPreferencesRepository(context: Context) {
         }
     }
 
+    suspend fun recordAppOpen(atMillis: Long) {
+        dataStore.edit { prefs ->
+            prefs[lastAppOpenAtKey] = atMillis
+        }
+    }
+
+    suspend fun recordLessonCompleted(atMillis: Long) {
+        dataStore.edit { prefs ->
+            prefs[lastLessonCompletedAtKey] = atMillis
+        }
+    }
+
+    suspend fun recordCareAction(atMillis: Long) {
+        dataStore.edit { prefs ->
+            prefs[lastCareActionAtKey] = atMillis
+        }
+    }
+
+    suspend fun recordNotificationSent(atMillis: Long) {
+        dataStore.edit { prefs ->
+            prefs[lastNotificationSentAtKey] = atMillis
+        }
+    }
+
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
         private const val COMPLETED_IDS_SEPARATOR = ","
 
         private val OnboardingCompleteKey = booleanPreferencesKey("onboarding_complete")
         private val SelectedStarterIdKey = stringPreferencesKey("selected_starter_id")
+        private val lastAppOpenAtKey = longPreferencesKey("last_app_open_at")
+        private val lastLessonCompletedAtKey = longPreferencesKey("last_lesson_completed_at")
+        private val lastCareActionAtKey = longPreferencesKey("last_care_action_at")
+        private val lastNotificationSentAtKey = longPreferencesKey("last_notification_sent_at")
 
         private fun currentLessonIndexKey(starterId: String) = intPreferencesKey("${starterId}_current_lesson_index")
         private fun completedLessonIdsKey(starterId: String) = stringPreferencesKey("${starterId}_completed_lesson_ids")
@@ -93,4 +127,11 @@ class GreenBuddyPreferencesRepository(context: Context) {
             nutrition = prefs[nutritionKey(starterId)] ?: defaultCare.nutrition,
         )
     }
+
+    private fun readReminderState(prefs: Preferences): ReminderState = ReminderState(
+        lastAppOpenAtMillis = prefs[lastAppOpenAtKey],
+        lastLessonCompletedAtMillis = prefs[lastLessonCompletedAtKey],
+        lastCareActionAtMillis = prefs[lastCareActionAtKey],
+        lastNotificationSentAtMillis = prefs[lastNotificationSentAtKey],
+    )
 }

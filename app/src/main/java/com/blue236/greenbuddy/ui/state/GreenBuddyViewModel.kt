@@ -11,6 +11,7 @@ import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.advanceWith
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.normalizedFor
+import com.blue236.greenbuddy.notifications.ReminderScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -43,6 +44,16 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         initialValue = GreenBuddyUiState(),
     )
 
+    init {
+        ReminderScheduler.schedule(application)
+    }
+
+    fun onAppVisible() {
+        viewModelScope.launch {
+            repository.recordAppOpen(System.currentTimeMillis())
+        }
+    }
+
     fun selectTab(tab: Tab) {
         selectedTab.value = tab
     }
@@ -56,6 +67,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     fun completeOnboarding() {
         viewModelScope.launch {
             repository.completeOnboarding(uiState.value.selectedStarterId)
+            repository.recordAppOpen(System.currentTimeMillis())
         }
     }
 
@@ -71,7 +83,10 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             totalLessons = lessons.size,
         )
         viewModelScope.launch {
+            val now = System.currentTimeMillis()
             repository.saveLessonProgress(state.selectedStarterId, updatedProgress)
+            repository.recordLessonCompleted(now)
+            repository.recordAppOpen(now)
         }
         return true
     }
@@ -80,7 +95,10 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val state = uiState.value
         val updatedCareState = state.plantCareState.apply(action)
         viewModelScope.launch {
+            val now = System.currentTimeMillis()
             repository.savePlantCareState(state.selectedStarterId, updatedCareState)
+            repository.recordCareAction(now)
+            repository.recordAppOpen(now)
         }
     }
 }

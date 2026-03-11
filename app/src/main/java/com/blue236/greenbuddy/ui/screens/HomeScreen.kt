@@ -127,6 +127,11 @@ fun HomeScreen(
             )
         }
 
+        StatCard("Reminder loop") {
+            Text("GreenBuddy now uses gentle local reminders for lesson-ready moments, care dips, and routine check-ins.")
+            Text("You should only hear from it when you have been away for a while or your plant actually needs attention.")
+        }
+
         StatCard("Growth progress") {
             Text(
                 if (allLessonsComplete) {
