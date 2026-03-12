@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -19,7 +18,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -94,10 +92,6 @@ fun GreenBuddyAppContent(
     onSetSelectedWeatherCity: (String) -> Unit,
     onSetAppLanguage: (AppLanguage) -> Unit,
 ) {
-    LaunchedEffect(uiState.appLanguage) {
-        val locales = uiState.appLanguage.languageTag?.let(LocaleListCompat::forLanguageTags) ?: LocaleListCompat.getEmptyLocaleList()
-        AppCompatDelegate.setApplicationLocales(locales)
-    }
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species, localeTag)
     val currentLesson = uiState.lessonProgress.currentLessonOrNull(lessons)

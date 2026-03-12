@@ -12,20 +12,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.core.os.LocaleListCompat
-import androidx.appcompat.app.AppCompatDelegate
-import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
 import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.notifications.reminderDestinationTabOrNull
 import com.blue236.greenbuddy.ui.GreenBuddyApp
 import com.blue236.greenbuddy.ui.theme.GreenBuddyTheme
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     private var initialTab by mutableStateOf(Tab.HOME)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        applyStoredAppLanguage()
         super.onCreate(savedInstanceState)
         initialTab = intent.reminderDestinationTabOrNull() ?: Tab.HOME
         enableEdgeToEdge()
@@ -47,13 +42,4 @@ class MainActivity : AppCompatActivity() {
         initialTab = intent.reminderDestinationTabOrNull() ?: Tab.HOME
     }
 
-    private fun applyStoredAppLanguage() {
-        val appLanguage = runBlocking {
-            GreenBuddyPreferencesRepository(applicationContext).currentPreferences().appLanguage
-        }
-        val locales = appLanguage.languageTag
-            ?.let(LocaleListCompat::forLanguageTags)
-            ?: LocaleListCompat.getEmptyLocaleList()
-        AppCompatDelegate.setApplicationLocales(locales)
-    }
 }

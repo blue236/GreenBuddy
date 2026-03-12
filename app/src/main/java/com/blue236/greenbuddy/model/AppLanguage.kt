@@ -1,5 +1,6 @@
 package com.blue236.greenbuddy.model
 
+import androidx.core.os.LocaleListCompat
 import java.util.Locale
 
 enum class AppLanguage(val storageValue: String, val languageTag: String?) {
@@ -15,6 +16,9 @@ enum class AppLanguage(val storageValue: String, val languageTag: String?) {
 
 fun AppLanguage.effectiveLanguageTag(systemLanguageTag: String?): String =
     languageTag ?: normalizedLanguageTag(systemLanguageTag)
+
+fun AppLanguage.asLocaleListCompat(): LocaleListCompat =
+    languageTag?.let(LocaleListCompat::forLanguageTags) ?: LocaleListCompat.getEmptyLocaleList()
 
 fun localizedLanguageName(option: AppLanguage, languageTag: String): String = when (option) {
     AppLanguage.SYSTEM -> when (normalizedLanguageTag(languageTag)) {

@@ -1,6 +1,7 @@
 package com.blue236.greenbuddy.ui.state
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
@@ -20,6 +21,7 @@ import com.blue236.greenbuddy.model.Tab
 import com.blue236.greenbuddy.model.WeatherAdviceGenerator
 import com.blue236.greenbuddy.model.SeasonalWeatherProvider
 import com.blue236.greenbuddy.model.advanceWith
+import com.blue236.greenbuddy.model.asLocaleListCompat
 import com.blue236.greenbuddy.model.claimStreakRewardIfEligible
 import com.blue236.greenbuddy.model.completeDailyMissions
 import com.blue236.greenbuddy.model.currentLessonOrNull
@@ -173,7 +175,10 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     fun equipCosmetic(itemId: String) { val s = uiState.value; val updated = s.rewardState.equip(itemId); if (updated != s.rewardState) viewModelScope.launch { repository.saveRewardState(updated) } }
     fun acknowledgeGrowthStage() { viewModelScope.launch { repository.saveSeenGrowthStageRank(uiState.value.selectedStarterId, uiState.value.growthStageState.currentStage.rank) } }
     fun setSelectedWeatherCity(cityId: String) { viewModelScope.launch { repository.saveSelectedWeatherCity(cityId) } }
-    fun setAppLanguage(appLanguage: AppLanguage) { viewModelScope.launch { repository.saveAppLanguage(appLanguage) } }
+    fun setAppLanguage(appLanguage: AppLanguage) {
+        AppCompatDelegate.setApplicationLocales(appLanguage.asLocaleListCompat())
+        viewModelScope.launch { repository.saveAppLanguage(appLanguage) }
+    }
 
     private fun rewardIfMissionSetCompleted(progress: DailyMissionProgress, rewardState: RewardState, lessonProgress: LessonProgress, careState: PlantCareState, today: LocalDate): RewardOutcome {
         val missionSet = progress.resolveForToday(today, lessonProgress, careState)
