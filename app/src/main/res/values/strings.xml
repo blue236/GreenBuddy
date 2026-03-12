@@ -4,6 +4,7 @@
     <string name="tab_learn">Learn</string>
     <string name="tab_dex">Greenhouse</string>
     <string name="tab_profile">Profile</string>
+    <string name="tab_settings">Settings</string>
     <string name="onboarding_title">Welcome to GreenBuddy</string>
     <string name="onboarding_subtitle">Build your first plant companion in under a minute. Pick a starter whose voice fits your vibe, then begin the daily care + learning loop.</string>
     <string name="how_it_works">How it works</string>
@@ -42,6 +43,16 @@
     <string name="lesson_completed">Lesson completed</string>
     <string name="check_answer">Check answer</string>
     <string name="profile_title">Profile</string>
+    <string name="profile_subtitle">Track your buddy’s progress, growth, and collectibles here. App preferences now live in Settings.</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Manage how GreenBuddy feels in your region and language today, with room to add more preferences later.</string>
+    <string name="settings_category_localization">Language &amp; localization</string>
+    <string name="settings_category_localization_description">Control the language GreenBuddy uses across lessons, UI copy, and companion feedback.</string>
+    <string name="settings_category_region">Region &amp; climate context</string>
+    <string name="settings_category_region_description">Choose the location preset GreenBuddy should use for seasonal weather context and care guidance.</string>
+    <string name="settings_category_coming_soon">More settings soon</string>
+    <string name="settings_category_coming_soon_description">This layout is intentionally section-based so new categories can be added without crowding Profile again.</string>
+    <string name="settings_future_placeholder">Future categories could include notifications, reminders, accessibility, account sync, and experimental plant features.</string>
     <string name="progress">Progress</string>
     <string name="xp_value">XP %1$d</string>
     <string name="leaf_tokens_value">Leaf tokens %1$d</string>

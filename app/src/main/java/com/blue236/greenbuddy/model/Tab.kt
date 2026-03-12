@@ -5,4 +5,5 @@ enum class Tab(val label: String) {
     LEARN("Learn"),
     DEX("Dex"),
     PROFILE("Profile"),
+    SETTINGS("Settings"),
 }

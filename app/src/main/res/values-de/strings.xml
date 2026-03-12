@@ -4,6 +4,7 @@
     <string name="tab_learn">Lernen</string>
     <string name="tab_dex">Gewächshaus</string>
     <string name="tab_profile">Profil</string>
+    <string name="tab_settings">Einstellungen</string>
     <string name="onboarding_title">Willkommen bei GreenBuddy</string>
     <string name="onboarding_subtitle">Erstelle deinen ersten Pflanzenbegleiter in unter einer Minute. Wähle einen Starter, dessen Stimme zu dir passt, und beginne dann mit der täglichen Pflege- und Lernroutine.</string>
     <string name="how_it_works">So funktioniert’s</string>
@@ -42,6 +43,16 @@
     <string name="lesson_completed">Lektion abgeschlossen</string>
     <string name="check_answer">Antwort prüfen</string>
     <string name="profile_title">Profil</string>
+    <string name="profile_subtitle">Hier verfolgst du Fortschritt, Wachstum und Sammelobjekte deines Buddys. App-Einstellungen liegen jetzt separat in den Einstellungen.</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_subtitle">Lege fest, wie GreenBuddy heute in deiner Region und Sprache auftreten soll – mit Platz für weitere Präferenzen später.</string>
+    <string name="settings_category_localization">Sprache &amp; Lokalisierung</string>
+    <string name="settings_category_localization_description">Steuere die Sprache für Lektionen, UI-Texte und Begleiter-Feedback.</string>
+    <string name="settings_category_region">Region &amp; Klimakontext</string>
+    <string name="settings_category_region_description">Wähle das Standort-Preset, das GreenBuddy für saisonalen Wetterkontext und Pflegehinweise nutzen soll.</string>
+    <string name="settings_category_coming_soon">Weitere Einstellungen bald</string>
+    <string name="settings_category_coming_soon_description">Dieses Layout ist bewusst abschnittsbasiert, damit neue Kategorien hinzukommen können, ohne das Profil wieder zu überladen.</string>
+    <string name="settings_future_placeholder">Spätere Kategorien könnten Benachrichtigungen, Erinnerungen, Barrierefreiheit, Kontosynchronisierung und experimentelle Pflanzenfunktionen umfassen.</string>
     <string name="progress">Fortschritt</string>
     <string name="xp_value">XP %1$d</string>
     <string name="leaf_tokens_value">Blatt-Token %1$d</string>
