@@ -15,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ import com.blue236.greenbuddy.model.AppLanguage
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.GreenBuddyUiState
+import com.blue236.greenbuddy.model.hapticConstant
 import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.StarterPlants
@@ -66,6 +68,7 @@ fun GreenBuddyApp(initialTab: Tab = Tab.HOME, viewModel: GreenBuddyViewModel = v
         viewModel::completeOnboarding,
         viewModel::submitCurrentLessonAnswer,
         viewModel::performCareAction,
+        viewModel::clearFeedbackEvent,
         viewModel::acknowledgeGrowthStage,
         viewModel::purchaseCosmetic,
         viewModel::equipCosmetic,
@@ -84,6 +87,7 @@ fun GreenBuddyAppContent(
     onContinueOnboarding: () -> Unit,
     onSubmitLessonAnswer: (Int) -> Boolean,
     onPerformCareAction: (CareAction) -> Unit,
+    onClearFeedbackEvent: (Long) -> Unit,
     onAcknowledgeGrowthStage: () -> Unit,
     onPurchaseCosmetic: (CosmeticItem) -> Unit,
     onEquipCosmetic: (String) -> Unit,
@@ -93,7 +97,14 @@ fun GreenBuddyAppContent(
     onSetAppLanguage: (AppLanguage) -> Unit,
 ) {
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
+    val view = LocalView.current
     val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species, localeTag)
+    LaunchedEffect(uiState.feedbackEvent?.id) {
+        uiState.feedbackEvent?.let { event ->
+            view.performHapticFeedback(event.type.hapticConstant())
+            onClearFeedbackEvent(event.id)
+        }
+    }
     val currentLesson = uiState.lessonProgress.currentLessonOrNull(lessons)
     if (!uiState.onboardingComplete) {
         OnboardingScreen(
@@ -172,7 +183,7 @@ fun GreenBuddyAppContent(
 @Composable
 private fun GreenBuddyAppPreview() {
     GreenBuddyTheme {
-        GreenBuddyAppContent(GreenBuddyUiState(onboardingComplete = true, starterOptions = StarterPlants.options), {}, {}, {}, { false }, {}, {}, {}, {}, {}, {}, {}, {})
+        GreenBuddyAppContent(GreenBuddyUiState(onboardingComplete = true, starterOptions = StarterPlants.options), {}, {}, {}, { false }, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }
 

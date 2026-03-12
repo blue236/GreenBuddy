@@ -10,6 +10,8 @@ import com.blue236.greenbuddy.model.AppLanguage
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.DailyMissionProgress
+import com.blue236.greenbuddy.model.FeedbackEvent
+import com.blue236.greenbuddy.model.FeedbackEventType
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.LessonProgress
@@ -49,6 +51,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val repository = GreenBuddyPreferencesRepository(application)
     private val selectedTab = MutableStateFlow(Tab.HOME)
     private val rewardFeedback = MutableStateFlow<String?>(null)
+    private val feedbackEvent = MutableStateFlow<FeedbackEvent?>(null)
 
     init {
         ReminderScheduler.schedule(application)
@@ -62,7 +65,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    val uiState: StateFlow<GreenBuddyUiState> = combine(repository.preferences, selectedTab, rewardFeedback) { preferences, tab, feedback ->
+    val uiState: StateFlow<GreenBuddyUiState> = combine(repository.preferences, selectedTab, rewardFeedback, feedbackEvent) { preferences, tab, feedback, pendingFeedback ->
         val localeTag = preferences.appLanguage.languageTag ?: currentLanguageTag()
         val normalizedLessonProgressByStarterId = preferences.lessonProgressByStarterId.mapValues { (starterId, progress) ->
             val starter = StarterPlants.options.first { it.id == starterId }
@@ -87,6 +90,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             growthStageState = growthStageState,
             rewardState = preferences.rewardState,
             rewardFeedback = feedback,
+            feedbackEvent = pendingFeedback,
             realPlantModeState = preferences.realPlantModeState,
             weatherSnapshot = weatherSnapshot,
             weatherAdvice = weatherAdvice,
@@ -95,6 +99,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GreenBuddyUiState())
 
     fun onAppVisible() { viewModelScope.launch { repository.recordAppOpen(System.currentTimeMillis()) } }
+    fun clearFeedbackEvent(eventId: Long) { if (feedbackEvent.value?.id == eventId) feedbackEvent.value = null }
     fun selectTab(tab: Tab) { selectedTab.value = tab }
     fun selectStarter(starterId: String) { viewModelScope.launch { repository.setSelectedStarter(starterId) } }
     fun completeOnboarding() { viewModelScope.launch { repository.completeOnboarding(uiState.value.selectedStarterId); repository.recordAppOpen(System.currentTimeMillis()) } }
@@ -106,6 +111,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val currentLesson = state.lessonProgress.currentLessonOrNull(lessons) ?: return false
         if (selectedAnswerIndex != currentLesson.quiz.correctAnswerIndex) return false
         val today = LocalDate.now()
+        val previousGrowthStage = state.growthStageState.currentStage.rank
         val updatedLessonProgress = state.lessonProgress.advanceWith(currentLesson.id, currentLesson.rewardXp, lessons.size)
         val rewardOutcome = rewardIfMissionSetCompleted(state.dailyMissionProgress.recordLessonCompletion(today), state.rewardState.rewardForLesson(currentLesson.rewardXp), updatedLessonProgress, state.plantCareState, today)
         rewardFeedback.value = getApplication<Application>().getString(
@@ -113,6 +119,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             currentLesson.rewardXp,
             RewardState.lessonTokenReward(currentLesson.rewardXp),
         )
+        emitFeedback(if (didUnlockGrowthStage(state.selectedStarterId, updatedLessonProgress, state.plantCareState, previousGrowthStage)) FeedbackEventType.GROWTH_UNLOCKED else FeedbackEventType.LESSON_SUCCESS)
         viewModelScope.launch {
             val now = System.currentTimeMillis()
             repository.saveLessonAndMissionProgress(state.selectedStarterId, updatedLessonProgress, rewardOutcome.progress)
@@ -127,9 +134,11 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     fun performCareAction(action: CareAction) {
         val state = uiState.value
         val today = LocalDate.now()
+        val previousGrowthStage = state.growthStageState.currentStage.rank
         val updatedCareState = state.plantCareState.apply(action)
-        val rewardOutcome = rewardIfMissionSetCompleted(state.dailyMissionProgress.recordCareAction(today), state.rewardState.rewardForCareAction(updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)), state.lessonProgress, updatedCareState, today)
-        rewardFeedback.value = if (updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)) {
+        val wasHelpful = updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)
+        val rewardOutcome = rewardIfMissionSetCompleted(state.dailyMissionProgress.recordCareAction(today), state.rewardState.rewardForCareAction(wasHelpful), state.lessonProgress, updatedCareState, today)
+        rewardFeedback.value = if (wasHelpful) {
             getApplication<Application>().getString(
                 R.string.reward_feedback_care_helped,
                 action.localizedLabel(state.appLanguage.languageTag ?: currentLanguageTag()),
@@ -140,6 +149,9 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
                 R.string.reward_feedback_care_no_effect,
                 action.localizedLabel(state.appLanguage.languageTag ?: currentLanguageTag()),
             )
+        }
+        if (wasHelpful) {
+            emitFeedback(if (didUnlockGrowthStage(state.selectedStarterId, state.lessonProgress, updatedCareState, previousGrowthStage)) FeedbackEventType.GROWTH_UNLOCKED else FeedbackEventType.CARE_SUCCESS)
         }
         viewModelScope.launch {
             val now = System.currentTimeMillis()
@@ -191,6 +203,14 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         if (updatedProgress.streakRewardClaimedForStreak != before) { updatedRewardState = updatedRewardState.rewardForStreakBonus(); streak = true }
         return RewardOutcome(updatedProgress, updatedRewardState, daily, streak)
     }
+
+    private fun didUnlockGrowthStage(starterId: String, lessonProgress: LessonProgress, careState: PlantCareState, previousGrowthStageRank: Int): Boolean =
+        resolveGrowthStageState(starterId, lessonProgress, careState, seenStageRank = previousGrowthStageRank).newlyUnlocked
+
+    private fun emitFeedback(type: FeedbackEventType) {
+        feedbackEvent.value = FeedbackEvent(id = System.nanoTime(), type = type)
+    }
+
     private fun currentLanguageTag(): String = getApplication<Application>().resources.configuration.locales[0]?.toLanguageTag().orEmpty().ifBlank { "en" }
 }
 
