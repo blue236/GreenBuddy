@@ -1,9 +1,12 @@
 package com.blue236.greenbuddy.ui.state
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
+import com.blue236.greenbuddy.R
+import com.blue236.greenbuddy.model.AppLanguage
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.DailyMissionProgress
@@ -15,13 +18,18 @@ import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.Tab
+import com.blue236.greenbuddy.model.WeatherAdviceGenerator
+import com.blue236.greenbuddy.model.SeasonalWeatherProvider
 import com.blue236.greenbuddy.model.advanceWith
+import com.blue236.greenbuddy.model.asLocaleListCompat
 import com.blue236.greenbuddy.model.claimStreakRewardIfEligible
 import com.blue236.greenbuddy.model.completeDailyMissions
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
 import com.blue236.greenbuddy.model.nextUnlockableStarterId
 import com.blue236.greenbuddy.model.normalizedFor
+import com.blue236.greenbuddy.model.localizedLabel
+import com.blue236.greenbuddy.model.localizedName
 import com.blue236.greenbuddy.model.recordCareAction
 import com.blue236.greenbuddy.model.recordLessonCompletion
 import com.blue236.greenbuddy.model.resolveForToday
@@ -55,15 +63,18 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     val uiState: StateFlow<GreenBuddyUiState> = combine(repository.preferences, selectedTab, rewardFeedback) { preferences, tab, feedback ->
+        val localeTag = preferences.appLanguage.languageTag ?: currentLanguageTag()
         val normalizedLessonProgressByStarterId = preferences.lessonProgressByStarterId.mapValues { (starterId, progress) ->
             val starter = StarterPlants.options.first { it.id == starterId }
-            progress.normalizedFor(LessonCatalog.forSpecies(starter.companion.species))
+            progress.normalizedFor(LessonCatalog.forSpecies(starter.companion.species, localeTag))
         }
         val selectedLessonProgress = normalizedLessonProgressByStarterId[preferences.selectedStarter.id] ?: LessonProgress()
         val selectedCareState = preferences.plantCareState
         val normalizedDailyMissionProgress = preferences.dailyMissionProgress.normalizedFor(LocalDate.now())
         val todayMissions = normalizedDailyMissionProgress.resolveForToday(LocalDate.now(), selectedLessonProgress, selectedCareState)
         val growthStageState = resolveGrowthStageState(preferences.selectedStarter.id, selectedLessonProgress, selectedCareState, preferences.seenGrowthStageRank)
+        val weatherSnapshot = SeasonalWeatherProvider.snapshotFor(preferences.selectedWeatherCityId, LocalDate.now())
+        val weatherAdvice = WeatherAdviceGenerator.adviceFor(preferences.selectedStarter, weatherSnapshot, localeTag)
         GreenBuddyUiState(
             selectedTab = tab,
             selectedStarterId = preferences.selectedStarter.id,
@@ -77,6 +88,9 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             rewardState = preferences.rewardState,
             rewardFeedback = feedback,
             realPlantModeState = preferences.realPlantModeState,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            appLanguage = preferences.appLanguage,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GreenBuddyUiState())
 
@@ -87,13 +101,18 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
 
     fun submitCurrentLessonAnswer(selectedAnswerIndex: Int): Boolean {
         val state = uiState.value
-        val lessons = LessonCatalog.forSpecies(state.selectedStarter.companion.species)
+        val languageTag = state.appLanguage.languageTag ?: currentLanguageTag()
+        val lessons = LessonCatalog.forSpecies(state.selectedStarter.companion.species, languageTag)
         val currentLesson = state.lessonProgress.currentLessonOrNull(lessons) ?: return false
         if (selectedAnswerIndex != currentLesson.quiz.correctAnswerIndex) return false
         val today = LocalDate.now()
         val updatedLessonProgress = state.lessonProgress.advanceWith(currentLesson.id, currentLesson.rewardXp, lessons.size)
         val rewardOutcome = rewardIfMissionSetCompleted(state.dailyMissionProgress.recordLessonCompletion(today), state.rewardState.rewardForLesson(currentLesson.rewardXp), updatedLessonProgress, state.plantCareState, today)
-        rewardFeedback.value = "Lesson complete · +${currentLesson.rewardXp} XP · +${RewardState.lessonTokenReward(currentLesson.rewardXp)} leaf tokens"
+        rewardFeedback.value = getApplication<Application>().getString(
+            R.string.reward_feedback_lesson_complete,
+            currentLesson.rewardXp,
+            RewardState.lessonTokenReward(currentLesson.rewardXp),
+        )
         viewModelScope.launch {
             val now = System.currentTimeMillis()
             repository.saveLessonAndMissionProgress(state.selectedStarterId, updatedLessonProgress, rewardOutcome.progress)
@@ -110,7 +129,18 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val today = LocalDate.now()
         val updatedCareState = state.plantCareState.apply(action)
         val rewardOutcome = rewardIfMissionSetCompleted(state.dailyMissionProgress.recordCareAction(today), state.rewardState.rewardForCareAction(updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)), state.lessonProgress, updatedCareState, today)
-        rewardFeedback.value = if (updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)) "${action.label} helped · +${RewardState.careTokenReward()} leaf tokens" else "${action.label} had no helpful effect · no leaf tokens"
+        rewardFeedback.value = if (updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)) {
+            getApplication<Application>().getString(
+                R.string.reward_feedback_care_helped,
+                action.localizedLabel(state.appLanguage.languageTag ?: currentLanguageTag()),
+                RewardState.careTokenReward(),
+            )
+        } else {
+            getApplication<Application>().getString(
+                R.string.reward_feedback_care_no_effect,
+                action.localizedLabel(state.appLanguage.languageTag ?: currentLanguageTag()),
+            )
+        }
         viewModelScope.launch {
             val now = System.currentTimeMillis()
             repository.saveCareStateAndMissionProgress(state.selectedStarterId, updatedCareState, rewardOutcome.progress)
@@ -131,9 +161,24 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val updatedCare = state.plantCareState.apply(action.linkedCareAction)
         viewModelScope.launch { repository.saveRealPlantModeAndPlantCareState(state.selectedStarterId, updatedReal, updatedCare) }
     }
-    fun purchaseCosmetic(item: CosmeticItem) { val s = uiState.value; if (!s.rewardState.canPurchase(item)) return; val updated = s.rewardState.purchase(item); rewardFeedback.value = "Unlocked ${item.name} ${item.emoji}"; viewModelScope.launch { repository.saveRewardState(updated) } }
+    fun purchaseCosmetic(item: CosmeticItem) {
+        val s = uiState.value
+        if (!s.rewardState.canPurchase(item)) return
+        val updated = s.rewardState.purchase(item)
+        rewardFeedback.value = getApplication<Application>().getString(
+            R.string.reward_feedback_cosmetic_unlocked,
+            item.localizedName(s.appLanguage.languageTag ?: currentLanguageTag()),
+            item.emoji,
+        )
+        viewModelScope.launch { repository.saveRewardState(updated) }
+    }
     fun equipCosmetic(itemId: String) { val s = uiState.value; val updated = s.rewardState.equip(itemId); if (updated != s.rewardState) viewModelScope.launch { repository.saveRewardState(updated) } }
     fun acknowledgeGrowthStage() { viewModelScope.launch { repository.saveSeenGrowthStageRank(uiState.value.selectedStarterId, uiState.value.growthStageState.currentStage.rank) } }
+    fun setSelectedWeatherCity(cityId: String) { viewModelScope.launch { repository.saveSelectedWeatherCity(cityId) } }
+    fun setAppLanguage(appLanguage: AppLanguage) {
+        AppCompatDelegate.setApplicationLocales(appLanguage.asLocaleListCompat())
+        viewModelScope.launch { repository.saveAppLanguage(appLanguage) }
+    }
 
     private fun rewardIfMissionSetCompleted(progress: DailyMissionProgress, rewardState: RewardState, lessonProgress: LessonProgress, careState: PlantCareState, today: LocalDate): RewardOutcome {
         val missionSet = progress.resolveForToday(today, lessonProgress, careState)
@@ -146,6 +191,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         if (updatedProgress.streakRewardClaimedForStreak != before) { updatedRewardState = updatedRewardState.rewardForStreakBonus(); streak = true }
         return RewardOutcome(updatedProgress, updatedRewardState, daily, streak)
     }
+    private fun currentLanguageTag(): String = getApplication<Application>().resources.configuration.locales[0]?.toLanguageTag().orEmpty().ifBlank { "en" }
 }
 
 private data class RewardOutcome(val progress: DailyMissionProgress, val rewardState: RewardState, val dailyAwarded: Boolean = false, val streakAwarded: Boolean = false)

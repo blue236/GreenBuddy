@@ -21,77 +21,39 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.blue236.greenbuddy.R
 import com.blue236.greenbuddy.model.PlantInventoryEntry
+import com.blue236.greenbuddy.model.localizedHealth
+import com.blue236.greenbuddy.model.localizedMood
+import com.blue236.greenbuddy.model.localizedSubtitle
+import com.blue236.greenbuddy.model.localizedTitle
+import com.blue236.greenbuddy.model.unlockRequirementFor
 
 @Composable
-fun DexScreen(
-    modifier: Modifier = Modifier,
-    entries: List<PlantInventoryEntry>,
-    onSelectStarter: (String) -> Unit,
-) {
+fun DexScreen(modifier: Modifier = Modifier, entries: List<PlantInventoryEntry>, ownedStarterIds: Set<String>, onSelectStarter: (String) -> Unit) {
+    val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val ownedCount = entries.count { it.isOwned }
     val totalCount = entries.size
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text("Greenhouse", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text(
-            "$ownedCount of $totalCount companions collected. Switch your active plant here and keep each one progressing at its own pace.",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
+    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(stringResource(R.string.greenhouse_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.greenhouse_subtitle, ownedCount, totalCount), color = MaterialTheme.colorScheme.onSurfaceVariant)
         entries.forEach { entry ->
             val option = entry.option
-            val cardColor = when {
-                entry.isActive -> Color(0xFFE8F5E9)
-                entry.isOwned -> MaterialTheme.colorScheme.surfaceVariant
-                else -> Color(0xFFF5F5F5)
-            }
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(enabled = entry.isOwned) { onSelectStarter(option.id) },
-                colors = CardDefaults.cardColors(containerColor = cardColor),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .background(Color(0xFFC8E6C9), RoundedCornerShape(18.dp)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(option.previewEmoji, style = MaterialTheme.typography.headlineMedium)
+            val cardColor = when { entry.isActive -> Color(0xFFE8F5E9); entry.isOwned -> MaterialTheme.colorScheme.surfaceVariant; else -> Color(0xFFF5F5F5) }
+            Card(modifier = Modifier.fillMaxWidth().clickable(enabled = entry.isOwned) { onSelectStarter(option.id) }, colors = CardDefaults.cardColors(containerColor = cardColor)) {
+                Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(64.dp).background(Color(0xFFC8E6C9), RoundedCornerShape(18.dp)), contentAlignment = Alignment.Center) { Text(option.previewEmoji, style = MaterialTheme.typography.headlineMedium) }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(option.localizedTitle(localeTag), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text(option.localizedSubtitle(localeTag), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (entry.isOwned) Text(stringResource(R.string.inventory_stats, entry.progress.totalXp, entry.careState.localizedHealth(localeTag), entry.careState.localizedMood(localeTag)))
+                        else Text(unlockRequirementFor(option, ownedStarterIds, localeTag), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(option.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                        Text(option.subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        if (entry.isOwned) {
-                            Text("XP ${entry.progress.totalXp} · Care ${entry.careState.health} · Mood ${entry.careState.mood}")
-                        } else {
-                            Text(entry.unlockRequirement, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    Text(
-                        when {
-                            entry.isActive -> "Active"
-                            entry.isOwned -> "Switch"
-                            else -> "Locked"
-                        },
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                    Text(when { entry.isActive -> stringResource(R.string.active); entry.isOwned -> stringResource(R.string.switch_action); else -> stringResource(R.string.locked) }, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

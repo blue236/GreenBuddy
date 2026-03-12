@@ -2,7 +2,7 @@ package com.blue236.greenbuddy
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +17,7 @@ import com.blue236.greenbuddy.notifications.reminderDestinationTabOrNull
 import com.blue236.greenbuddy.ui.GreenBuddyApp
 import com.blue236.greenbuddy.ui.theme.GreenBuddyTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private var initialTab by mutableStateOf(Tab.HOME)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,4 +41,5 @@ class MainActivity : ComponentActivity() {
         setIntent(intent)
         initialTab = intent.reminderDestinationTabOrNull() ?: Tab.HOME
     }
+
 }

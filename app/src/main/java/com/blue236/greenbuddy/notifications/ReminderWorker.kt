@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
+import com.blue236.greenbuddy.model.CompanionPersonalitySystem
 import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.ReminderDecider
 import com.blue236.greenbuddy.model.ReminderSnapshot
@@ -19,7 +20,7 @@ class ReminderWorker(
         val preferences = repository.currentPreferences()
         val lessons = LessonCatalog.forSpecies(preferences.selectedStarter.companion.species)
         val progress = preferences.lessonProgress
-        val reminder = ReminderDecider.notificationFor(
+        val reminderType = ReminderDecider.notificationFor(
             snapshot = ReminderSnapshot(
                 onboardingComplete = preferences.onboardingComplete,
                 starterName = preferences.selectedStarter.companion.name,
@@ -29,7 +30,16 @@ class ReminderWorker(
                 reminderState = preferences.reminderState,
             ),
             nowMillis = System.currentTimeMillis(),
-        ) ?: return Result.success()
+        )?.type ?: return Result.success()
+
+        val localeTag = applicationContext.resources.configuration.locales[0]?.toLanguageTag().orEmpty()
+        val reminder = CompanionPersonalitySystem.reminderCopy(
+            type = reminderType,
+            starter = preferences.selectedStarter,
+            careState = preferences.plantCareState,
+            lessonTitle = progress.currentLessonOrNull(lessons)?.title,
+            languageTag = localeTag,
+        )
 
         val shown = ReminderNotifier.show(applicationContext, reminder)
         if (shown) {
