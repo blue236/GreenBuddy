@@ -50,7 +50,7 @@
     <string name="celebrate_growth">Celebrate growth</string>
     <string name="companion_personality">Companion personality</string>
     <string name="location_settings_title">Location</string>
-    <string name="location_settings_description">Pick a city to drive GreenBuddy’s local weather and seasonal guidance. This MVP uses lightweight city presets instead of live GPS weather.</string>
+    <string name="location_settings_description">Pick a city to drive GreenBuddy’s seasonal climate guidance. This MVP uses lightweight city presets instead of live GPS or real-time weather.</string>
     <string name="language_settings">Language</string>
     <string name="app_language">App language</string>
     <string name="app_language_description">Choose how GreenBuddy should appear. System default follows your phone language.</string>

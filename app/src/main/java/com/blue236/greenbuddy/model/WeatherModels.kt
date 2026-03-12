@@ -104,9 +104,9 @@ object WeatherAdviceGenerator {
         val seasonLabel = snapshot.season.localizedLabel(lang)
         val conditionLabel = snapshot.condition.localizedLabel(lang)
         return when (lang) {
-            "de" -> "${snapshot.city.localizedName(lang)} ist gerade $seasonLabel mit eher $conditionLabel Bedingungen."
-            "ko" -> "${snapshot.city.localizedName(lang)}는 지금 ${seasonLabel}이고, 전반적으로 $conditionLabel 환경이에요."
-            else -> "${snapshot.city.localizedName(lang)} is in $seasonLabel right now with mostly $conditionLabel conditions."
+            "de" -> "${snapshot.city.localizedName(lang)} ist saisonal gerade $seasonLabel mit meist $conditionLabel Bedingungen."
+            "ko" -> "${snapshot.city.localizedName(lang)}는 계절상 지금 ${seasonLabel}이고, 전반적으로 $conditionLabel 환경으로 봐요."
+            else -> "${snapshot.city.localizedName(lang)} is seasonally in $seasonLabel with mostly $conditionLabel conditions."
         }
     }
 
@@ -183,6 +183,11 @@ object WeatherAdviceGenerator {
             "de" -> "Das ist Tomatenwetter. Gib der Pflanze möglichst volle Sonne und prüfe früh, ob Stütze und gleichmäßiges Gießen mit dem Wachstum mithalten."
             "ko" -> "토마토가 좋아하는 날씨예요. 가능한 한 햇빛을 많이 주고, 지지대와 규칙적인 물주기가 성장 속도를 따라가는지 미리 확인해 주세요."
             else -> "This is tomato weather. Push for as much sun as you can and make sure support plus consistent watering keep up with the growth spurt."
+        }
+        WeatherCondition.MILD_HUMID -> when (lang) {
+            "de" -> "Warme, feuchte Sommerluft hilft Tomaten nicht automatisch. Sorge für viel Sonne, gute Luftzirkulation und gieße direkt die Erde, damit nasses Laub nicht zusätzlichen Krankheitsdruck aufbaut."
+            "ko" -> "덥고 습한 여름 공기가 토마토에 무조건 좋은 건 아니에요. 햇빛을 충분히 주고 통풍을 확보한 뒤, 잎을 적시기보다 흙으로 물을 줘서 병해 압력을 낮춰 주세요."
+            else -> "Warm, humid summer air is not automatically ideal for tomatoes. Keep the sun strong, improve airflow, and water the soil rather than soaking the leaves to lower disease pressure."
         }
         else -> when (lang) {
             "de" -> "Milde Übergangswochen sind gut zum Abhärten und Beobachten. Mehr Licht und Luftbewegung helfen, bevor die Pflanze richtig losschiebt."
