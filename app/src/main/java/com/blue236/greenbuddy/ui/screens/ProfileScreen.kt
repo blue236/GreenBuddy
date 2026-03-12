@@ -9,10 +9,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -35,6 +39,8 @@ import com.blue236.greenbuddy.model.localizedName
 import com.blue236.greenbuddy.model.localizedRequirementSummary
 import com.blue236.greenbuddy.model.localizedUnlockHint
 import com.blue236.greenbuddy.ui.components.StatCard
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Settings
 
 @Composable
 fun ProfileScreen(
@@ -46,6 +52,7 @@ fun ProfileScreen(
     ownedPlantCount: Int,
     rewardState: RewardState,
     realPlantModeState: RealPlantModeState,
+    onOpenSettings: () -> Unit,
     onAcknowledgeGrowthStage: () -> Unit,
     onPurchaseCosmetic: (CosmeticItem) -> Unit,
     onEquipCosmetic: (String) -> Unit,
@@ -57,11 +64,28 @@ fun ProfileScreen(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(stringResource(R.string.profile_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text(
-            stringResource(R.string.profile_subtitle),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.profile_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.profile_subtitle),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            IconButton(onClick = onOpenSettings) {
+                Icon(
+                    imageVector = Icons.Outlined.Settings,
+                    contentDescription = stringResource(R.string.open_settings),
+                )
+            }
+        }
+        TextButton(onClick = onOpenSettings, modifier = Modifier.align(Alignment.End)) {
+            Text(stringResource(R.string.open_settings))
+        }
         StatCard(stringResource(R.string.progress)) {
             Text(stringResource(R.string.xp_value, progress.totalXp))
             Text(stringResource(R.string.leaf_tokens_value, rewardState.leafTokens))

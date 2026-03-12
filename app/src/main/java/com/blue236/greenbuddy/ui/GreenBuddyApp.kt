@@ -44,6 +44,8 @@ import com.blue236.greenbuddy.ui.screens.SettingsScreen
 import com.blue236.greenbuddy.ui.state.GreenBuddyViewModel
 import com.blue236.greenbuddy.ui.theme.GreenBuddyTheme
 
+private val bottomNavigationTabs = listOf(Tab.HOME, Tab.LEARN, Tab.DEX, Tab.PROFILE)
+
 @Composable
 fun GreenBuddyApp(initialTab: Tab = Tab.HOME, viewModel: GreenBuddyViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -112,7 +114,7 @@ fun GreenBuddyAppContent(
     Scaffold(
         bottomBar = {
             NavigationBar {
-                Tab.entries.forEach { tab ->
+                bottomNavigationTabs.forEach { tab ->
                     NavigationBarItem(
                         selected = uiState.selectedTab == tab,
                         onClick = { onSelectTab(tab) },
@@ -155,9 +157,10 @@ fun GreenBuddyAppContent(
                 uiState.ownedStarterIds.size,
                 uiState.rewardState,
                 uiState.realPlantModeState,
-                onAcknowledgeGrowthStage,
-                onPurchaseCosmetic,
-                onEquipCosmetic,
+                onOpenSettings = { onSelectTab(Tab.SETTINGS) },
+                onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
+                onPurchaseCosmetic = onPurchaseCosmetic,
+                onEquipCosmetic = onEquipCosmetic,
             )
             Tab.SETTINGS -> SettingsScreen(
                 modifier,

@@ -43,7 +43,8 @@
     <string name="lesson_completed">Lektion abgeschlossen</string>
     <string name="check_answer">Antwort prüfen</string>
     <string name="profile_title">Profil</string>
-    <string name="profile_subtitle">Hier verfolgst du Fortschritt, Wachstum und Sammelobjekte deines Buddys. App-Einstellungen liegen jetzt separat in den Einstellungen.</string>
+    <string name="profile_subtitle">Hier verfolgst du Fortschritt, Wachstum und Sammelobjekte deines Buddys. Öffne die Einstellungen über die Aktion oben rechts, wenn du App-Präferenzen ändern möchtest.</string>
+    <string name="open_settings">Einstellungen öffnen</string>
     <string name="settings_title">Einstellungen</string>
     <string name="settings_subtitle">Lege fest, wie GreenBuddy heute in deiner Region und Sprache auftreten soll – mit Platz für weitere Präferenzen später.</string>
     <string name="settings_category_localization">Sprache &amp; Lokalisierung</string>
