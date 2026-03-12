@@ -166,8 +166,9 @@ fun GreenBuddyAppContent(
                 modifier,
                 uiState.weatherSnapshot.city.id,
                 uiState.appLanguage,
-                onSetSelectedWeatherCity,
-                onSetAppLanguage,
+                onNavigateBack = { onSelectTab(Tab.PROFILE) },
+                onSetSelectedWeatherCity = onSetSelectedWeatherCity,
+                onSetAppLanguage = onSetAppLanguage,
             )
         }
     }

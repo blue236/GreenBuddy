@@ -45,6 +45,7 @@
     <string name="profile_title">Profile</string>
     <string name="profile_subtitle">Track your buddy’s progress, growth, and collectibles here. Open Settings from the top-right action when you want to change app preferences.</string>
     <string name="open_settings">Open Settings</string>
+    <string name="back_to_profile">Back to Profile</string>
     <string name="settings_title">Settings</string>
     <string name="settings_subtitle">Manage how GreenBuddy feels in your region and language today, with room to add more preferences later.</string>
     <string name="settings_category_localization">Language &amp; localization</string>
