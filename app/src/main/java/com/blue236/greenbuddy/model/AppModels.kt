@@ -46,6 +46,7 @@ data class GreenBuddyUiState(
     ),
     val rewardState: RewardState = RewardState(),
     val rewardFeedback: String? = null,
+    val feedbackEvent: FeedbackEvent? = null,
     val realPlantModeState: RealPlantModeState = RealPlantModeState(),
     val weatherSnapshot: WeatherSnapshot = SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id),
     val weatherAdvice: WeatherAdvice = WeatherAdviceGenerator.adviceFor(StarterPlants.options.first(), SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id)),
