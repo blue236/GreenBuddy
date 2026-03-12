@@ -31,6 +31,15 @@ class CompanionChatEngineTest {
     }
 
     @Test
+    fun detectIntent_mapsGermanAndKoreanKeywords() {
+        assertEquals(CompanionChatIntent.STATUS_CHECK, CompanionChatEngine.detectIntent("Wie geht es dir?"))
+        assertEquals(CompanionChatIntent.CARE_ADVICE, CompanionChatEngine.detectIntent("물 필요해?"))
+        assertEquals(CompanionChatIntent.MISSION_HELP, CompanionChatEngine.detectIntent("Welche Mission zuerst?"))
+        assertEquals(CompanionChatIntent.GROWTH_QUESTION, CompanionChatEngine.detectIntent("다음 성장 단계가 뭐야?"))
+        assertEquals(CompanionChatIntent.WEATHER_QUESTION, CompanionChatEngine.detectIntent("Wie ist das Wetter für dich?"))
+    }
+
+    @Test
     fun createSnapshot_capturesCurrentState() {
         val realPlantMode = RealPlantModeState(enabled = true).logAction(
             action = RealPlantCareAction.WATERED,
@@ -90,5 +99,30 @@ class CompanionChatEngineTest {
         assertEquals(CompanionChatIntent.GROWTH_QUESTION, reply.intent)
         assertTrue(reply.reply.contains(growthState.currentStage.title))
         assertTrue(reply.reply.contains("% of the way there"))
+    }
+
+    @Test
+    fun replyTo_localizesGermanAndKoreanChatCopy() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(enabled = false),
+            languageTag = "de",
+        )
+
+        val germanReply = CompanionChatEngine.replyTo("", snapshot, languageTag = "de")
+        val koreanReply = CompanionChatEngine.replyTo("", snapshot, languageTag = "ko")
+
+        assertEquals("Wie geht es dir?", germanReply.userMessage)
+        assertTrue(germanReply.suggestionChips.contains("Was brauchst du am meisten?"))
+        assertTrue(germanReply.reply.contains("durstig"))
+
+        assertEquals("지금 기분이 어때?", koreanReply.userMessage)
+        assertTrue(koreanReply.suggestionChips.contains("가장 필요한 게 뭐야?"))
+        assertTrue(koreanReply.reply.contains("목말라요"))
     }
 }

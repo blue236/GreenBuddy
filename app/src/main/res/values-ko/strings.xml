@@ -88,7 +88,7 @@
     <string name="greenhouse_size">%1$s • 온실 크기 %2$d</string>
     <string name="new_evolution_unlocked">새 진화가 열렸어요: %1$s</string>
     <string name="nice">좋아요</string>
-    <string name="companion">버디</string>
+    <string name="companion">버디</string><string name="companion_chat_title">버디 채팅</string><string name="companion_chat_input_placeholder">지금 기분이 어때?</string><string name="companion_chat_open">채팅 열기</string><string name="companion_snapshot_summary">기분 %1$s · 건강 %2$s · 단계 %3$s</string><string name="companion_chat_input_label">식물에게 물어보기</string><string name="companion_chat_send">보내기</string><string name="companion_chat_hide">채팅 숨기기</string><string name="companion_chat_entry">%1$s와 이야기하면서 지금 상태, 필요한 것, 그리고 오늘 계획을 함께 정해 보세요.</string>
     <string name="wallet_value">지갑: 리프 토큰 %1$d</string>
     <string name="reward_pulse">보상 알림</string>
     <string name="daily_missions">오늘의 미션</string>

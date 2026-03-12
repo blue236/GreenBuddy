@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.R
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CompanionChatEngine
+import com.blue236.greenbuddy.model.CompanionChatIntent
 import com.blue236.greenbuddy.model.CompanionChatReply
 import com.blue236.greenbuddy.model.CompanionPersonalitySystem
 import com.blue236.greenbuddy.model.CompanionStateSnapshot
@@ -49,7 +50,9 @@ import com.blue236.greenbuddy.model.WeatherSnapshot
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
 import com.blue236.greenbuddy.model.localizedGrowthTitle
+import com.blue236.greenbuddy.model.localizedHealth
 import com.blue236.greenbuddy.model.localizedLabel
+import com.blue236.greenbuddy.model.localizedMood
 import com.blue236.greenbuddy.ui.components.StatCard
 import java.time.LocalDate
 import java.time.ZoneId
@@ -130,7 +133,10 @@ private fun CompanionChatCard(
     var latestReply by remember(companionStateSnapshot) {
         mutableStateOf(
             CompanionChatEngine.replyTo(
-                message = "How are you feeling?",
+                message = CompanionChatEngine.defaultPromptFor(
+                    intent = CompanionChatIntent.STATUS_CHECK,
+                    languageTag = languageTag,
+                ),
                 snapshot = companionStateSnapshot,
                 languageTag = languageTag,
             )
@@ -153,8 +159,8 @@ private fun CompanionChatCard(
             Text(
                 stringResource(
                     R.string.companion_snapshot_summary,
-                    companionStateSnapshot.mood,
-                    companionStateSnapshot.health,
+                    companionStateSnapshot.careState.localizedMood(languageTag),
+                    companionStateSnapshot.careState.localizedHealth(languageTag),
                     companionStateSnapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag),
                 ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
