@@ -146,6 +146,7 @@ fun GreenBuddyAppContent(
                 uiState.realPlantModeState,
                 uiState.weatherSnapshot,
                 uiState.weatherAdvice,
+                uiState.companionStateSnapshot,
                 onPerformCareAction,
                 onAcknowledgeGrowthStage,
                 onSetRealPlantModeEnabled,

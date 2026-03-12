@@ -50,6 +50,19 @@ data class GreenBuddyUiState(
     val realPlantModeState: RealPlantModeState = RealPlantModeState(),
     val weatherSnapshot: WeatherSnapshot = SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id),
     val weatherAdvice: WeatherAdvice = WeatherAdviceGenerator.adviceFor(StarterPlants.options.first(), SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id)),
+    val companionStateSnapshot: CompanionStateSnapshot = CompanionChatEngine.createSnapshot(
+        starter = StarterPlants.options.first(),
+        careState = PlantCareState.from(StarterPlants.options.first().companion),
+        growthStageState = resolveGrowthStageState(
+            starterId = StarterPlants.options.first().id,
+            progress = LessonProgress(),
+            careState = PlantCareState.from(StarterPlants.options.first().companion),
+        ),
+        dailyMissionSet = null,
+        weatherSnapshot = SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id),
+        weatherAdvice = WeatherAdviceGenerator.adviceFor(StarterPlants.options.first(), SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id)),
+        realPlantModeState = RealPlantModeState(),
+    ),
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
 ) {
     val selectedStarter: StarterPlantOption
