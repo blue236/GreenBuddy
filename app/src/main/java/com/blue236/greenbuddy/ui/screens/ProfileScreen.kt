@@ -32,6 +32,7 @@ import com.blue236.greenbuddy.model.RealPlantModeState
 import com.blue236.greenbuddy.model.RewardCatalog
 import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlantOption
+import com.blue236.greenbuddy.model.WeatherCatalog
 import com.blue236.greenbuddy.model.localizedDescription
 import com.blue236.greenbuddy.model.localizedGrowthAccentLabel
 import com.blue236.greenbuddy.model.localizedGrowthTitle
@@ -43,7 +44,7 @@ import com.blue236.greenbuddy.ui.components.StatCard
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, starter: StarterPlantOption, progress: LessonProgress, dailyMissionSet: DailyMissionSet? = null, growthStageState: GrowthStageState, ownedPlantCount: Int, rewardState: RewardState, realPlantModeState: RealPlantModeState, appLanguage: AppLanguage, onAcknowledgeGrowthStage: () -> Unit, onPurchaseCosmetic: (CosmeticItem) -> Unit, onEquipCosmetic: (String) -> Unit, onSetAppLanguage: (AppLanguage) -> Unit) {
+fun ProfileScreen(modifier: Modifier = Modifier, starter: StarterPlantOption, progress: LessonProgress, dailyMissionSet: DailyMissionSet? = null, growthStageState: GrowthStageState, ownedPlantCount: Int, rewardState: RewardState, realPlantModeState: RealPlantModeState, selectedWeatherCityId: String, appLanguage: AppLanguage, onAcknowledgeGrowthStage: () -> Unit, onPurchaseCosmetic: (CosmeticItem) -> Unit, onEquipCosmetic: (String) -> Unit, onSetSelectedWeatherCity: (String) -> Unit, onSetAppLanguage: (AppLanguage) -> Unit) {
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val personality = CompanionPersonalitySystem.personalityFor(starter.companion.species, localeTag)
     val systemLocaleTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
@@ -58,6 +59,17 @@ fun ProfileScreen(modifier: Modifier = Modifier, starter: StarterPlantOption, pr
             if (growthStageState.newlyUnlocked) Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.celebrate_growth)) }
         }
         StatCard(stringResource(R.string.companion_personality)) { Text(personality.archetype); Text(personality.tone) }
+        StatCard(stringResource(R.string.location_settings_title)) {
+            Text(stringResource(R.string.location_settings_description), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                WeatherCatalog.cityOptions.forEach { option ->
+                    AssistChip(
+                        onClick = { onSetSelectedWeatherCity(option.id) },
+                        label = { Text((if (option.id == selectedWeatherCityId) "✓ " else "") + option.defaultName) },
+                    )
+                }
+            }
+        }
         StatCard(stringResource(R.string.language_settings)) {
             Text(stringResource(R.string.app_language), fontWeight = FontWeight.SemiBold)
             Text(stringResource(R.string.app_language_description), color = MaterialTheme.colorScheme.onSurfaceVariant)

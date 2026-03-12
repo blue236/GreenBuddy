@@ -17,6 +17,8 @@ import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.Tab
+import com.blue236.greenbuddy.model.WeatherAdviceGenerator
+import com.blue236.greenbuddy.model.SeasonalWeatherProvider
 import com.blue236.greenbuddy.model.advanceWith
 import com.blue236.greenbuddy.model.claimStreakRewardIfEligible
 import com.blue236.greenbuddy.model.completeDailyMissions
@@ -69,6 +71,8 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val normalizedDailyMissionProgress = preferences.dailyMissionProgress.normalizedFor(LocalDate.now())
         val todayMissions = normalizedDailyMissionProgress.resolveForToday(LocalDate.now(), selectedLessonProgress, selectedCareState)
         val growthStageState = resolveGrowthStageState(preferences.selectedStarter.id, selectedLessonProgress, selectedCareState, preferences.seenGrowthStageRank)
+        val weatherSnapshot = SeasonalWeatherProvider.snapshotFor(preferences.selectedWeatherCityId, LocalDate.now())
+        val weatherAdvice = WeatherAdviceGenerator.adviceFor(preferences.selectedStarter, weatherSnapshot, localeTag)
         GreenBuddyUiState(
             selectedTab = tab,
             selectedStarterId = preferences.selectedStarter.id,
@@ -82,6 +86,8 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             rewardState = preferences.rewardState,
             rewardFeedback = feedback,
             realPlantModeState = preferences.realPlantModeState,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
             appLanguage = preferences.appLanguage,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GreenBuddyUiState())
@@ -166,6 +172,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     }
     fun equipCosmetic(itemId: String) { val s = uiState.value; val updated = s.rewardState.equip(itemId); if (updated != s.rewardState) viewModelScope.launch { repository.saveRewardState(updated) } }
     fun acknowledgeGrowthStage() { viewModelScope.launch { repository.saveSeenGrowthStageRank(uiState.value.selectedStarterId, uiState.value.growthStageState.currentStage.rank) } }
+    fun setSelectedWeatherCity(cityId: String) { viewModelScope.launch { repository.saveSelectedWeatherCity(cityId) } }
     fun setAppLanguage(appLanguage: AppLanguage) { viewModelScope.launch { repository.saveAppLanguage(appLanguage) } }
 
     private fun rewardIfMissionSetCompleted(progress: DailyMissionProgress, rewardState: RewardState, lessonProgress: LessonProgress, careState: PlantCareState, today: LocalDate): RewardOutcome {

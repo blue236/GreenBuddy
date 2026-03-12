@@ -49,6 +49,8 @@
     <string name="growth_status">성장 상태</string>
     <string name="celebrate_growth">성장 축하하기</string>
     <string name="companion_personality">버디 성격</string>
+    <string name="location_settings_title">위치</string>
+    <string name="location_settings_description">GreenBuddy의 지역 날씨와 계절 가이드를 위한 도시를 골라 주세요. 이번 MVP는 실시간 GPS 대신 가벼운 도시 프리셋을 사용해요.</string>
     <string name="language_settings">언어</string>
     <string name="app_language">앱 언어</string>
     <string name="app_language_description">GreenBuddy를 어떤 언어로 표시할지 선택하세요. 시스템 기본값은 휴대폰 언어를 따라갑니다.</string>
@@ -81,6 +83,8 @@
     <string name="todays_lesson">오늘의 레슨</string>
     <string name="track_complete">트랙 완료</string>
     <string name="care_actions">돌봄 액션</string>
+    <string name="local_weather_title">지역 날씨 + 계절</string>
+    <string name="weather_card_city">기준 도시 %1$s</string>
     <string name="real_plant_mode">실제 식물 모드</string>
     <string name="mirror_real_world_care">현실의 식물 돌봄을 버디에 반영하기</string>
     <string name="today_real_plant">오늘 %1$d/%2$d</string>

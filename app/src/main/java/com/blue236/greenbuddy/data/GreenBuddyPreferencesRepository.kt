@@ -46,6 +46,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
             rewardState = readRewardState(prefs),
             reminderState = readReminderState(prefs),
             realPlantModeStateByStarterId = StarterPlants.options.associate { it.id to readRealPlantModeState(prefs, it.id) },
+            selectedWeatherCityId = prefs[selectedWeatherCityIdKey] ?: "berlin",
             appLanguage = AppLanguage.fromStorageValue(prefs[appLanguageKey]),
         )
     }
@@ -65,6 +66,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
     suspend fun recordNotificationSent(atMillis: Long) { dataStore.edit { it[lastNotificationSentAtKey] = atMillis } }
     suspend fun saveRealPlantModeState(starterId: String, realPlantModeState: RealPlantModeState) { dataStore.edit { it[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled; it[realPlantLogKey(starterId)] = encodeRealPlantEntries(realPlantModeState.entries) } }
     suspend fun saveRealPlantModeAndPlantCareState(starterId: String, realPlantModeState: RealPlantModeState, careState: PlantCareState) { dataStore.edit { prefs -> prefs[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled; prefs[realPlantLogKey(starterId)] = encodeRealPlantEntries(realPlantModeState.entries); writePlantCareState(prefs, starterId, careState) } }
+    suspend fun saveSelectedWeatherCity(cityId: String) { dataStore.edit { it[selectedWeatherCityIdKey] = cityId } }
     suspend fun saveAppLanguage(appLanguage: AppLanguage) { dataStore.edit { it[appLanguageKey] = appLanguage.storageValue } }
 
     companion object {
@@ -93,6 +95,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private val lastCareActionAtKey = longPreferencesKey("last_care_action_at")
         private val lastNotificationSentAtKey = longPreferencesKey("last_notification_sent_at")
         private val appLanguageKey = stringPreferencesKey("app_language")
+        private val selectedWeatherCityIdKey = stringPreferencesKey("selected_weather_city_id")
         private fun currentLessonIndexKey(starterId: String) = intPreferencesKey("${starterId}_current_lesson_index")
         private fun completedLessonIdsKey(starterId: String) = stringPreferencesKey("${starterId}_completed_lesson_ids")
         private fun totalXpKey(starterId: String) = intPreferencesKey("${starterId}_total_xp")

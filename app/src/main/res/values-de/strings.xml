@@ -49,6 +49,8 @@
     <string name="growth_status">Wachstumsstatus</string>
     <string name="celebrate_growth">Wachstum feiern</string>
     <string name="companion_personality">Begleiter-Persönlichkeit</string>
+    <string name="location_settings_title">Ort</string>
+    <string name="location_settings_description">Wähle eine Stadt für GreenBuddys lokales Wetter- und Saison-Feedback. Dieses MVP nutzt leichte Stadt-Presets statt Live-GPS-Wetter.</string>
     <string name="language_settings">Sprache</string>
     <string name="app_language">App-Sprache</string>
     <string name="app_language_description">Lege fest, wie GreenBuddy angezeigt werden soll. Systemstandard folgt der Sprache deines Telefons.</string>
@@ -81,6 +83,8 @@
     <string name="todays_lesson">Heutige Lektion</string>
     <string name="track_complete">Pfad abgeschlossen</string>
     <string name="care_actions">Pflegeaktionen</string>
+    <string name="local_weather_title">Lokales Wetter + Saison</string>
+    <string name="weather_card_city">Eingestellt auf %1$s</string>
     <string name="real_plant_mode">Echte-Pflanze-Modus</string>
     <string name="mirror_real_world_care">Übertrage echte Pflanzenpflege auf deinen Buddy</string>
     <string name="today_real_plant">Heute %1$d/%2$d</string>

@@ -35,6 +35,8 @@ import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.RealPlantModeState
 import com.blue236.greenbuddy.model.RewardState
 import com.blue236.greenbuddy.model.StarterPlantOption
+import com.blue236.greenbuddy.model.WeatherAdvice
+import com.blue236.greenbuddy.model.WeatherSnapshot
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
 import com.blue236.greenbuddy.model.localizedGrowthTitle
@@ -45,7 +47,7 @@ import java.time.ZoneId
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, starter: StarterPlantOption, lessons: List<Lesson>, progress: LessonProgress, careState: PlantCareState, dailyMissionSet: DailyMissionSet? = null, growthStageState: GrowthStageState, greenhouseCount: Int, rewardState: RewardState, rewardFeedback: String?, realPlantModeState: RealPlantModeState, onPerformCareAction: (CareAction) -> Unit, onAcknowledgeGrowthStage: () -> Unit, onSetRealPlantModeEnabled: (Boolean) -> Unit, onLogRealPlantCare: (RealPlantCareAction) -> Unit) {
+fun HomeScreen(modifier: Modifier = Modifier, starter: StarterPlantOption, lessons: List<Lesson>, progress: LessonProgress, careState: PlantCareState, dailyMissionSet: DailyMissionSet? = null, growthStageState: GrowthStageState, greenhouseCount: Int, rewardState: RewardState, rewardFeedback: String?, realPlantModeState: RealPlantModeState, weatherSnapshot: WeatherSnapshot, weatherAdvice: WeatherAdvice, onPerformCareAction: (CareAction) -> Unit, onAcknowledgeGrowthStage: () -> Unit, onSetRealPlantModeEnabled: (Boolean) -> Unit, onLogRealPlantCare: (RealPlantCareAction) -> Unit) {
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons, localeTag)
     val currentLesson = progress.currentLessonOrNull(lessons)
@@ -56,6 +58,12 @@ fun HomeScreen(modifier: Modifier = Modifier, starter: StarterPlantOption, lesso
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
         if (growthStageState.newlyUnlocked) Card { Column(Modifier.padding(16.dp)) { Text(stringResource(R.string.new_evolution_unlocked, growthStageState.currentStage.localizedGrowthTitle(localeTag))); Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.nice)) } } }
         StatCard(stringResource(R.string.companion)) { Text(dialogue.headline); Text(dialogue.line); Text(stringResource(R.string.wallet_value, rewardState.leafTokens)) }
+        StatCard(stringResource(R.string.local_weather_title)) {
+            Text(stringResource(R.string.weather_card_city, weatherSnapshot.city.defaultName), fontWeight = FontWeight.SemiBold)
+            Text(weatherAdvice.summary)
+            Text(weatherAdvice.starterAdvice, color = MaterialTheme.colorScheme.primary)
+            Text(weatherAdvice.reminderHint, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         rewardFeedback?.let { StatCard(stringResource(R.string.reward_pulse)) { Text(it) } }
         dailyMissionSet?.let { StatCard(stringResource(R.string.daily_missions)) { Text(stringResource(R.string.completed_of_total, it.completedCount, it.totalCount)); Text(stringResource(R.string.streak_value, it.currentStreak)) } }
         StatCard(stringResource(R.string.todays_lesson)) { Text(if (progress.isComplete(lessons)) stringResource(R.string.track_complete) else currentLesson?.title.orEmpty()); Text(dialogue.lessonNudge) }

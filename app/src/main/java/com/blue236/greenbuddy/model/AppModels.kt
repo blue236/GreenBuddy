@@ -11,6 +11,7 @@ data class AppPreferences(
     val rewardState: RewardState = RewardState(),
     val reminderState: ReminderState = ReminderState(),
     val realPlantModeStateByStarterId: Map<String, RealPlantModeState> = emptyMap(),
+    val selectedWeatherCityId: String = WeatherCatalog.cityOptions.first().id,
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
 ) {
     val selectedStarter: StarterPlantOption
@@ -46,6 +47,8 @@ data class GreenBuddyUiState(
     val rewardState: RewardState = RewardState(),
     val rewardFeedback: String? = null,
     val realPlantModeState: RealPlantModeState = RealPlantModeState(),
+    val weatherSnapshot: WeatherSnapshot = SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id),
+    val weatherAdvice: WeatherAdvice = WeatherAdviceGenerator.adviceFor(StarterPlants.options.first(), SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id)),
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
 ) {
     val selectedStarter: StarterPlantOption
