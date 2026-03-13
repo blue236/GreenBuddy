@@ -383,6 +383,9 @@ object CompanionChatEngine {
         }
     }
 
+    fun suggestionChipsForIntent(snapshot: CompanionStateSnapshot, intent: CompanionChatIntent, languageTag: String): List<String> =
+        suggestionChipsFor(snapshot, intent, languageTag)
+
     private fun suggestionChipsFor(snapshot: CompanionStateSnapshot, intent: CompanionChatIntent, languageTag: String): List<String> {
         val dynamic = mutableListOf<String>()
         val lang = normalizedLanguageTag(languageTag)

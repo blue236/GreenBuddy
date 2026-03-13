@@ -18,8 +18,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.R
 import com.blue236.greenbuddy.model.CareAction
+import com.blue236.greenbuddy.model.CompanionChatEngine
 import com.blue236.greenbuddy.model.CompanionConversationMemory
 import com.blue236.greenbuddy.model.CompanionHomeCheckIn
 import com.blue236.greenbuddy.model.CompanionMessageRole
@@ -149,9 +152,30 @@ private fun CompanionChatCard(
     onSubmitCompanionChatMessage: (String) -> Unit,
 ) {
     var draftMessage by rememberSaveable { mutableStateOf("") }
+    var optimisticMemory by remember { mutableStateOf<CompanionConversationMemory?>(null) }
+    var optimisticSuggestionChips by remember { mutableStateOf<List<String>?>(null) }
+    val displayedMemory = optimisticMemory ?: companionStateSnapshot.recentConversationMemory
+    val displayedSuggestionChips = optimisticSuggestionChips
+        ?: companionStateSnapshot.latestSuggestionChips(languageTag)
+        ?: proactiveCheckIn.suggestionChips
+
+    LaunchedEffect(companionStateSnapshot.recentConversationMemory.messages.size) {
+        val pending = optimisticMemory ?: return@LaunchedEffect
+        if (companionStateSnapshot.recentConversationMemory.messages.size >= pending.messages.size) {
+            optimisticMemory = null
+            optimisticSuggestionChips = null
+        }
+    }
 
     fun sendMessage(message: String) {
         if (message.isBlank()) return
+        val reply = CompanionChatEngine.replyTo(
+            message = message,
+            snapshot = companionStateSnapshot,
+            languageTag = languageTag,
+        )
+        optimisticMemory = CompanionChatEngine.updatedMemoryFor(reply, companionStateSnapshot)
+        optimisticSuggestionChips = reply.suggestionChips
         onSubmitCompanionChatMessage(message)
         draftMessage = ""
     }
@@ -172,7 +196,7 @@ private fun CompanionChatCard(
                 Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             ConversationMemoryBlock(
-                memory = companionStateSnapshot.recentConversationMemory,
+                memory = displayedMemory,
                 fallbackBubble = proactiveCheckIn.bubble,
             )
             OutlinedTextField(
@@ -186,7 +210,7 @@ private fun CompanionChatCard(
                 Button(onClick = { sendMessage(draftMessage) }) { Text(stringResource(R.string.companion_chat_send)) }
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                proactiveCheckIn.suggestionChips.forEach { prompt ->
+                displayedSuggestionChips.forEach { prompt ->
                     AssistChip(onClick = { sendMessage(prompt) }, label = { Text(prompt) })
                 }
             }
@@ -204,12 +228,17 @@ private fun ConversationMemoryBlock(
             Text(fallbackBubble)
         } else {
             memory.messages.takeLast(6).forEach { message ->
-                val prefix = if (message.role == CompanionMessageRole.USER) "You" else "Buddy"
+                val prefixRes = if (message.role == CompanionMessageRole.USER) R.string.companion_label_you else R.string.companion_label_buddy
                 Text(
-                    text = "$prefix: ${message.text}",
+                    text = stringResource(prefixRes) + ": ${message.text}",
                     color = if (message.role == CompanionMessageRole.USER) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
     }
+}
+
+private fun CompanionStateSnapshot.latestSuggestionChips(languageTag: String): List<String>? {
+    val latestIntent = recentConversationMemory.messages.lastOrNull()?.intent ?: return null
+    return CompanionChatEngine.suggestionChipsForIntent(this, latestIntent, languageTag)
 }
