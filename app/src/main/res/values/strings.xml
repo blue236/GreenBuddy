@@ -89,6 +89,7 @@
     <string name="new_evolution_unlocked">New evolution unlocked: %1$s</string>
     <string name="nice">Nice</string>
     <string name="companion">Companion</string>
+    <string name="companion_proactive_title">Companion check-in</string>
     <string name="companion_chat_title">Companion chat</string>
     <string name="companion_chat_entry">Talk to %1$s about how they’re doing, what they need, and what today’s plan should be.</string>
     <string name="companion_chat_open">Open chat</string>

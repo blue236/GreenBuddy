@@ -102,6 +102,21 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
                 weatherSnapshot = weatherSnapshot,
                 weatherAdvice = weatherAdvice,
                 realPlantModeState = preferences.realPlantModeState,
+                recentConversationMemory = preferences.companionConversationMemory,
+                languageTag = localeTag,
+            ),
+            companionHomeCheckIn = com.blue236.greenbuddy.model.CompanionChatEngine.proactiveCheckIn(
+                com.blue236.greenbuddy.model.CompanionChatEngine.createSnapshot(
+                    starter = preferences.selectedStarter,
+                    careState = selectedCareState,
+                    growthStageState = growthStageState,
+                    dailyMissionSet = todayMissions,
+                    weatherSnapshot = weatherSnapshot,
+                    weatherAdvice = weatherAdvice,
+                    realPlantModeState = preferences.realPlantModeState,
+                    recentConversationMemory = preferences.companionConversationMemory,
+                    languageTag = localeTag,
+                ),
                 languageTag = localeTag,
             ),
             appLanguage = preferences.appLanguage,
@@ -173,6 +188,17 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun setRealPlantModeEnabled(enabled: Boolean) { viewModelScope.launch { repository.saveRealPlantModeState(uiState.value.selectedStarterId, uiState.value.realPlantModeState.copy(enabled = enabled)) } }
+    fun submitCompanionChatMessage(message: String) {
+        val state = uiState.value
+        val languageTag = state.appLanguage.languageTag ?: currentLanguageTag()
+        val reply = com.blue236.greenbuddy.model.CompanionChatEngine.replyTo(
+            message = message,
+            snapshot = state.companionStateSnapshot,
+            languageTag = languageTag,
+        )
+        val updatedMemory = com.blue236.greenbuddy.model.CompanionChatEngine.updatedMemoryFor(reply, state.companionStateSnapshot)
+        viewModelScope.launch { repository.saveCompanionConversationMemory(state.selectedStarterId, updatedMemory) }
+    }
     fun logRealPlantCare(action: RealPlantCareAction) {
         val state = uiState.value
         val zoneId = ZoneId.systemDefault()
