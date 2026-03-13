@@ -138,6 +138,99 @@ Scope:
 Success criteria:
 - app begins bridging digital and real plant care
 
+---
+
+### F9. Localization foundation + Korean/German support
+**Goal:** Make GreenBuddy ready for real multilingual use without hardcoded-copy debt.
+
+Scope:
+- localization-ready refactor for user-facing copy
+- reduce hardcoded text in UI where practical
+- add Korean (`ko`) and German (`de`) support
+- establish a maintainable structure for lesson/personality/reminder text
+
+Success criteria:
+- app can switch languages cleanly
+- key user-facing surfaces support ko/de
+- future content additions do not require large i18n rewrites
+
+---
+
+### F10. Weather + seasonal feedback
+**Goal:** Connect GreenBuddy more strongly to the user’s real environment.
+
+Scope:
+- city/manual location selection first
+- local weather + seasonal summary feedback
+- starter-specific contextual advice based on weather/season
+- optional Home card and future reminder integration
+
+Success criteria:
+- GreenBuddy gives context-aware environmental advice
+- weather/season feedback feels helpful, not overly prescriptive
+
+---
+
+### F11. Haptic / feedback polish
+**Goal:** Make key actions feel more satisfying and alive.
+
+Scope:
+- haptic feedback for important events
+- lesson success feedback
+- growth/evolution feedback
+- care action success feedback
+- optional sound later if the haptic layer works well
+
+Success criteria:
+- important actions feel more tactile and rewarding
+- feedback remains selective and not annoying
+
+---
+
+### F12. Plant AI companion mode
+**Goal:** Let the user talk to their plant and make the plant express its state proactively in a more lifelike way.
+
+Scope:
+- optional AI-driven companion conversation mode
+- user can chat with their current plant companion
+- the plant expresses mood, care state, growth stage, and environmental context proactively
+- tie dialogue to existing app state first before introducing open-ended generation everywhere
+- start with guardrailed/state-aware responses, then expand if it proves valuable
+
+Success criteria:
+- the companion feels more alive than static scripted copy
+- the plant can reflect real app state in conversation
+- the feature remains safe, understandable, and not too expensive/fragile for MVP+
+
+#### F12 Phase 1: State-aware companion chat MVP
+**Goal:** Ship a safe, useful first version of plant conversation without depending on full freeform AI.
+
+Scope:
+- add a small companion chat entry point from Home
+- create a companion state snapshot using current app state
+  - active starter
+  - personality
+  - mood / health
+  - care state
+  - growth stage
+  - daily missions
+  - weather / season
+  - real-plant mode summary
+- support a small set of user intents first
+  - status check
+  - care advice
+  - mission help
+  - growth question
+  - weather question
+  - light casual chat
+- responses should be state-aware and personality-aware
+- prefer constrained/template or intent-driven responses over fully open-ended AI for this phase
+
+Success criteria:
+- the user can ask their plant simple questions and get responses that reflect real app state
+- different starters feel distinct in conversation
+- the system stays stable, understandable, and affordable to iterate on
+
 ## Current recommended implementation order
 1. F1 Daily missions + streak system
 2. F2 Growth and evolution thresholds
@@ -147,6 +240,10 @@ Success criteria:
 6. F6 Notifications
 7. F7 Companion personality system
 8. F8 Real-world plant mode
+9. F9 Localization foundation + Korean/German support
+10. F10 Weather + seasonal feedback
+11. F11 Haptic / feedback polish
+12. F12 Plant AI companion mode
 
 ## Notes for reviewers
 Reviewers should focus on:
