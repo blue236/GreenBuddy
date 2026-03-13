@@ -14,9 +14,15 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -25,7 +31,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.R
 import com.blue236.greenbuddy.model.CareAction
+import com.blue236.greenbuddy.model.CompanionChatEngine
+import com.blue236.greenbuddy.model.CompanionChatIntent
+import com.blue236.greenbuddy.model.CompanionChatReply
 import com.blue236.greenbuddy.model.CompanionPersonalitySystem
+import com.blue236.greenbuddy.model.CompanionStateSnapshot
 import com.blue236.greenbuddy.model.DailyMissionSet
 import com.blue236.greenbuddy.model.GrowthStageState
 import com.blue236.greenbuddy.model.Lesson
@@ -40,24 +50,56 @@ import com.blue236.greenbuddy.model.WeatherSnapshot
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
 import com.blue236.greenbuddy.model.localizedGrowthTitle
+import com.blue236.greenbuddy.model.localizedHealth
 import com.blue236.greenbuddy.model.localizedLabel
+import com.blue236.greenbuddy.model.localizedMood
 import com.blue236.greenbuddy.ui.components.StatCard
 import java.time.LocalDate
 import java.time.ZoneId
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, starter: StarterPlantOption, lessons: List<Lesson>, progress: LessonProgress, careState: PlantCareState, dailyMissionSet: DailyMissionSet? = null, growthStageState: GrowthStageState, greenhouseCount: Int, rewardState: RewardState, rewardFeedback: String?, realPlantModeState: RealPlantModeState, weatherSnapshot: WeatherSnapshot, weatherAdvice: WeatherAdvice, onPerformCareAction: (CareAction) -> Unit, onAcknowledgeGrowthStage: () -> Unit, onSetRealPlantModeEnabled: (Boolean) -> Unit, onLogRealPlantCare: (RealPlantCareAction) -> Unit) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    starter: StarterPlantOption,
+    lessons: List<Lesson>,
+    progress: LessonProgress,
+    careState: PlantCareState,
+    dailyMissionSet: DailyMissionSet? = null,
+    growthStageState: GrowthStageState,
+    greenhouseCount: Int,
+    rewardState: RewardState,
+    rewardFeedback: String?,
+    realPlantModeState: RealPlantModeState,
+    weatherSnapshot: WeatherSnapshot,
+    weatherAdvice: WeatherAdvice,
+    companionStateSnapshot: CompanionStateSnapshot,
+    onPerformCareAction: (CareAction) -> Unit,
+    onAcknowledgeGrowthStage: () -> Unit,
+    onSetRealPlantModeEnabled: (Boolean) -> Unit,
+    onLogRealPlantCare: (RealPlantCareAction) -> Unit,
+) {
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons, localeTag)
     val currentLesson = progress.currentLessonOrNull(lessons)
     val zoneId = ZoneId.systemDefault()
     val completedToday = realPlantModeState.completedActionsOn(LocalDate.now(zoneId), zoneId)
+    var isCompanionChatOpen by rememberSaveable { mutableStateOf(false) }
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
         if (growthStageState.newlyUnlocked) Card { Column(Modifier.padding(16.dp)) { Text(stringResource(R.string.new_evolution_unlocked, growthStageState.currentStage.localizedGrowthTitle(localeTag))); Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.nice)) } } }
         StatCard(stringResource(R.string.companion)) { Text(dialogue.headline); Text(dialogue.line); Text(stringResource(R.string.wallet_value, rewardState.leafTokens)) }
+        StatCard(stringResource(R.string.companion_chat_title)) {
+            Text(stringResource(R.string.companion_chat_entry, starter.companion.name))
+            Text(companionStateSnapshot.personality.profileLabel, color = MaterialTheme.colorScheme.primary)
+            Button(onClick = { isCompanionChatOpen = !isCompanionChatOpen }, modifier = Modifier.padding(top = 8.dp)) {
+                Text(stringResource(if (isCompanionChatOpen) R.string.companion_chat_hide else R.string.companion_chat_open))
+            }
+            if (isCompanionChatOpen) {
+                CompanionChatCard(companionStateSnapshot = companionStateSnapshot, languageTag = localeTag)
+            }
+        }
         StatCard(stringResource(R.string.local_weather_title)) {
             Text(stringResource(R.string.weather_card_city, weatherSnapshot.city.defaultName), fontWeight = FontWeight.SemiBold)
             Text(weatherAdvice.summary)
@@ -76,6 +118,70 @@ fun HomeScreen(modifier: Modifier = Modifier, starter: StarterPlantOption, lesso
             if (realPlantModeState.enabled) {
                 Text(stringResource(R.string.today_real_plant, completedToday.size, RealPlantCareAction.entries.size))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { RealPlantCareAction.entries.forEach { AssistChip(onClick = { onLogRealPlantCare(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CompanionChatCard(
+    companionStateSnapshot: CompanionStateSnapshot,
+    languageTag: String,
+) {
+    var draftMessage by rememberSaveable { mutableStateOf("") }
+    var latestReply by remember(companionStateSnapshot) {
+        mutableStateOf(
+            CompanionChatEngine.replyTo(
+                message = CompanionChatEngine.defaultPromptFor(
+                    intent = CompanionChatIntent.STATUS_CHECK,
+                    languageTag = languageTag,
+                ),
+                snapshot = companionStateSnapshot,
+                languageTag = languageTag,
+            )
+        )
+    }
+
+    fun sendMessage(message: String) {
+        latestReply = CompanionChatEngine.replyTo(
+            message = message,
+            snapshot = companionStateSnapshot,
+            languageTag = languageTag,
+        )
+        draftMessage = ""
+    }
+
+    Card(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(companionStateSnapshot.personality.homeHeadline, fontWeight = FontWeight.SemiBold)
+            Text(latestReply.reply)
+            Text(
+                stringResource(
+                    R.string.companion_snapshot_summary,
+                    companionStateSnapshot.careState.localizedMood(languageTag),
+                    companionStateSnapshot.careState.localizedHealth(languageTag),
+                    companionStateSnapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag),
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            companionStateSnapshot.realPlantSummary?.let {
+                Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            OutlinedTextField(
+                value = draftMessage,
+                onValueChange = { draftMessage = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.companion_chat_input_label)) },
+                placeholder = { Text(stringResource(R.string.companion_chat_input_placeholder)) },
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { sendMessage(draftMessage) }) { Text(stringResource(R.string.companion_chat_send)) }
+            }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                latestReply.suggestionChips.forEach { prompt ->
+                    AssistChip(onClick = { sendMessage(prompt) }, label = { Text(prompt) })
+                }
             }
         }
     }

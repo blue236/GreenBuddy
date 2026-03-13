@@ -94,6 +94,16 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             realPlantModeState = preferences.realPlantModeState,
             weatherSnapshot = weatherSnapshot,
             weatherAdvice = weatherAdvice,
+            companionStateSnapshot = com.blue236.greenbuddy.model.CompanionChatEngine.createSnapshot(
+                starter = preferences.selectedStarter,
+                careState = selectedCareState,
+                growthStageState = growthStageState,
+                dailyMissionSet = todayMissions,
+                weatherSnapshot = weatherSnapshot,
+                weatherAdvice = weatherAdvice,
+                realPlantModeState = preferences.realPlantModeState,
+                languageTag = localeTag,
+            ),
             appLanguage = preferences.appLanguage,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GreenBuddyUiState())
