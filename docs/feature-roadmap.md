@@ -231,6 +231,22 @@ Success criteria:
 - different starters feel distinct in conversation
 - the system stays stable, understandable, and affordable to iterate on
 
+#### F12 Phase 2: Proactive companion expression
+**Goal:** Make the plant feel more alive by letting it proactively express its current state and maintain a lightweight sense of conversational continuity.
+
+Scope:
+- add proactive companion bubble/message on Home
+- make suggestion chips reflect current state instead of only static prompts
+- add lightweight recent chat memory (for example, last 3-5 exchanges per starter)
+- improve rule-based intent handling before introducing any external AI dependency
+- strengthen personality tone across proactive and reactive responses
+- keep RealPlant mode optional/secondary, not the core of companion conversation
+
+Success criteria:
+- the plant can proactively surface useful, state-aware check-ins
+- chat feels less like a one-shot query box and more like a living companion
+- the system remains deterministic, understandable, and inexpensive to iterate on
+
 ## Current recommended implementation order
 1. F1 Daily missions + streak system
 2. F2 Growth and evolution thresholds
