@@ -24,7 +24,7 @@ data class CompanionStateSnapshot(
     val weatherAdvice: WeatherAdvice,
     val realPlantModeState: RealPlantModeState,
 ) {
-    val realPlantSummary: String = companionRealPlantSummary(realPlantModeState)
+    val realPlantSummary: String? = companionRealPlantSummary(realPlantModeState)
 }
 
 data class CompanionChatReply(
@@ -34,11 +34,11 @@ data class CompanionChatReply(
     val suggestionChips: List<String>,
 )
 
-private fun companionRealPlantSummary(state: RealPlantModeState): String {
-    if (!state.enabled) return "Real-plant mode is off right now."
+private fun companionRealPlantSummary(state: RealPlantModeState): String? {
+    if (!state.enabled) return null
     val completedToday = state.completedActionsOn(LocalDate.now(ZoneId.systemDefault()), ZoneId.systemDefault())
     return if (completedToday.isEmpty()) {
-        "Real-plant mode is on, but you haven’t logged a real care action yet today."
+        "Real-plant mode is on if you want to mirror today’s real care too."
     } else {
         "Real-plant mode is on, and you’ve already mirrored ${completedToday.size} real-world care action${if (completedToday.size == 1) "" else "s"} today."
     }
@@ -123,19 +123,73 @@ object CompanionChatEngine {
         return when (intent) {
             CompanionChatIntent.STATUS_CHECK -> when (normalizedLanguageTag(languageTag)) {
                 "de" -> when (species) {
-                    "Monstera" -> "$name meldet sich: Ich fühle mich $mood und insgesamt $health. Mein dringendstes Bedürfnis ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}. Ich bin gerade in der Phase $stage, und $missionSummary $realPlantSummary"
-                    "Basil" -> "$name checkt ein! Ich bin $mood und insgesamt $health. Der beste schnelle Schritt ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}. Aktuell bin ich in der Phase $stage, und $missionSummary $realPlantSummary"
-                    else -> "$name berichtet: Stimmung $mood, Gesundheit $health. Priorität hat ${careLabel(snapshot.careState.lowestNeed, languageTag)}. Wachstumsphase: $stage. $missionSummary $realPlantSummary"
+                    "Monstera" -> joinSentences(
+                        "$name meldet sich: Ich fühle mich $mood und insgesamt $health.",
+                        "Mein dringendstes Bedürfnis ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
+                        "Ich bin gerade in der Phase $stage.",
+                        missionSummary,
+                        realPlantSummary,
+                    )
+                    "Basil" -> joinSentences(
+                        "$name checkt ein! Ich bin $mood und insgesamt $health.",
+                        "Der beste schnelle Schritt ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
+                        "Aktuell bin ich in der Phase $stage.",
+                        missionSummary,
+                        realPlantSummary,
+                    )
+                    else -> joinSentences(
+                        "$name berichtet: Stimmung $mood, Gesundheit $health.",
+                        "Priorität hat ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
+                        "Wachstumsphase: $stage.",
+                        missionSummary,
+                        realPlantSummary,
+                    )
                 }
                 "ko" -> when (species) {
-                    "Monstera" -> "$name 보고할게요. 지금 기분은 $mood, 전체 상태는 ${health} 쪽이에요. 가장 먼저 챙기면 좋은 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요. 현재 단계는 ${stage}이고, $missionSummary $realPlantSummary"
-                    "Basil" -> "$name 체크인이에요! 지금 저는 $mood 느낌이고 전체적으로는 ${health} 상태예요. 가장 빠르게 도움 되는 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요. 지금 단계는 ${stage}이고, $missionSummary $realPlantSummary"
-                    else -> "$name 브리핑이에요. 기분은 $mood, 건강 상태는 ${health}예요. 우선 액션은 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요. 성장 단계는 ${stage}예요. $missionSummary $realPlantSummary"
+                    "Monstera" -> joinSentences(
+                        "$name 보고할게요. 지금 기분은 $mood, 전체 상태는 ${health} 쪽이에요.",
+                        "가장 먼저 챙기면 좋은 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요.",
+                        "현재 단계는 ${stage}예요.",
+                        missionSummary,
+                        realPlantSummary,
+                    )
+                    "Basil" -> joinSentences(
+                        "$name 체크인이에요! 지금 저는 $mood 느낌이고 전체적으로는 ${health} 상태예요.",
+                        "가장 빠르게 도움 되는 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요.",
+                        "지금 단계는 ${stage}예요.",
+                        missionSummary,
+                        realPlantSummary,
+                    )
+                    else -> joinSentences(
+                        "$name 브리핑이에요. 기분은 $mood, 건강 상태는 ${health}예요.",
+                        "우선 액션은 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요.",
+                        "성장 단계는 ${stage}예요.",
+                        missionSummary,
+                        realPlantSummary,
+                    )
                 }
                 else -> when (species) {
-                    "Monstera" -> "$name report: I’m feeling ${mood.lowercase()} and ${health.lowercase()}. My lowest need is ${careLabel(snapshot.careState.lowestNeed, languageTag)}. I’m at the $stage stage, and $missionSummary $realPlantSummary"
-                    "Basil" -> "$name check-in! I’m ${mood.lowercase()} but overall ${health.lowercase()}. Best quick win: ${careLabel(snapshot.careState.lowestNeed, languageTag)}. I’m currently ${stage.lowercase()}, and $missionSummary $realPlantSummary"
-                    else -> "$name briefing: mood ${mood.lowercase()}, health ${health.lowercase()}. Priority action is ${careLabel(snapshot.careState.lowestNeed, languageTag)}. Growth stage: $stage. $missionSummary $realPlantSummary"
+                    "Monstera" -> joinSentences(
+                        "$name report: I’m feeling ${mood.lowercase()} and ${health.lowercase()}.",
+                        "My lowest need is ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
+                        "I’m at the $stage stage.",
+                        missionSummary,
+                        realPlantSummary,
+                    )
+                    "Basil" -> joinSentences(
+                        "$name check-in! I’m ${mood.lowercase()} but overall ${health.lowercase()}.",
+                        "Best quick win: ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
+                        "I’m currently ${stage.lowercase()}.",
+                        missionSummary,
+                        realPlantSummary,
+                    )
+                    else -> joinSentences(
+                        "$name briefing: mood ${mood.lowercase()}, health ${health.lowercase()}.",
+                        "Priority action is ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
+                        "Growth stage: $stage.",
+                        missionSummary,
+                        realPlantSummary,
+                    )
                 }
             }
             CompanionChatIntent.CARE_ADVICE -> {
@@ -289,29 +343,23 @@ object CompanionChatEngine {
     private fun missionSummary(dailyMissionSet: DailyMissionSet?, languageTag: String): String = dailyMissionSet?.let { missions ->
         val remaining = missions.totalCount - missions.completedCount
         when (normalizedLanguageTag(languageTag)) {
-            "de" -> if (remaining == 0) "du hast die heutigen Missionen schon geschafft." else "du hast heute noch $remaining Mission${if (remaining == 1) "" else "en"} offen."
+            "de" -> if (remaining == 0) "Du hast die heutigen Missionen schon geschafft." else "Du hast heute noch $remaining Mission${if (remaining == 1) "" else "en"} offen."
             "ko" -> if (remaining == 0) "오늘 미션은 이미 다 끝냈어요." else "오늘 남은 미션이 ${remaining}개 있어요."
             else -> if (remaining == 0) "You already cleared today’s missions." else "You’ve got $remaining mission${if (remaining == 1) "" else "s"} left today."
         }
     } ?: when (normalizedLanguageTag(languageTag)) {
-        "de" -> "die heutigen Missionen laden noch in meinem kleinen Blattgehirn."
+        "de" -> "Die heutigen Missionen laden noch in meinem kleinen Blattgehirn."
         "ko" -> "제 작은 잎사귀 두뇌에 오늘 미션이 아직 다 들어오지 않았어요."
         else -> "Today’s missions are still loading in my little leaf brain."
     }
 
-    private fun localizedRealPlantSummary(state: RealPlantModeState, languageTag: String): String {
-        if (!state.enabled) {
-            return when (normalizedLanguageTag(languageTag)) {
-                "de" -> "Der Echte-Pflanze-Modus ist gerade aus."
-                "ko" -> "실제 식물 모드는 지금 꺼져 있어요."
-                else -> companionRealPlantSummary(state)
-            }
-        }
+    private fun localizedRealPlantSummary(state: RealPlantModeState, languageTag: String): String? {
+        if (!state.enabled) return null
         val completedToday = state.completedActionsOn(LocalDate.now(ZoneId.systemDefault()), ZoneId.systemDefault())
         return if (completedToday.isEmpty()) {
             when (normalizedLanguageTag(languageTag)) {
-                "de" -> "Der Echte-Pflanze-Modus ist an, aber du hast heute noch keine echte Pflegeaktion eingetragen."
-                "ko" -> "실제 식물 모드는 켜져 있지만 오늘은 아직 실제 돌봄 기록이 없어요."
+                "de" -> "Der Echte-Pflanze-Modus ist an, falls du heute noch echte Pflege spiegeln willst."
+                "ko" -> "오늘 실제 돌봄도 함께 반영하고 싶다면 실제 식물 모드를 사용할 수 있어요."
                 else -> companionRealPlantSummary(state)
             }
         } else {
@@ -350,6 +398,10 @@ object CompanionChatEngine {
         .replace("ß", "ss")
 
     private fun String.containsAny(vararg needles: String): Boolean = needles.any { contains(it) }
+
+    private fun joinSentences(vararg segments: String?): String = segments
+        .mapNotNull { it?.trim()?.takeIf(String::isNotEmpty) }
+        .joinToString(" ")
 }
 
 private fun localizedSeasonLabel(season: WeatherSeason, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {

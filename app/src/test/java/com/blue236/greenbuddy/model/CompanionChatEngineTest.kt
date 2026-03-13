@@ -1,6 +1,8 @@
 package com.blue236.greenbuddy.model
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
@@ -60,7 +62,22 @@ class CompanionChatEngineTest {
         assertEquals("Basil", snapshot.starter.companion.species)
         assertEquals("Thirsty", snapshot.mood)
         assertEquals("Stable", snapshot.health)
-        assertTrue(snapshot.realPlantSummary.contains("Real-plant mode is on"))
+        assertTrue(snapshot.realPlantSummary?.contains("Real-plant mode is on") == true)
+    }
+
+    @Test
+    fun createSnapshot_omitsRealPlantSummaryWhenModeIsOff() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(enabled = false),
+        )
+
+        assertNull(snapshot.realPlantSummary)
     }
 
     @Test
@@ -99,6 +116,26 @@ class CompanionChatEngineTest {
         assertEquals(CompanionChatIntent.GROWTH_QUESTION, reply.intent)
         assertTrue(reply.reply.contains(growthState.currentStage.title))
         assertTrue(reply.reply.contains("% of the way there"))
+    }
+
+    @Test
+    fun replyTo_statusCheckStandsOnItsOwnWithoutRealPlantMode() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(enabled = false),
+        )
+
+        val reply = CompanionChatEngine.replyTo("How are you feeling?", snapshot)
+
+        assertTrue(reply.reply.contains("Best quick win: watering."))
+        assertTrue(reply.reply.contains("I’m currently ${growthState.currentStage.title.lowercase()}."))
+        assertTrue(reply.reply.contains("You"))
+        assertFalse(reply.reply.contains("Real-plant mode is off"))
     }
 
     @Test

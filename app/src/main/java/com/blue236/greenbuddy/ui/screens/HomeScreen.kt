@@ -165,7 +165,9 @@ private fun CompanionChatCard(
                 ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Text(companionStateSnapshot.realPlantSummary, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            companionStateSnapshot.realPlantSummary?.let {
+                Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             OutlinedTextField(
                 value = draftMessage,
                 onValueChange = { draftMessage = it },
