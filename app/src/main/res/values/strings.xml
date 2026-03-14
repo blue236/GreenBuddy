@@ -100,6 +100,9 @@
     <string name="companion_label_you">You</string>
     <string name="companion_label_buddy">Buddy</string>
     <string name="companion_snapshot_summary">Mood %1$s · Health %2$s · Stage %3$s</string>
+    <string name="companion_continuity_summary">Emotion %1$s · Bond %2$s</string>
+    <string name="companion_emotion_chip">Emotion: %1$s</string>
+    <string name="companion_familiarity_chip">Bond: %1$s</string>
     <string name="wallet_value">Wallet: %1$d leaf tokens</string>
     <string name="reward_pulse">Reward pulse</string>
     <string name="daily_missions">Daily missions</string>

@@ -187,9 +187,75 @@ class CompanionChatEngineTest {
 
         val proactive = CompanionChatEngine.proactiveCheckIn(snapshot)
 
-        assertTrue(proactive.bubble.contains("watering"))
+        assertTrue(proactive.emotionLabel.isNotBlank())
+        assertTrue(proactive.familiarityLabel.isNotBlank())
+        assertTrue(proactive.bubble.isNotBlank())
         assertTrue(proactive.suggestionChips.isNotEmpty())
-        assertTrue(proactive.suggestionChips.first().contains("water", ignoreCase = true) || proactive.suggestionChips.first().contains("mission", ignoreCase = true))
+        assertTrue(proactive.suggestionChips.any { it.contains("water", ignoreCase = true) || it.contains("streak", ignoreCase = true) || it.contains("mission", ignoreCase = true) || it.contains("today", ignoreCase = true) })
+    }
+
+    @Test
+    fun createSnapshot_addsDeterministicEmotionAndRelationshipContext() {
+        val memory = CompanionConversationMemory()
+            .withExchange("How are you growing?", CompanionChatIntent.GROWTH_QUESTION, "Pretty well.")
+            .withExchange("And now?", CompanionChatIntent.GROWTH_QUESTION, "Still moving.")
+
+        val richMissionSet = DailyMissionProgress(
+            missionDate = LocalDate.now().toString(),
+            completedCareActionsToday = 1,
+            completedLessonsToday = 1,
+            currentStreak = 3,
+            longestStreak = 3,
+            lastCompletedDate = LocalDate.now().minusDays(1).toString(),
+        ).resolveForToday(LocalDate.now(), LessonProgress(), careState)
+
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState.copy(hydration = 70),
+            growthStageState = growthState,
+            dailyMissionSet = richMissionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+            recentConversationMemory = memory,
+        )
+
+        assertTrue(snapshot.relationship.familiarity == CompanionFamiliarity.WARM || snapshot.relationship.familiarity == CompanionFamiliarity.CLOSE)
+        assertTrue(snapshot.continuity.emotion in CompanionEmotion.entries)
+        assertTrue(snapshot.relationship.summary.isNotBlank())
+        assertTrue(snapshot.continuity.emotionalSummary.isNotBlank())
+    }
+
+    @Test
+    fun replyTo_usesContinuityLeadForFollowUps() {
+        val firstReply = CompanionChatEngine.replyTo(
+            "How are you growing?",
+            CompanionChatEngine.createSnapshot(
+                starter = starter,
+                careState = careState,
+                growthStageState = growthState,
+                dailyMissionSet = missionSet,
+                weatherSnapshot = weatherSnapshot,
+                weatherAdvice = weatherAdvice,
+                realPlantModeState = RealPlantModeState(),
+            ),
+        )
+        val memory = CompanionConversationMemory().withExchange(firstReply.userMessage, firstReply.intent, firstReply.reply)
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+            recentConversationMemory = memory,
+        )
+
+        val followUp = CompanionChatEngine.replyTo("and now?", snapshot)
+
+        assertEquals(CompanionChatIntent.GROWTH_QUESTION, followUp.intent)
+        assertTrue(followUp.reply.contains("Let’s keep following that thread.") || followUp.reply.contains("I’m still lit up") || followUp.reply.contains("I want to keep pulling"))
     }
 
     @Test

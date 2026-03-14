@@ -96,6 +96,14 @@ fun HomeScreen(
         StatCard(stringResource(R.string.companion)) { Text(dialogue.headline); Text(dialogue.line); Text(stringResource(R.string.wallet_value, rewardState.leafTokens)) }
         StatCard(stringResource(R.string.companion_proactive_title)) {
             Text(companionHomeCheckIn.bubble)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 8.dp),
+            ) {
+                AssistChip(onClick = { }, label = { Text(stringResource(R.string.companion_emotion_chip, companionHomeCheckIn.emotionLabel)) })
+                AssistChip(onClick = { }, label = { Text(stringResource(R.string.companion_familiarity_chip, companionHomeCheckIn.familiarityLabel)) })
+            }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
                 companionHomeCheckIn.suggestionChips.forEach { prompt ->
                     AssistChip(onClick = {
@@ -191,6 +199,14 @@ private fun CompanionChatCard(
                     companionStateSnapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag),
                 ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                stringResource(
+                    R.string.companion_continuity_summary,
+                    companionStateSnapshot.continuity.emotionalSummary,
+                    companionStateSnapshot.relationship.summary,
+                ),
+                color = MaterialTheme.colorScheme.primary,
             )
             companionStateSnapshot.realPlantSummary?.let {
                 Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant)
