@@ -89,6 +89,7 @@
     <string name="new_evolution_unlocked">New evolution unlocked: %1$s</string>
     <string name="nice">Nice</string>
     <string name="companion">Companion</string>
+    <string name="companion_proactive_title">Companion check-in</string>
     <string name="companion_chat_title">Companion chat</string>
     <string name="companion_chat_entry">Talk to %1$s about how they’re doing, what they need, and what today’s plan should be.</string>
     <string name="companion_chat_open">Open chat</string>
@@ -96,6 +97,8 @@
     <string name="companion_chat_input_label">Ask your plant</string>
     <string name="companion_chat_input_placeholder">How are you feeling?</string>
     <string name="companion_chat_send">Send</string>
+    <string name="companion_label_you">You</string>
+    <string name="companion_label_buddy">Buddy</string>
     <string name="companion_snapshot_summary">Mood %1$s · Health %2$s · Stage %3$s</string>
     <string name="wallet_value">Wallet: %1$d leaf tokens</string>
     <string name="reward_pulse">Reward pulse</string>

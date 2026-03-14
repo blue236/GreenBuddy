@@ -13,6 +13,7 @@ data class AppPreferences(
     val realPlantModeStateByStarterId: Map<String, RealPlantModeState> = emptyMap(),
     val selectedWeatherCityId: String = WeatherCatalog.cityOptions.first().id,
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
+    val companionConversationMemoryByStarterId: Map<String, CompanionConversationMemory> = emptyMap(),
 ) {
     val selectedStarter: StarterPlantOption
         get() = StarterPlants.options.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }
@@ -27,6 +28,9 @@ data class AppPreferences(
 
     val realPlantModeState: RealPlantModeState
         get() = realPlantModeStateByStarterId[selectedStarter.id] ?: RealPlantModeState()
+
+    val companionConversationMemory: CompanionConversationMemory
+        get() = companionConversationMemoryByStarterId[selectedStarter.id] ?: CompanionConversationMemory()
 }
 
 data class GreenBuddyUiState(
@@ -62,6 +66,23 @@ data class GreenBuddyUiState(
         weatherSnapshot = SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id),
         weatherAdvice = WeatherAdviceGenerator.adviceFor(StarterPlants.options.first(), SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id)),
         realPlantModeState = RealPlantModeState(),
+        recentConversationMemory = CompanionConversationMemory(),
+    ),
+    val companionHomeCheckIn: CompanionHomeCheckIn = CompanionChatEngine.proactiveCheckIn(
+        CompanionChatEngine.createSnapshot(
+            starter = StarterPlants.options.first(),
+            careState = PlantCareState.from(StarterPlants.options.first().companion),
+            growthStageState = resolveGrowthStageState(
+                starterId = StarterPlants.options.first().id,
+                progress = LessonProgress(),
+                careState = PlantCareState.from(StarterPlants.options.first().companion),
+            ),
+            dailyMissionSet = null,
+            weatherSnapshot = SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id),
+            weatherAdvice = WeatherAdviceGenerator.adviceFor(StarterPlants.options.first(), SeasonalWeatherProvider.snapshotFor(WeatherCatalog.cityOptions.first().id)),
+            realPlantModeState = RealPlantModeState(),
+            recentConversationMemory = CompanionConversationMemory(),
+        ),
     ),
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
 ) {

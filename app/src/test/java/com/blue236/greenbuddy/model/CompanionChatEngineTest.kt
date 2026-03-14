@@ -33,6 +33,18 @@ class CompanionChatEngineTest {
     }
 
     @Test
+    fun detectIntent_usesRecentMemoryForShortFollowUps() {
+        val memory = CompanionConversationMemory().withExchange(
+            userMessage = "How are you growing?",
+            userIntent = CompanionChatIntent.GROWTH_QUESTION,
+            companionReply = "Quite nicely."
+        )
+
+        assertEquals(CompanionChatIntent.GROWTH_QUESTION, CompanionChatEngine.detectIntent("and now?", memory))
+        assertEquals(CompanionChatIntent.GROWTH_QUESTION, CompanionChatEngine.detectIntent("more?", memory))
+    }
+
+    @Test
     fun detectIntent_mapsGermanAndKoreanKeywords() {
         assertEquals(CompanionChatIntent.STATUS_CHECK, CompanionChatEngine.detectIntent("Wie geht es dir?"))
         assertEquals(CompanionChatIntent.CARE_ADVICE, CompanionChatEngine.detectIntent("물 필요해?"))
@@ -97,6 +109,7 @@ class CompanionChatEngineTest {
         assertEquals(CompanionChatIntent.CARE_ADVICE, reply.intent)
         assertTrue(reply.reply.contains("hydration is my lowest stat at 30"))
         assertTrue(reply.reply.contains(weatherAdvice.starterAdvice))
+        assertTrue(reply.suggestionChips.contains("Should I water you?"))
     }
 
     @Test
@@ -134,8 +147,49 @@ class CompanionChatEngineTest {
 
         assertTrue(reply.reply.contains("Best quick win: watering."))
         assertTrue(reply.reply.contains("I’m currently ${growthState.currentStage.title.lowercase()}."))
-        assertTrue(reply.reply.contains("You"))
+        assertTrue(reply.reply.contains("You’ve got"))
         assertFalse(reply.reply.contains("Real-plant mode is off"))
+    }
+
+    @Test
+    fun updatedMemoryFor_keepsRecentExchangesBounded() {
+        var snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        repeat(6) { index ->
+            val reply = CompanionChatEngine.replyTo("How are you feeling $index?", snapshot)
+            val updatedMemory = CompanionChatEngine.updatedMemoryFor(reply, snapshot)
+            snapshot = snapshot.copy(recentConversationMemory = updatedMemory)
+        }
+
+        assertEquals(CompanionConversationMemory.MAX_MESSAGES, snapshot.recentConversationMemory.messages.size)
+        assertTrue(snapshot.recentConversationMemory.messages.first().text.contains("How are you feeling 2?"))
+    }
+
+    @Test
+    fun proactiveCheckIn_prioritizesCurrentState() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        val proactive = CompanionChatEngine.proactiveCheckIn(snapshot)
+
+        assertTrue(proactive.bubble.contains("watering"))
+        assertTrue(proactive.suggestionChips.isNotEmpty())
+        assertTrue(proactive.suggestionChips.first().contains("water", ignoreCase = true) || proactive.suggestionChips.first().contains("mission", ignoreCase = true))
     }
 
     @Test
@@ -155,11 +209,11 @@ class CompanionChatEngineTest {
         val koreanReply = CompanionChatEngine.replyTo("", snapshot, languageTag = "ko")
 
         assertEquals("Wie geht es dir?", germanReply.userMessage)
-        assertTrue(germanReply.suggestionChips.contains("Was brauchst du am meisten?"))
+        assertTrue(germanReply.suggestionChips.contains("Soll ich dich gießen?"))
         assertTrue(germanReply.reply.contains("durstig"))
 
         assertEquals("지금 기분이 어때?", koreanReply.userMessage)
-        assertTrue(koreanReply.suggestionChips.contains("가장 필요한 게 뭐야?"))
+        assertTrue(koreanReply.suggestionChips.contains("물 줘야 해?"))
         assertTrue(koreanReply.reply.contains("목말라요"))
     }
 }

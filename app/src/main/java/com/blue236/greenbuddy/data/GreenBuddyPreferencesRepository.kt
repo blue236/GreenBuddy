@@ -13,6 +13,10 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.blue236.greenbuddy.model.AppLanguage
 import com.blue236.greenbuddy.model.AppPreferences
+import com.blue236.greenbuddy.model.CompanionConversationMemory
+import com.blue236.greenbuddy.model.CompanionMessage
+import com.blue236.greenbuddy.model.CompanionMessageRole
+import com.blue236.greenbuddy.model.CompanionChatIntent
 import com.blue236.greenbuddy.model.DailyMissionProgress
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
@@ -48,6 +52,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
             realPlantModeStateByStarterId = StarterPlants.options.associate { it.id to readRealPlantModeState(prefs, it.id) },
             selectedWeatherCityId = prefs[selectedWeatherCityIdKey] ?: "berlin",
             appLanguage = AppLanguage.fromStorageValue(prefs[appLanguageKey]),
+            companionConversationMemoryByStarterId = StarterPlants.options.associate { it.id to readCompanionConversationMemory(prefs, it.id) },
         )
     }
 
@@ -68,6 +73,7 @@ class GreenBuddyPreferencesRepository(context: Context) {
     suspend fun saveRealPlantModeAndPlantCareState(starterId: String, realPlantModeState: RealPlantModeState, careState: PlantCareState) { dataStore.edit { prefs -> prefs[realPlantModeEnabledKey(starterId)] = realPlantModeState.enabled; prefs[realPlantLogKey(starterId)] = encodeRealPlantEntries(realPlantModeState.entries); writePlantCareState(prefs, starterId, careState) } }
     suspend fun saveSelectedWeatherCity(cityId: String) { dataStore.edit { it[selectedWeatherCityIdKey] = cityId } }
     suspend fun saveAppLanguage(appLanguage: AppLanguage) { dataStore.edit { it[appLanguageKey] = appLanguage.storageValue } }
+    suspend fun saveCompanionConversationMemory(starterId: String, memory: CompanionConversationMemory) { dataStore.edit { it[companionConversationMemoryKey(starterId)] = encodeConversationMemory(memory) } }
 
     companion object {
         private const val DATASTORE_NAME = "greenbuddy_preferences"
@@ -114,16 +120,35 @@ class GreenBuddyPreferencesRepository(context: Context) {
         private fun seenGrowthStageRankKey(starterId: String) = intPreferencesKey("${starterId}_seen_growth_stage_rank")
         private fun realPlantModeEnabledKey(starterId: String) = booleanPreferencesKey("${starterId}_real_plant_mode_enabled")
         private fun realPlantLogKey(starterId: String) = stringPreferencesKey("${starterId}_real_plant_log")
+        private fun companionConversationMemoryKey(starterId: String) = stringPreferencesKey("${starterId}_companion_conversation_memory")
     }
 
     private fun encodeRealPlantEntries(entries: List<RealPlantLogEntry>) = entries.joinToString(LOG_ENTRY_SEPARATOR) { "${it.loggedAtEpochMillis}${LOG_FIELD_SEPARATOR}${it.action.name}" }
+    private fun encodeConversationMemory(memory: CompanionConversationMemory) = memory.messages.joinToString(LOG_ENTRY_SEPARATOR) { message ->
+        listOf(message.role.name, message.intent?.name.orEmpty(), sanitize(message.text)).joinToString(LOG_FIELD_SEPARATOR)
+    }
     private fun readLessonProgress(prefs: Preferences, starterId: String) = LessonProgress(prefs[currentLessonIndexKey(starterId)] ?: 0, prefs[completedLessonIdsKey(starterId)]?.split(COMPLETED_IDS_SEPARATOR)?.filter(String::isNotBlank)?.toSet() ?: emptySet(), prefs[totalXpKey(starterId)] ?: 0)
     private fun readPlantCareState(prefs: Preferences, starterId: String): PlantCareState { val starter = StarterPlants.options.firstOrNull { it.id == starterId } ?: StarterPlants.options.first(); val d = PlantCareState.from(starter.companion); return PlantCareState(prefs[hydrationKey(starterId)] ?: d.hydration, prefs[sunlightKey(starterId)] ?: d.sunlight, prefs[nutritionKey(starterId)] ?: d.nutrition) }
     private fun readDailyMissionProgress(prefs: Preferences, starterId: String) = DailyMissionProgress(prefs[missionDateKey(starterId)] ?: "", prefs[completedCareActionsTodayKey(starterId)] ?: 0, prefs[completedLessonsTodayKey(starterId)] ?: 0, prefs[claimedDailyRewardDateKey(starterId)], prefs[currentStreakKey(starterId)] ?: 0, prefs[longestStreakKey(starterId)] ?: 0, prefs[lastCompletedDateKey(starterId)], prefs[streakRewardClaimedForStreakKey(starterId)])
     private fun readRewardState(prefs: Preferences): RewardState { val migrated = StarterPlants.options.sumOf { prefs[legacyLeafTokensKey(it.id)] ?: 0 }; return RewardState((prefs[globalLeafTokensKey] ?: 0) + migrated, prefs[unlockedCosmeticIdsKey]?.split(COMPLETED_IDS_SEPARATOR)?.filter(String::isNotBlank)?.toSet() ?: emptySet(), prefs[equippedCosmeticIdKey]) }
     private fun readReminderState(prefs: Preferences) = ReminderState(prefs[lastAppOpenAtKey], prefs[lastLessonCompletedAtKey], prefs[lastCareActionAtKey], prefs[lastNotificationSentAtKey])
     private fun readRealPlantModeState(prefs: Preferences, starterId: String) = RealPlantModeState(prefs[realPlantModeEnabledKey(starterId)] ?: false, prefs[realPlantLogKey(starterId)]?.split(LOG_ENTRY_SEPARATOR)?.mapNotNull { val parts = it.split(LOG_FIELD_SEPARATOR); val ts = parts.getOrNull(0)?.toLongOrNull() ?: return@mapNotNull null; val action = parts.getOrNull(1)?.let { n -> RealPlantCareAction.entries.firstOrNull { a -> a.name == n } } ?: return@mapNotNull null; RealPlantLogEntry(action, ts) }?.sortedByDescending { it.loggedAtEpochMillis }?.take(RealPlantModeState.MAX_LOG_ENTRIES) ?: emptyList())
+    private fun readCompanionConversationMemory(prefs: Preferences, starterId: String): CompanionConversationMemory = CompanionConversationMemory(
+        prefs[companionConversationMemoryKey(starterId)]
+            ?.split(LOG_ENTRY_SEPARATOR)
+            ?.mapNotNull { encoded ->
+                val parts = encoded.split(LOG_FIELD_SEPARATOR)
+                val role = parts.getOrNull(0)?.let { name -> CompanionMessageRole.entries.firstOrNull { it.name == name } } ?: return@mapNotNull null
+                val intent = parts.getOrNull(1)?.takeIf(String::isNotBlank)?.let { name -> CompanionChatIntent.entries.firstOrNull { it.name == name } }
+                val text = parts.getOrNull(2)?.let(::restoreSanitized) ?: return@mapNotNull null
+                CompanionMessage(role = role, text = text, intent = intent)
+            }
+            ?.takeLast(CompanionConversationMemory.MAX_MESSAGES)
+            ?: emptyList(),
+    )
     private fun writeLessonProgress(prefs: MutablePreferences, starterId: String, progress: LessonProgress) { prefs[currentLessonIndexKey(starterId)] = progress.currentLessonIndex; prefs[completedLessonIdsKey(starterId)] = progress.completedLessonIds.joinToString(COMPLETED_IDS_SEPARATOR); prefs[totalXpKey(starterId)] = progress.totalXp }
     private fun writePlantCareState(prefs: MutablePreferences, starterId: String, careState: PlantCareState) { prefs[hydrationKey(starterId)] = careState.hydration; prefs[sunlightKey(starterId)] = careState.sunlight; prefs[nutritionKey(starterId)] = careState.nutrition }
     private fun writeDailyMissionProgress(prefs: MutablePreferences, starterId: String, progress: DailyMissionProgress) { prefs[missionDateKey(starterId)] = progress.missionDate; prefs[completedCareActionsTodayKey(starterId)] = progress.completedCareActionsToday; prefs[completedLessonsTodayKey(starterId)] = progress.completedLessonsToday; progress.claimedDailyRewardDate?.let { prefs[claimedDailyRewardDateKey(starterId)] = it } ?: prefs.remove(claimedDailyRewardDateKey(starterId)); prefs[currentStreakKey(starterId)] = progress.currentStreak; prefs[longestStreakKey(starterId)] = progress.longestStreak; progress.lastCompletedDate?.let { prefs[lastCompletedDateKey(starterId)] = it } ?: prefs.remove(lastCompletedDateKey(starterId)); progress.streakRewardClaimedForStreak?.let { prefs[streakRewardClaimedForStreakKey(starterId)] = it } ?: prefs.remove(streakRewardClaimedForStreakKey(starterId)) }
+    private fun sanitize(text: String): String = text.replace("|", "%7C").replace(";", "%3B")
+    private fun restoreSanitized(text: String): String = text.replace("%7C", "|").replace("%3B", ";")
 }

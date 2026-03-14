@@ -68,6 +68,7 @@ fun GreenBuddyApp(initialTab: Tab = Tab.HOME, viewModel: GreenBuddyViewModel = v
         viewModel::completeOnboarding,
         viewModel::submitCurrentLessonAnswer,
         viewModel::performCareAction,
+        viewModel::submitCompanionChatMessage,
         viewModel::clearFeedbackEvent,
         viewModel::acknowledgeGrowthStage,
         viewModel::purchaseCosmetic,
@@ -87,6 +88,7 @@ fun GreenBuddyAppContent(
     onContinueOnboarding: () -> Unit,
     onSubmitLessonAnswer: (Int) -> Boolean,
     onPerformCareAction: (CareAction) -> Unit,
+    onSubmitCompanionChatMessage: (String) -> Unit,
     onClearFeedbackEvent: (Long) -> Unit,
     onAcknowledgeGrowthStage: () -> Unit,
     onPurchaseCosmetic: (CosmeticItem) -> Unit,
@@ -147,7 +149,9 @@ fun GreenBuddyAppContent(
                 uiState.weatherSnapshot,
                 uiState.weatherAdvice,
                 uiState.companionStateSnapshot,
+                uiState.companionHomeCheckIn,
                 onPerformCareAction,
+                onSubmitCompanionChatMessage,
                 onAcknowledgeGrowthStage,
                 onSetRealPlantModeEnabled,
                 onLogRealPlantCare,
@@ -184,7 +188,7 @@ fun GreenBuddyAppContent(
 @Composable
 private fun GreenBuddyAppPreview() {
     GreenBuddyTheme {
-        GreenBuddyAppContent(GreenBuddyUiState(onboardingComplete = true, starterOptions = StarterPlants.options), {}, {}, {}, { false }, {}, {}, {}, {}, {}, {}, {}, {}, {})
+        GreenBuddyAppContent(GreenBuddyUiState(onboardingComplete = true, starterOptions = StarterPlants.options), {}, {}, {}, { false }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }
 

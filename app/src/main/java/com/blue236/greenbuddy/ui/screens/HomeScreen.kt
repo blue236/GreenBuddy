@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,10 +33,11 @@ import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.R
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CompanionChatEngine
-import com.blue236.greenbuddy.model.CompanionChatIntent
-import com.blue236.greenbuddy.model.CompanionChatReply
-import com.blue236.greenbuddy.model.CompanionPersonalitySystem
+import com.blue236.greenbuddy.model.CompanionConversationMemory
+import com.blue236.greenbuddy.model.CompanionHomeCheckIn
+import com.blue236.greenbuddy.model.CompanionMessageRole
 import com.blue236.greenbuddy.model.CompanionStateSnapshot
+import com.blue236.greenbuddy.model.CompanionPersonalitySystem
 import com.blue236.greenbuddy.model.DailyMissionSet
 import com.blue236.greenbuddy.model.GrowthStageState
 import com.blue236.greenbuddy.model.Lesson
@@ -51,8 +53,8 @@ import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
 import com.blue236.greenbuddy.model.localizedGrowthTitle
 import com.blue236.greenbuddy.model.localizedHealth
-import com.blue236.greenbuddy.model.localizedLabel
 import com.blue236.greenbuddy.model.localizedMood
+import com.blue236.greenbuddy.model.localizedLabel
 import com.blue236.greenbuddy.ui.components.StatCard
 import java.time.LocalDate
 import java.time.ZoneId
@@ -74,7 +76,9 @@ fun HomeScreen(
     weatherSnapshot: WeatherSnapshot,
     weatherAdvice: WeatherAdvice,
     companionStateSnapshot: CompanionStateSnapshot,
+    companionHomeCheckIn: CompanionHomeCheckIn,
     onPerformCareAction: (CareAction) -> Unit,
+    onSubmitCompanionChatMessage: (String) -> Unit,
     onAcknowledgeGrowthStage: () -> Unit,
     onSetRealPlantModeEnabled: (Boolean) -> Unit,
     onLogRealPlantCare: (RealPlantCareAction) -> Unit,
@@ -90,6 +94,17 @@ fun HomeScreen(
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
         if (growthStageState.newlyUnlocked) Card { Column(Modifier.padding(16.dp)) { Text(stringResource(R.string.new_evolution_unlocked, growthStageState.currentStage.localizedGrowthTitle(localeTag))); Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.nice)) } } }
         StatCard(stringResource(R.string.companion)) { Text(dialogue.headline); Text(dialogue.line); Text(stringResource(R.string.wallet_value, rewardState.leafTokens)) }
+        StatCard(stringResource(R.string.companion_proactive_title)) {
+            Text(companionHomeCheckIn.bubble)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+                companionHomeCheckIn.suggestionChips.forEach { prompt ->
+                    AssistChip(onClick = {
+                        isCompanionChatOpen = true
+                        onSubmitCompanionChatMessage(prompt)
+                    }, label = { Text(prompt) })
+                }
+            }
+        }
         StatCard(stringResource(R.string.companion_chat_title)) {
             Text(stringResource(R.string.companion_chat_entry, starter.companion.name))
             Text(companionStateSnapshot.personality.profileLabel, color = MaterialTheme.colorScheme.primary)
@@ -97,7 +112,12 @@ fun HomeScreen(
                 Text(stringResource(if (isCompanionChatOpen) R.string.companion_chat_hide else R.string.companion_chat_open))
             }
             if (isCompanionChatOpen) {
-                CompanionChatCard(companionStateSnapshot = companionStateSnapshot, languageTag = localeTag)
+                CompanionChatCard(
+                    companionStateSnapshot = companionStateSnapshot,
+                    proactiveCheckIn = companionHomeCheckIn,
+                    languageTag = localeTag,
+                    onSubmitCompanionChatMessage = onSubmitCompanionChatMessage,
+                )
             }
         }
         StatCard(stringResource(R.string.local_weather_title)) {
@@ -127,35 +147,42 @@ fun HomeScreen(
 @Composable
 private fun CompanionChatCard(
     companionStateSnapshot: CompanionStateSnapshot,
+    proactiveCheckIn: CompanionHomeCheckIn,
     languageTag: String,
+    onSubmitCompanionChatMessage: (String) -> Unit,
 ) {
     var draftMessage by rememberSaveable { mutableStateOf("") }
-    var latestReply by remember(companionStateSnapshot) {
-        mutableStateOf(
-            CompanionChatEngine.replyTo(
-                message = CompanionChatEngine.defaultPromptFor(
-                    intent = CompanionChatIntent.STATUS_CHECK,
-                    languageTag = languageTag,
-                ),
-                snapshot = companionStateSnapshot,
-                languageTag = languageTag,
-            )
-        )
+    var optimisticMemory by remember { mutableStateOf<CompanionConversationMemory?>(null) }
+    var optimisticSuggestionChips by remember { mutableStateOf<List<String>?>(null) }
+    val displayedMemory = optimisticMemory ?: companionStateSnapshot.recentConversationMemory
+    val displayedSuggestionChips = optimisticSuggestionChips
+        ?: companionStateSnapshot.latestSuggestionChips(languageTag)
+        ?: proactiveCheckIn.suggestionChips
+
+    LaunchedEffect(companionStateSnapshot.recentConversationMemory.messages.size) {
+        val pending = optimisticMemory ?: return@LaunchedEffect
+        if (companionStateSnapshot.recentConversationMemory.messages.size >= pending.messages.size) {
+            optimisticMemory = null
+            optimisticSuggestionChips = null
+        }
     }
 
     fun sendMessage(message: String) {
-        latestReply = CompanionChatEngine.replyTo(
+        if (message.isBlank()) return
+        val reply = CompanionChatEngine.replyTo(
             message = message,
             snapshot = companionStateSnapshot,
             languageTag = languageTag,
         )
+        optimisticMemory = CompanionChatEngine.updatedMemoryFor(reply, companionStateSnapshot)
+        optimisticSuggestionChips = reply.suggestionChips
+        onSubmitCompanionChatMessage(message)
         draftMessage = ""
     }
 
     Card(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(companionStateSnapshot.personality.homeHeadline, fontWeight = FontWeight.SemiBold)
-            Text(latestReply.reply)
             Text(
                 stringResource(
                     R.string.companion_snapshot_summary,
@@ -168,21 +195,50 @@ private fun CompanionChatCard(
             companionStateSnapshot.realPlantSummary?.let {
                 Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            ConversationMemoryBlock(
+                memory = displayedMemory,
+                fallbackBubble = proactiveCheckIn.bubble,
+            )
             OutlinedTextField(
                 value = draftMessage,
-                onValueChange = { draftMessage = it },
+                onValueChange = { newValue: String -> draftMessage = newValue },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.companion_chat_input_label)) },
-                placeholder = { Text(stringResource(R.string.companion_chat_input_placeholder)) },
+                label = { Text(text = stringResource(R.string.companion_chat_input_label)) },
+                placeholder = { Text(text = stringResource(R.string.companion_chat_input_placeholder)) }
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { sendMessage(draftMessage) }) { Text(stringResource(R.string.companion_chat_send)) }
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                latestReply.suggestionChips.forEach { prompt ->
+                displayedSuggestionChips.forEach { prompt ->
                     AssistChip(onClick = { sendMessage(prompt) }, label = { Text(prompt) })
                 }
             }
         }
     }
+}
+
+@Composable
+private fun ConversationMemoryBlock(
+    memory: CompanionConversationMemory,
+    fallbackBubble: String,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (memory.messages.isEmpty()) {
+            Text(fallbackBubble)
+        } else {
+            memory.messages.takeLast(6).forEach { message ->
+                val prefixRes = if (message.role == CompanionMessageRole.USER) R.string.companion_label_you else R.string.companion_label_buddy
+                Text(
+                    text = stringResource(prefixRes) + ": ${message.text}",
+                    color = if (message.role == CompanionMessageRole.USER) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        }
+    }
+}
+
+private fun CompanionStateSnapshot.latestSuggestionChips(languageTag: String): List<String>? {
+    val latestIntent = recentConversationMemory.messages.lastOrNull()?.intent ?: return null
+    return CompanionChatEngine.suggestionChipsForIntent(this, latestIntent, languageTag)
 }
