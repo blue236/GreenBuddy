@@ -85,4 +85,61 @@ class DailyMissionProgressTest {
         assertEquals(4, normalized.longestStreak)
         assertNull(normalized.streakRewardClaimedForStreak)
     }
+
+    @Test
+    fun completeDailyMissions_restartsStreakAtOneAfterMissedDay() {
+        val progress = DailyMissionProgress(
+            missionDate = today.minusDays(2).toString(),
+            currentStreak = 4,
+            longestStreak = 4,
+            lastCompletedDate = today.minusDays(2).toString(),
+            streakRewardClaimedForStreak = 3,
+        )
+
+        val completed = progress.completeDailyMissions(today)
+
+        assertEquals(1, completed.currentStreak)
+        assertEquals(4, completed.longestStreak)
+        assertEquals(today.toString(), completed.claimedDailyRewardDate)
+        assertEquals(today.toString(), completed.lastCompletedDate)
+        assertNull(completed.streakRewardClaimedForStreak)
+    }
+
+    @Test
+    fun claimStreakRewardIfEligible_onlyClaimsOnMilestones() {
+        val nonMilestone = DailyMissionProgress(
+            missionDate = today.toString(),
+            currentStreak = 2,
+            longestStreak = 2,
+            lastCompletedDate = today.toString(),
+        )
+
+        val claimed = nonMilestone.claimStreakRewardIfEligible(today)
+
+        assertNull(claimed.streakRewardClaimedForStreak)
+    }
+
+    @Test
+    fun resolveForToday_alwaysBuildsThreeChecklistItemsWithMatchingCompletedCount() {
+        val missionSet = DailyMissionProgress(
+            missionDate = today.toString(),
+            completedCareActionsToday = 1,
+            completedLessonsToday = 1,
+        ).resolveForToday(
+            today = today,
+            lessonProgress = LessonProgress(),
+            careState = PlantCareState(hydration = 20, sunlight = 20, nutrition = 20),
+        )
+
+        assertEquals(DailyMissionType.entries.size, missionSet.missions.size)
+        assertEquals(
+            missionSet.missions.count { it.isCompleted },
+            missionSet.completedCount,
+        )
+        assertEquals(
+            DailyMissionType.entries.toSet(),
+            missionSet.missions.map { it.type }.toSet(),
+        )
+        assertFalse(missionSet.allCompletedToday)
+    }
 }

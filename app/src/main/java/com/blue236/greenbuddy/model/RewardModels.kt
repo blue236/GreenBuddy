@@ -47,6 +47,13 @@ data class RewardState(
     val equippedCosmetic: CosmeticItem?
         get() = RewardCatalog.cosmeticById(equippedCosmeticId)
 
+    val nextUnlockableCosmetic: CosmeticItem?
+        get() = RewardCatalog.cosmetics
+            .filterNot { it.id in unlockedCosmeticIds }
+            .minByOrNull { it.cost }
+
+    fun tokensNeededFor(item: CosmeticItem): Int = (item.cost - leafTokens).coerceAtLeast(0)
+
     fun rewardForLesson(rewardXp: Int): RewardState = copy(
         leafTokens = leafTokens + lessonTokenReward(rewardXp),
     )

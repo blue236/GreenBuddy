@@ -28,6 +28,35 @@ class RewardStateTest {
     }
 
     @Test
+    fun purchase_doesNotChargeAgainForAlreadyUnlockedItem() {
+        val starting = RewardState(
+            leafTokens = 50,
+            unlockedCosmeticIds = setOf(firstItem.id),
+            equippedCosmeticId = firstItem.id,
+        )
+
+        val updated = starting.purchase(firstItem)
+
+        assertEquals(starting, updated)
+    }
+
+    @Test
+    fun purchase_preservesExistingEquippedCosmeticWhenBuyingAnother() {
+        val secondItem = RewardCatalog.cosmetics[1]
+        val starting = RewardState(
+            leafTokens = 80,
+            unlockedCosmeticIds = setOf(firstItem.id),
+            equippedCosmeticId = firstItem.id,
+        )
+
+        val updated = starting.purchase(secondItem)
+
+        assertEquals(80 - secondItem.cost, updated.leafTokens)
+        assertEquals(setOf(firstItem.id, secondItem.id), updated.unlockedCosmeticIds)
+        assertEquals(firstItem.id, updated.equippedCosmeticId)
+    }
+
+    @Test
     fun equip_onlyWorksForUnlockedItems() {
         val lockedEquip = RewardState().equip(firstItem.id)
         val unlockedEquip = RewardState(unlockedCosmeticIds = setOf(firstItem.id)).equip(firstItem.id)
@@ -48,6 +77,20 @@ class RewardStateTest {
     }
 
     @Test
+    fun nextUnlockableCosmetic_picksCheapestLockedItem() {
+        val state = RewardState(unlockedCosmeticIds = setOf(firstItem.id))
+
+        assertEquals("sunny_ribbon", state.nextUnlockableCosmetic?.id)
+    }
+
+    @Test
+    fun tokensNeededFor_neverGoesBelowZero() {
+        val state = RewardState(leafTokens = 50)
+
+        assertEquals(0, state.tokensNeededFor(firstItem))
+    }
+
+    @Test
     fun careActionAtCap_isNotMeaningfullyImproved() {
         val before = PlantCareState(hydration = 100, sunlight = 100, nutrition = 100)
         val after = before.apply(CareAction.WATER)
@@ -61,6 +104,29 @@ class RewardStateTest {
         val after = before.apply(CareAction.WATER)
 
         assertFalse(after.isMeaningfullyImprovedFrom(before))
+    }
+
+    @Test
+    fun nextUnlockableCosmetic_picksLowestCostLockedItemAndTracksRemainingTokens() {
+        val state = RewardState(
+            leafTokens = 18,
+            unlockedCosmeticIds = setOf(firstItem.id),
+        )
+        val nextItem = RewardCatalog.cosmetics[1]
+
+        assertEquals(nextItem, state.nextUnlockableCosmetic)
+        assertEquals(12, state.tokensNeededFor(nextItem))
+    }
+
+    @Test
+    fun nextUnlockableCosmetic_isNullWhenEverythingIsUnlocked() {
+        val state = RewardState(
+            leafTokens = 999,
+            unlockedCosmeticIds = RewardCatalog.cosmetics.map { it.id }.toSet(),
+            equippedCosmeticId = RewardCatalog.cosmetics.last().id,
+        )
+
+        assertNull(state.nextUnlockableCosmetic)
     }
 
     @Test

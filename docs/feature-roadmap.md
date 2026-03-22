@@ -7,6 +7,9 @@ This roadmap is optimized for the current MVP state of GreenBuddy:
 - basic Home/Learn/Profile flows exist
 - app builds and can be tested on device
 
+For current execution status and live `TODO / IN PROGRESS / DONE` tracking, see:
+- `docs/development-tracker.md`
+
 ## Delivery workflow
 For each feature:
 1. Steve implements on a feature branch
@@ -246,6 +249,32 @@ Success criteria:
 - the plant can proactively surface useful, state-aware check-ins
 - chat feels less like a one-shot query box and more like a living companion
 - the system remains deterministic, understandable, and inexpensive to iterate on
+
+#### F12 Phase 3: Companion continuity + proactive emotion
+**Goal:** Make the companion feel more emotionally continuous and relationship-like across sessions without turning the feature into a full open-ended AI chat.
+
+Scope:
+- strengthen continuity across recent exchanges so follow-up replies feel less isolated
+- add lightweight companion emotion states that are more visible in Home/chat presentation
+- improve proactive companion messaging with clearer emotional context
+  - proud
+  - worried
+  - curious
+  - calm
+  - excited
+- reflect recent accomplishments and setbacks in companion tone
+  - mission completion
+  - streak risk or streak continuation
+  - growth progress or unlocks
+  - weather/season shifts
+- add a small relationship/familiarity layer only if it can stay simple and deterministic
+- continue avoiding external AI dependency for this phase
+
+Success criteria:
+- the companion feels more like an ongoing presence than a reactive utility
+- follow-up replies feel more coherent with recent context
+- emotional tone changes are visible and useful, not random or noisy
+- the system stays deterministic, understandable, and inexpensive to evolve
 
 ## Current recommended implementation order
 1. F1 Daily missions + streak system

@@ -548,7 +548,37 @@ object CompanionChatEngine {
                 }
             }
         }
-        return dynamic.distinct().take(4)
+        return distinctSuggestionChips(dynamic, 4)
+    }
+
+    private fun distinctSuggestionChips(chips: List<String>, limit: Int): List<String> {
+        val seenCategories = mutableSetOf<String>()
+        val selected = mutableListOf<String>()
+        chips.distinct().forEach { chip ->
+            val category = suggestionChipCategory(chip)
+            if (seenCategories.add(category)) {
+                selected += chip
+            }
+        }
+        if (selected.size < limit) {
+            chips.distinct().forEach { chip ->
+                if (selected.size >= limit) return@forEach
+                if (chip !in selected) selected += chip
+            }
+        }
+        return selected.take(limit)
+    }
+
+    private fun suggestionChipCategory(chip: String): String {
+        val normalized = normalizeForIntent(chip)
+        return when {
+            normalized.containsAny("water", "giessen", "gießen", "물", "durst", "thirst", "nutrient", "nahr", "영양", "light", "licht", "햇빛", "빛") -> "care"
+            normalized.containsAny("mission", "missionen", "미션", "today", "heute", "오늘", "plan", "streak", "serie", "연속") -> "plan"
+            normalized.containsAny("grow", "growth", "wachs", "stufe", "phase", "성장", "단계") -> "growth"
+            normalized.containsAny("weather", "season", "wetter", "jahreszeit", "날씨", "계절") -> "weather"
+            normalized.containsAny("feel", "status", "mood", "wie geht", "기분", "상태", "어때") -> "status"
+            else -> normalized.substringBefore('?').substringBefore(' ').ifBlank { "other" }
+        }
     }
 
     fun baseSuggestionChips(languageTag: String = "en"): List<String> = when (normalizedLanguageTag(languageTag)) {
@@ -684,14 +714,16 @@ object CompanionChatEngine {
         relationship: CompanionRelationshipSnapshot,
         languageTag: String,
     ): CompanionContinuitySnapshot {
+        val hasMissionProgressToday = dailyMissionSet?.completedCount ?: 0 > 0
+        val streakExists = (dailyMissionSet?.currentStreak ?: 0) > 0
         val event = when {
             dailyMissionSet?.allCompletedToday == true -> CompanionContinuityEvent.MISSION_COMPLETED
-            dailyMissionSet != null && dailyMissionSet.currentStreak > 0 && !dailyMissionSet.allCompletedToday -> CompanionContinuityEvent.STREAK_AT_RISK
-            dailyMissionSet != null && dailyMissionSet.currentStreak >= 2 && dailyMissionSet.completedCount > 0 -> CompanionContinuityEvent.STREAK_CONTINUING
             growthStageState.newlyUnlocked -> CompanionContinuityEvent.GROWTH_UNLOCKED
+            careState.lowestStat <= 45 -> CompanionContinuityEvent.STREAK_AT_RISK
+            dailyMissionSet != null && dailyMissionSet.currentStreak >= 2 && hasMissionProgressToday -> CompanionContinuityEvent.STREAK_CONTINUING
             growthStageState.nextStage != null && growthStageState.readinessPercent >= 65 -> CompanionContinuityEvent.GROWTH_PROGRESS
             weatherSnapshot.condition == WeatherCondition.COLD_DIM || weatherSnapshot.season == WeatherSeason.SPRING || weatherSnapshot.season == WeatherSeason.AUTUMN -> CompanionContinuityEvent.WEATHER_SHIFT
-            careState.lowestStat <= 45 -> CompanionContinuityEvent.STREAK_AT_RISK
+            streakExists && !hasMissionProgressToday -> CompanionContinuityEvent.STREAK_AT_RISK
             else -> CompanionContinuityEvent.STREAK_CONTINUING
         }
         val emotion = when (event) {
@@ -713,14 +745,14 @@ object CompanionChatEngine {
     private fun relationshipLead(relationship: CompanionRelationshipSnapshot, languageTag: String): String? = when (relationship.familiarity) {
         CompanionFamiliarity.NEW -> null
         CompanionFamiliarity.WARM -> when (normalizedLanguageTag(languageTag)) {
-            "de" -> "Unsere kleinen Check-ins fühlen sich inzwischen vertrauter an."
-            "ko" -> "이제 우리 체크인이 제법 익숙해졌어요."
-            else -> "Our little check-ins are starting to feel familiar."
+            "de" -> "Unsere Check-ins wirken inzwischen angenehm vertraut."
+            "ko" -> "이제 우리 체크인이 제법 자연스러워졌어요."
+            else -> "Our check-ins are starting to feel comfortably familiar."
         }
         CompanionFamiliarity.CLOSE -> when (normalizedLanguageTag(languageTag)) {
-            "de" -> "Ich merke inzwischen richtig, wie verlässlich unser Rhythmus geworden ist."
-            "ko" -> "이제 우리 리듬이 꽤 든든해졌다는 게 느껴져요."
-            else -> "I can really feel how dependable our rhythm has become."
+            "de" -> "Unser Rhythmus fühlt sich inzwischen ziemlich verlässlich an."
+            "ko" -> "이제 우리 리듬이 꽤 안정적으로 느껴져요."
+            else -> "Our rhythm is starting to feel pretty steady."
         }
     }
 
@@ -732,21 +764,21 @@ object CompanionChatEngine {
 
     private fun localizedEmotionSummary(emotion: CompanionEmotion, familiarity: CompanionFamiliarity, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
         "de" -> when (emotion) {
-            CompanionEmotion.PROUD -> if (familiarity == CompanionFamiliarity.CLOSE) "stolz und verbunden" else "stolz"
+            CompanionEmotion.PROUD -> if (familiarity == CompanionFamiliarity.CLOSE) "stolz und ruhig" else "stolz"
             CompanionEmotion.WORRIED -> "ein wenig besorgt"
             CompanionEmotion.CURIOUS -> "neugierig"
             CompanionEmotion.CALM -> "ruhig"
             CompanionEmotion.EXCITED -> "aufgeregt"
         }
         "ko" -> when (emotion) {
-            CompanionEmotion.PROUD -> if (familiarity == CompanionFamiliarity.CLOSE) "뿌듯하고 가까운 느낌" else "뿌듯한"
+            CompanionEmotion.PROUD -> if (familiarity == CompanionFamiliarity.CLOSE) "뿌듯하고 안정된" else "뿌듯한"
             CompanionEmotion.WORRIED -> "조금 걱정되는"
             CompanionEmotion.CURIOUS -> "궁금한"
             CompanionEmotion.CALM -> "차분한"
             CompanionEmotion.EXCITED -> "신나는"
         }
         else -> when (emotion) {
-            CompanionEmotion.PROUD -> if (familiarity == CompanionFamiliarity.CLOSE) "proud and close" else "proud"
+            CompanionEmotion.PROUD -> if (familiarity == CompanionFamiliarity.CLOSE) "proud and settled" else "proud"
             CompanionEmotion.WORRIED -> "a little worried"
             CompanionEmotion.CURIOUS -> "curious"
             CompanionEmotion.CALM -> "calm"
@@ -834,7 +866,7 @@ private fun localizedFamiliarityLabel(familiarity: CompanionFamiliarity, languag
         CompanionFamiliarity.CLOSE -> "든든한 리듬"
     }
     else -> when (familiarity) {
-        CompanionFamiliarity.NEW -> "New bond"
+        CompanionFamiliarity.NEW -> "New routine"
         CompanionFamiliarity.WARM -> "Familiar routine"
         CompanionFamiliarity.CLOSE -> "Steady rhythm"
     }

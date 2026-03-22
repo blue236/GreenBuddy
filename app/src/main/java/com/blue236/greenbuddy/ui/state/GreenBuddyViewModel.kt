@@ -139,7 +139,13 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val previousGrowthStage = state.growthStageState.currentStage.rank
         val updatedLessonProgress = state.lessonProgress.advanceWith(currentLesson.id, currentLesson.rewardXp, lessons.size)
         val rewardOutcome = rewardIfMissionSetCompleted(state.dailyMissionProgress.recordLessonCompletion(today), state.rewardState.rewardForLesson(currentLesson.rewardXp), updatedLessonProgress, state.plantCareState, today)
-        rewardFeedback.value = getApplication<Application>().getString(
+        rewardFeedback.value = rewardOutcome.feedbackMessageRes?.let { feedbackRes ->
+            getApplication<Application>().getString(
+                feedbackRes,
+                rewardOutcome.dailyRewardTokensAwarded,
+                rewardOutcome.streakRewardTokensAwarded,
+            )
+        } ?: getApplication<Application>().getString(
             R.string.reward_feedback_lesson_complete,
             currentLesson.rewardXp,
             RewardState.lessonTokenReward(currentLesson.rewardXp),
@@ -163,7 +169,13 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val updatedCareState = state.plantCareState.apply(action)
         val wasHelpful = updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)
         val rewardOutcome = rewardIfMissionSetCompleted(state.dailyMissionProgress.recordCareAction(today), state.rewardState.rewardForCareAction(wasHelpful), state.lessonProgress, updatedCareState, today)
-        rewardFeedback.value = if (wasHelpful) {
+        rewardFeedback.value = rewardOutcome.feedbackMessageRes?.let { feedbackRes ->
+            getApplication<Application>().getString(
+                feedbackRes,
+                rewardOutcome.dailyRewardTokensAwarded,
+                rewardOutcome.streakRewardTokensAwarded,
+            )
+        } ?: if (wasHelpful) {
             getApplication<Application>().getString(
                 R.string.reward_feedback_care_helped,
                 action.localizedLabel(state.appLanguage.languageTag ?: currentLanguageTag()),
@@ -228,17 +240,8 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch { repository.saveAppLanguage(appLanguage) }
     }
 
-    private fun rewardIfMissionSetCompleted(progress: DailyMissionProgress, rewardState: RewardState, lessonProgress: LessonProgress, careState: PlantCareState, today: LocalDate): RewardOutcome {
-        val missionSet = progress.resolveForToday(today, lessonProgress, careState)
-        if (!missionSet.allCompletedToday) return RewardOutcome(progress.normalizedFor(today), rewardState)
-        var updatedProgress = progress.completeDailyMissions(today)
-        var updatedRewardState = rewardState
-        var daily = false; var streak = false
-        if (updatedProgress.claimedDailyRewardDate == today.toString() && progress.claimedDailyRewardDate != today.toString()) { updatedRewardState = updatedRewardState.rewardForDailyMissionCompletion(); daily = true }
-        val before = updatedProgress.streakRewardClaimedForStreak; updatedProgress = updatedProgress.claimStreakRewardIfEligible(today)
-        if (updatedProgress.streakRewardClaimedForStreak != before) { updatedRewardState = updatedRewardState.rewardForStreakBonus(); streak = true }
-        return RewardOutcome(updatedProgress, updatedRewardState, daily, streak)
-    }
+    private fun rewardIfMissionSetCompleted(progress: DailyMissionProgress, rewardState: RewardState, lessonProgress: LessonProgress, careState: PlantCareState, today: LocalDate): RewardOutcome =
+        evaluateMissionCompletionRewards(progress, rewardState, lessonProgress, careState, today)
 
     private fun didUnlockGrowthStage(starterId: String, lessonProgress: LessonProgress, careState: PlantCareState, previousGrowthStageRank: Int): Boolean =
         resolveGrowthStageState(starterId, lessonProgress, careState, seenStageRank = previousGrowthStageRank).newlyUnlocked
@@ -250,4 +253,3 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private fun currentLanguageTag(): String = getApplication<Application>().resources.configuration.locales[0]?.toLanguageTag().orEmpty().ifBlank { "en" }
 }
 
-private data class RewardOutcome(val progress: DailyMissionProgress, val rewardState: RewardState, val dailyAwarded: Boolean = false, val streakAwarded: Boolean = false)

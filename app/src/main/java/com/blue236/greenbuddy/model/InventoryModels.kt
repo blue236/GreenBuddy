@@ -14,15 +14,6 @@ fun defaultOwnedStarterIds(selectedStarterId: String): Set<String> = setOf(selec
 fun nextUnlockableStarterId(ownedStarterIds: Set<String>): String? =
     StarterPlants.options.firstOrNull { it.id !in ownedStarterIds }?.id
 
-fun unlockRequirementFor(
-    option: StarterPlantOption,
-    ownedStarterIds: Set<String>,
-): String = when {
-    option.id in ownedStarterIds -> "Ready in your greenhouse"
-    option.id == nextUnlockableStarterId(ownedStarterIds) ->
-        "Automatically unlocks when you complete any current plant track."
-    else -> "Unlock earlier greenhouse companions first."
-}
 
 fun buildInventoryEntries(
     ownedStarterIds: Set<String>,
@@ -36,6 +27,6 @@ fun buildInventoryEntries(
         isActive = option.id == selectedStarterId,
         progress = lessonProgressByStarterId[option.id] ?: LessonProgress(),
         careState = careStateByStarterId[option.id] ?: PlantCareState.from(option.companion),
-        unlockRequirement = unlockRequirementFor(option, ownedStarterIds),
+        unlockRequirement = unlockRequirementFor(option, ownedStarterIds, languageTag = "en"),
     )
 }

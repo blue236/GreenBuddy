@@ -81,4 +81,22 @@ class GrowthStageStateTest {
         assertEquals("Bushy", state.currentStage.title)
         assertFalse(state.newlyUnlocked)
     }
+
+    @Test
+    fun resolveGrowthStageState_finalStageUsesUnlockedMessageAndFullProgress() {
+        val state = resolveGrowthStageState(
+            starterId = "monstera",
+            progress = LessonProgress(totalXp = 80),
+            careState = PlantCareState(hydration = 90, sunlight = 90, nutrition = 90),
+            seenStageRank = 1,
+        )
+
+        assertEquals("Climbing", state.currentStage.title)
+        assertEquals(null, state.nextStage)
+        assertEquals(1f, state.progressToNextStage, 0.0001f)
+        assertEquals(100, state.readinessPercent)
+        assertEquals("All growth goals met for this starter.", state.requirementSummary)
+        assertEquals(state.currentStage.unlockedMessage, state.unlockHint)
+        assertTrue(state.newlyUnlocked)
+    }
 }

@@ -20,6 +20,8 @@ data class DailyMission(
     val title: String,
     val description: String,
     val isCompleted: Boolean,
+    val statType: CareStatType? = null,
+    val threshold: Int? = null,
 )
 
 data class DailyMissionSet(
@@ -105,6 +107,8 @@ fun DailyMissionProgress.resolveForToday(
                 title = "Keep ${thresholdConfig.statType.label} above ${thresholdConfig.threshold}",
                 description = "Hold ${thresholdConfig.statType.label.lowercase()} at ${thresholdConfig.threshold}+ for today.",
                 isCompleted = DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD in completedTypes,
+                statType = thresholdConfig.statType,
+                threshold = thresholdConfig.threshold,
             ),
         ),
         currentStreak = normalized.currentStreak,
