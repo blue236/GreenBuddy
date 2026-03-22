@@ -1,6 +1,8 @@
 package com.blue236.greenbuddy.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -8,11 +10,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -36,9 +41,11 @@ import com.blue236.greenbuddy.model.CompanionChatEngine
 import com.blue236.greenbuddy.model.CompanionConversationMemory
 import com.blue236.greenbuddy.model.CompanionHomeCheckIn
 import com.blue236.greenbuddy.model.CompanionMessageRole
-import com.blue236.greenbuddy.model.CompanionStateSnapshot
 import com.blue236.greenbuddy.model.CompanionPersonalitySystem
+import com.blue236.greenbuddy.model.CompanionStateSnapshot
+import com.blue236.greenbuddy.model.DailyMission
 import com.blue236.greenbuddy.model.DailyMissionSet
+import com.blue236.greenbuddy.model.DailyMissionType
 import com.blue236.greenbuddy.model.GrowthStageState
 import com.blue236.greenbuddy.model.Lesson
 import com.blue236.greenbuddy.model.LessonProgress
@@ -51,10 +58,15 @@ import com.blue236.greenbuddy.model.WeatherAdvice
 import com.blue236.greenbuddy.model.WeatherSnapshot
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
+import com.blue236.greenbuddy.model.localizedGrowthAccentLabel
 import com.blue236.greenbuddy.model.localizedGrowthTitle
 import com.blue236.greenbuddy.model.localizedHealth
+import com.blue236.greenbuddy.model.localizedRequirementSummary
+import com.blue236.greenbuddy.model.localizedUnlockHint
+import com.blue236.greenbuddy.model.localizedUnlockedMessage
 import com.blue236.greenbuddy.model.localizedMood
 import com.blue236.greenbuddy.model.localizedLabel
+import com.blue236.greenbuddy.model.localizedName
 import com.blue236.greenbuddy.ui.components.StatCard
 import java.time.LocalDate
 import java.time.ZoneId
@@ -92,12 +104,36 @@ fun HomeScreen(
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
-        if (growthStageState.newlyUnlocked) Card { Column(Modifier.padding(16.dp)) { Text(stringResource(R.string.new_evolution_unlocked, growthStageState.currentStage.localizedGrowthTitle(localeTag))); Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.nice)) } } }
-        StatCard(stringResource(R.string.companion)) { Text(dialogue.headline); Text(dialogue.line); Text(stringResource(R.string.wallet_value, rewardState.leafTokens)) }
+        GrowthOverviewCard(
+            growthStageState = growthStageState,
+            localeTag = localeTag,
+            onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
+        )
+        dailyMissionSet?.let {
+            DailyMissionCard(
+                missionSet = it,
+                localeTag = localeTag,
+            )
+        }
+        RewardOverviewCard(
+            rewardState = rewardState,
+            rewardFeedback = rewardFeedback,
+            localeTag = localeTag,
+        )
+        StatCard(stringResource(R.string.companion)) { Text(dialogue.headline); Text(dialogue.line) }
         StatCard(stringResource(R.string.companion_proactive_title)) {
             Text(companionHomeCheckIn.bubble)
+            Text(
+                stringResource(
+                    R.string.companion_continuity_summary,
+                    companionHomeCheckIn.emotionLabel,
+                    companionHomeCheckIn.familiarityLabel,
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 6.dp),
+            )
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                companionHomeCheckIn.suggestionChips.forEach { prompt ->
+                companionHomeCheckIn.suggestionChips.take(2).forEach { prompt ->
                     AssistChip(onClick = {
                         isCompanionChatOpen = true
                         onSubmitCompanionChatMessage(prompt)
@@ -126,8 +162,6 @@ fun HomeScreen(
             Text(weatherAdvice.starterAdvice, color = MaterialTheme.colorScheme.primary)
             Text(weatherAdvice.reminderHint, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        rewardFeedback?.let { StatCard(stringResource(R.string.reward_pulse)) { Text(it) } }
-        dailyMissionSet?.let { StatCard(stringResource(R.string.daily_missions)) { Text(stringResource(R.string.completed_of_total, it.completedCount, it.totalCount)); Text(stringResource(R.string.streak_value, it.currentStreak)) } }
         StatCard(stringResource(R.string.todays_lesson)) { Text(if (progress.isComplete(lessons)) stringResource(R.string.track_complete) else currentLesson?.title.orEmpty()); Text(dialogue.lessonNudge) }
         StatCard(stringResource(R.string.care_actions)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { CareAction.entries.forEach { AssistChip(onClick = { onPerformCareAction(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
@@ -192,6 +226,14 @@ private fun CompanionChatCard(
                 ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Text(
+                stringResource(
+                    R.string.companion_continuity_summary,
+                    companionStateSnapshot.continuity.emotionalSummary,
+                    companionStateSnapshot.relationship.summary,
+                ),
+                color = MaterialTheme.colorScheme.primary,
+            )
             companionStateSnapshot.realPlantSummary?.let {
                 Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -234,6 +276,299 @@ private fun ConversationMemoryBlock(
                     color = if (message.role == CompanionMessageRole.USER) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun GrowthOverviewCard(
+    growthStageState: GrowthStageState,
+    localeTag: String,
+    onAcknowledgeGrowthStage: () -> Unit,
+) {
+    StatCard(stringResource(R.string.home_growth_title)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top,
+        ) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = "${growthStageState.currentStage.emoji} ${growthStageState.currentStage.localizedGrowthTitle(localeTag)}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    growthStageState.currentStage.localizedGrowthAccentLabel(localeTag),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            AssistChip(
+                onClick = { },
+                label = { Text(stringResource(R.string.growth_readiness_chip, growthStageState.readinessPercent)) },
+            )
+        }
+
+        if (growthStageState.newlyUnlocked) {
+            Card {
+                Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        stringResource(R.string.new_evolution_unlocked, growthStageState.currentStage.localizedGrowthTitle(localeTag)),
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(growthStageState.currentStage.localizedUnlockedMessage(localeTag))
+                    Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.growth_cta_celebrate)) }
+                }
+            }
+        }
+
+        growthStageState.nextStage?.let { nextStage ->
+            LinearProgressIndicator(
+                progress = { growthStageState.progressToNextStage },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            AssistChip(
+                onClick = { },
+                label = { Text(stringResource(R.string.growth_next_stage_chip, nextStage.localizedGrowthTitle(localeTag))) },
+            )
+            Text(growthStageState.localizedRequirementSummary(localeTag), fontWeight = FontWeight.SemiBold)
+            Text(growthStageState.localizedUnlockHint(localeTag), color = MaterialTheme.colorScheme.primary)
+        } ?: Text(
+            stringResource(R.string.growth_final_stage_home, growthStageState.currentStage.localizedGrowthTitle(localeTag)),
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun DailyMissionCard(
+    missionSet: DailyMissionSet,
+    localeTag: String,
+) {
+    StatCard(stringResource(R.string.daily_missions)) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(bottom = 4.dp),
+        ) {
+            AssistChip(
+                onClick = { },
+                label = { Text(stringResource(R.string.completed_of_total, missionSet.completedCount, missionSet.totalCount)) },
+            )
+            AssistChip(
+                onClick = { },
+                label = { Text(stringResource(R.string.daily_mission_streak_chip, missionSet.currentStreak)) },
+            )
+            if (missionSet.pendingStreakReward) {
+                AssistChip(
+                    onClick = { },
+                    label = { Text(stringResource(R.string.daily_mission_streak_bonus_chip, missionSet.streakRewardTokens)) },
+                )
+            }
+        }
+
+        missionSet.missions.forEach { mission ->
+            MissionChecklistRow(
+                mission = mission,
+                localeTag = localeTag,
+            )
+        }
+
+        val summaryRes = when {
+            missionSet.allCompletedToday && missionSet.pendingStreakReward -> R.string.daily_mission_reward_summary_with_streak
+            missionSet.allCompletedToday -> R.string.daily_mission_reward_summary_complete
+            else -> R.string.daily_mission_reward_summary_incomplete
+        }
+        Text(
+            stringResource(
+                summaryRes,
+                missionSet.dailyRewardTokens,
+                missionSet.streakRewardTokens,
+                DailyMissionSet.STREAK_REWARD_EVERY_DAYS,
+            ),
+            color = MaterialTheme.colorScheme.primary,
+        )
+
+        if (missionSet.pendingStreakReward) {
+            Text(
+                stringResource(R.string.daily_mission_streak_milestone, missionSet.currentStreak, missionSet.streakRewardTokens),
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun MissionChecklistRow(
+    mission: DailyMission,
+    localeTag: String,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 2.dp)
+                .size(20.dp)
+                .background(
+                    color = if (mission.isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                    shape = CircleShape,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = if (mission.isCompleted) "✓" else "",
+                color = if (mission.isCompleted) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(localizedMissionTitle(mission, localeTag), fontWeight = FontWeight.SemiBold)
+            Text(
+                localizedMissionDescription(mission, localeTag),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+@Composable
+private fun localizedMissionTitle(mission: DailyMission, localeTag: String): String {
+    return when (mission.type) {
+        DailyMissionType.COMPLETE_LESSON -> stringResource(R.string.mission_complete_lesson_title)
+        DailyMissionType.PERFORM_CARE_ACTION -> stringResource(R.string.mission_care_action_title)
+        DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD -> stringResource(
+            R.string.mission_keep_stat_title,
+            mission.statType?.label?.localizedStatLabel(localeTag) ?: "",
+            mission.threshold ?: 0,
+        )
+    }
+}
+
+@Composable
+private fun localizedMissionDescription(mission: DailyMission, localeTag: String): String {
+    return when (mission.type) {
+        DailyMissionType.COMPLETE_LESSON -> stringResource(R.string.mission_complete_lesson_description)
+        DailyMissionType.PERFORM_CARE_ACTION -> stringResource(R.string.mission_care_action_description)
+        DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD -> stringResource(
+            R.string.mission_keep_stat_description,
+            mission.statType?.label?.localizedStatLabel(localeTag) ?: "",
+            mission.threshold ?: 0,
+        )
+    }
+}
+
+private fun String.localizedStatLabel(localeTag: String): String {
+    return when (this) {
+        "Hydration" -> when {
+            localeTag.startsWith("ko") -> "수분"
+            localeTag.startsWith("de") -> "Wasser"
+            else -> this
+        }
+        "Sunlight" -> when {
+            localeTag.startsWith("ko") -> "햇빛"
+            localeTag.startsWith("de") -> "Sonnenlicht"
+            else -> this
+        }
+        "Nutrition" -> when {
+            localeTag.startsWith("ko") -> "영양"
+            localeTag.startsWith("de") -> "Nährstoffe"
+            else -> this
+        }
+        else -> this
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RewardOverviewCard(
+    rewardState: RewardState,
+    rewardFeedback: String?,
+    localeTag: String,
+) {
+    val nextCosmetic = rewardState.nextUnlockableCosmetic
+    StatCard(stringResource(R.string.reward_pulse)) {
+        Text(stringResource(R.string.wallet_value, rewardState.leafTokens), fontWeight = FontWeight.SemiBold)
+        Text(
+            stringResource(
+                R.string.reward_token_purpose,
+                RewardState.lessonTokenReward(24),
+                RewardState.careTokenReward(),
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        rewardState.equippedCosmetic?.let { equipped ->
+            Text(
+                stringResource(
+                    R.string.reward_equipped_cosmetic,
+                    equipped.emoji,
+                    equipped.localizedName(localeTag),
+                ),
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        nextCosmetic?.let { item ->
+            val tokensNeeded = rewardState.tokensNeededFor(item)
+            val canAfford = tokensNeeded == 0
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 4.dp),
+            ) {
+                AssistChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            stringResource(
+                                R.string.reward_next_unlock_chip,
+                                item.emoji,
+                                item.localizedName(localeTag),
+                            ),
+                        )
+                    },
+                )
+                AssistChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            if (canAfford) {
+                                stringResource(R.string.reward_ready_to_buy_chip)
+                            } else {
+                                stringResource(R.string.reward_tokens_needed_chip, tokensNeeded)
+                            },
+                        )
+                    },
+                )
+            }
+            Text(
+                if (canAfford) {
+                    stringResource(R.string.reward_ready_to_buy_summary, item.localizedName(localeTag))
+                } else {
+                    stringResource(
+                        R.string.reward_progress_summary,
+                        item.localizedName(localeTag),
+                        tokensNeeded,
+                    )
+                },
+                color = MaterialTheme.colorScheme.primary,
+            )
+        } ?: Text(
+            stringResource(R.string.reward_all_cosmetics_unlocked),
+            color = MaterialTheme.colorScheme.primary,
+        )
+        rewardFeedback?.let {
+            Text(
+                it,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(top = 4.dp),
+            )
         }
     }
 }

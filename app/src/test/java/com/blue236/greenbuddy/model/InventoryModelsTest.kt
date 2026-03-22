@@ -21,18 +21,45 @@ class InventoryModelsTest {
         val entries = buildInventoryEntries(
             ownedStarterIds = setOf("monstera", "basil"),
             selectedStarterId = "basil",
-            lessonProgressByStarterId = mapOf("basil" to LessonProgress(totalXp = 45, completedLessonIds = setOf("basil_sun"))),
-            careStateByStarterId = mapOf("basil" to PlantCareState(hydration = 80, sunlight = 90, nutrition = 70)),
+            lessonProgressByStarterId = mapOf(
+                "monstera" to LessonProgress(totalXp = 20, completedLessonIds = setOf("monstera_light")),
+                "basil" to LessonProgress(totalXp = 45, completedLessonIds = setOf("basil_sun")),
+            ),
+            careStateByStarterId = mapOf(
+                "monstera" to PlantCareState(hydration = 61, sunlight = 74, nutrition = 58),
+                "basil" to PlantCareState(hydration = 80, sunlight = 90, nutrition = 70),
+            ),
         )
 
+        val monsteraEntry = entries.first { it.option.id == "monstera" }
         val basilEntry = entries.first { it.option.id == "basil" }
         val tomatoEntry = entries.first { it.option.id == "tomato" }
+
+        assertTrue(monsteraEntry.isOwned)
+        assertFalse(monsteraEntry.isActive)
+        assertEquals(20, monsteraEntry.progress.totalXp)
+        assertEquals(61, monsteraEntry.careState.hydration)
 
         assertTrue(basilEntry.isOwned)
         assertTrue(basilEntry.isActive)
         assertEquals(45, basilEntry.progress.totalXp)
         assertEquals(80, basilEntry.careState.hydration)
+
         assertFalse(tomatoEntry.isOwned)
+    }
+
+    @Test
+    fun inventoryEntriesUseResolvedOwnedFallbackForActiveState() {
+        val state = GreenBuddyUiState(
+            selectedStarterId = "tomato",
+            ownedStarterIds = setOf("monstera", "basil"),
+        )
+
+        val activeEntries = state.inventoryEntries.filter { it.isActive }
+
+        assertEquals(1, activeEntries.size)
+        assertEquals("monstera", activeEntries.single().option.id)
+        assertFalse(state.inventoryEntries.first { it.option.id == "tomato" }.isActive)
     }
 
     @Test
@@ -49,6 +76,7 @@ class InventoryModelsTest {
             unlockRequirementFor(
                 option = StarterPlants.options.first { it.id == "basil" },
                 ownedStarterIds = setOf("monstera"),
+                languageTag = "en",
             ),
         )
         assertEquals(
@@ -56,6 +84,27 @@ class InventoryModelsTest {
             unlockRequirementFor(
                 option = StarterPlants.options.first { it.id == "tomato" },
                 ownedStarterIds = setOf("monstera"),
+                languageTag = "en",
+            ),
+        )
+    }
+
+    @Test
+    fun unlockRequirementSupportsLocalizedCopy() {
+        assertEquals(
+            "현재 식물 트랙 하나를 완료하면 자동으로 잠금 해제돼요.",
+            unlockRequirementFor(
+                option = StarterPlants.options.first { it.id == "basil" },
+                ownedStarterIds = setOf("monstera"),
+                languageTag = "ko",
+            ),
+        )
+        assertEquals(
+            "Schalte zuerst frühere Gewächshaus-Begleiter frei.",
+            unlockRequirementFor(
+                option = StarterPlants.options.first { it.id == "tomato" },
+                ownedStarterIds = setOf("monstera"),
+                languageTag = "de",
             ),
         )
     }

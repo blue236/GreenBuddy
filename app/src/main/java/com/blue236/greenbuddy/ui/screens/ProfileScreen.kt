@@ -2,6 +2,8 @@ package com.blue236.greenbuddy.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,8 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -38,10 +43,12 @@ import com.blue236.greenbuddy.model.localizedGrowthTitle
 import com.blue236.greenbuddy.model.localizedName
 import com.blue236.greenbuddy.model.localizedRequirementSummary
 import com.blue236.greenbuddy.model.localizedUnlockHint
+import com.blue236.greenbuddy.model.localizedUnlockedMessage
 import com.blue236.greenbuddy.ui.components.StatCard
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
@@ -88,14 +95,40 @@ fun ProfileScreen(
         }
         StatCard(stringResource(R.string.progress)) {
             Text(stringResource(R.string.xp_value, progress.totalXp))
-            Text(stringResource(R.string.leaf_tokens_value, rewardState.leafTokens))
             Text(stringResource(R.string.plants_owned_value, ownedPlantCount))
         }
+        RewardWalletCard(rewardState = rewardState, localeTag = localeTag)
         StatCard(stringResource(R.string.growth_status)) {
-            Text(growthStageState.currentStage.localizedGrowthTitle(localeTag), fontWeight = FontWeight.SemiBold)
-            Text(growthStageState.currentStage.localizedGrowthAccentLabel(localeTag), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (growthStageState.nextStage != null) Text(growthStageState.localizedRequirementSummary(localeTag))
-            Text(growthStageState.localizedUnlockHint(localeTag), color = MaterialTheme.colorScheme.primary)
+            Text(
+                text = "${growthStageState.currentStage.emoji} ${growthStageState.currentStage.localizedGrowthTitle(localeTag)}",
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                growthStageState.currentStage.localizedGrowthAccentLabel(localeTag),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                AssistChip(onClick = { }, label = { Text(stringResource(R.string.growth_readiness_chip, growthStageState.readinessPercent)) })
+                growthStageState.nextStage?.let { nextStage ->
+                    AssistChip(onClick = { }, label = { Text(stringResource(R.string.growth_next_stage_chip, nextStage.localizedGrowthTitle(localeTag))) })
+                } ?: AssistChip(onClick = { }, label = { Text(stringResource(R.string.growth_final_stage_chip)) })
+            }
+            growthStageState.nextStage?.let {
+                LinearProgressIndicator(
+                    progress = { growthStageState.progressToNextStage },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(growthStageState.localizedRequirementSummary(localeTag), fontWeight = FontWeight.SemiBold)
+                Text(growthStageState.localizedUnlockHint(localeTag), color = MaterialTheme.colorScheme.primary)
+            } ?: Text(
+                stringResource(R.string.growth_final_stage_home, growthStageState.currentStage.localizedGrowthTitle(localeTag)),
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(growthStageState.currentStage.localizedUnlockedMessage(localeTag))
             if (growthStageState.newlyUnlocked) Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.celebrate_growth)) }
         }
         StatCard(stringResource(R.string.companion_personality)) {
@@ -113,10 +146,86 @@ fun ProfileScreen(
             Text(stringResource(R.string.logged_entries, realPlantModeState.entries.size))
         }
         StatCard(stringResource(R.string.reward_shop)) {
-            RewardCatalog.cosmetics.forEach {
-                CosmeticShopRow(it, rewardState, localeTag, { onPurchaseCosmetic(it) }, { onEquipCosmetic(it.id) })
+            Text(
+                stringResource(R.string.reward_shop_subtitle),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            RewardCatalog.cosmetics.forEachIndexed { index, item ->
+                if (index > 0) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                }
+                CosmeticShopRow(item, rewardState, localeTag, { onPurchaseCosmetic(item) }, { onEquipCosmetic(item.id) })
             }
         }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RewardWalletCard(rewardState: RewardState, localeTag: String) {
+    val nextUnlock = rewardState.nextUnlockableCosmetic
+    val affordableCount = RewardCatalog.cosmetics.count { rewardState.canPurchase(it) }
+
+    StatCard(stringResource(R.string.reward_wallet_title)) {
+        Text(
+            stringResource(R.string.wallet_value, rewardState.leafTokens),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            stringResource(
+                R.string.reward_token_purpose,
+                RewardState.lessonTokenReward(24),
+                RewardState.careTokenReward(),
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        rewardState.equippedCosmetic?.let {
+            Text(
+                stringResource(R.string.reward_equipped_cosmetic, it.emoji, it.localizedName(localeTag)),
+                fontWeight = FontWeight.Medium,
+            )
+        } ?: Text(
+            stringResource(R.string.reward_no_cosmetic_equipped),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                stringResource(R.string.reward_affordable_count, affordableCount),
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Medium,
+            )
+            nextUnlock?.let {
+                AssistChip(
+                    onClick = { },
+                    label = { Text(stringResource(R.string.reward_next_unlock_chip, it.emoji, it.localizedName(localeTag))) },
+                )
+                val tokensNeeded = rewardState.tokensNeededFor(it)
+                AssistChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            if (tokensNeeded == 0) stringResource(R.string.reward_ready_to_buy_chip)
+                            else stringResource(R.string.reward_tokens_needed_chip, tokensNeeded),
+                        )
+                    },
+                )
+            } ?: AssistChip(onClick = { }, label = { Text(stringResource(R.string.reward_all_cosmetics_unlocked_short)) })
+        }
+        Text(
+            text = nextUnlock?.let {
+                val tokensNeeded = rewardState.tokensNeededFor(it)
+                if (tokensNeeded == 0) {
+                    stringResource(R.string.reward_ready_to_buy_summary, it.localizedName(localeTag))
+                } else {
+                    stringResource(R.string.reward_progress_summary, it.localizedName(localeTag), tokensNeeded)
+                }
+            } ?: stringResource(R.string.reward_all_cosmetics_unlocked),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -124,15 +233,29 @@ fun ProfileScreen(
 private fun CosmeticShopRow(item: CosmeticItem, rewardState: RewardState, localeTag: String, onPurchase: () -> Unit, onEquip: () -> Unit) {
     val isUnlocked = item.id in rewardState.unlockedCosmeticIds
     val isEquipped = rewardState.equippedCosmeticId == item.id
+    val tokensNeeded = rewardState.tokensNeededFor(item)
+    val statusText = when {
+        isEquipped -> stringResource(R.string.reward_item_status_equipped)
+        isUnlocked -> stringResource(R.string.reward_item_status_owned)
+        tokensNeeded == 0 -> stringResource(R.string.reward_item_status_ready)
+        else -> stringResource(R.string.reward_item_status_tokens_to_go, tokensNeeded)
+    }
+
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(1f).padding(end = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("${item.emoji} ${item.localizedName(localeTag)}", fontWeight = FontWeight.SemiBold)
             Text(item.localizedDescription(localeTag))
+            Text(
+                stringResource(R.string.reward_cost_value, item.cost),
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Text(statusText, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         when {
             isEquipped -> OutlinedButton(onClick = {}, enabled = false) { Text(stringResource(R.string.equipped)) }
             isUnlocked -> Button(onClick = onEquip) { Text(stringResource(R.string.equip)) }
-            else -> Button(onClick = onPurchase, enabled = rewardState.leafTokens >= item.cost) { Text(stringResource(R.string.buy)) }
+            else -> Button(onClick = onPurchase, enabled = tokensNeeded == 0) { Text(stringResource(R.string.buy)) }
         }
     }
 }

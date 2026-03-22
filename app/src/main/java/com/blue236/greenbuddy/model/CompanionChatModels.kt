@@ -17,6 +17,29 @@ enum class CompanionMessageRole {
     COMPANION,
 }
 
+enum class CompanionEmotion {
+    PROUD,
+    WORRIED,
+    CURIOUS,
+    CALM,
+    EXCITED,
+}
+
+enum class CompanionContinuityEvent {
+    MISSION_COMPLETED,
+    STREAK_AT_RISK,
+    STREAK_CONTINUING,
+    GROWTH_PROGRESS,
+    GROWTH_UNLOCKED,
+    WEATHER_SHIFT,
+}
+
+enum class CompanionFamiliarity {
+    NEW,
+    WARM,
+    CLOSE,
+}
+
 data class CompanionMessage(
     val role: CompanionMessageRole,
     val text: String,
@@ -37,15 +60,34 @@ data class CompanionConversationMemory(
     val lastIntent: CompanionChatIntent?
         get() = messages.lastOrNull { it.role == CompanionMessageRole.USER }?.intent
 
+    val exchangeCount: Int
+        get() = messages.count { it.role == CompanionMessageRole.USER }
+
     companion object {
         const val MAX_EXCHANGES = 4
         const val MAX_MESSAGES = MAX_EXCHANGES * 2
     }
 }
 
+data class CompanionRelationshipSnapshot(
+    val familiarity: CompanionFamiliarity,
+    val warmthScore: Int,
+    val summary: String,
+)
+
+data class CompanionContinuitySnapshot(
+    val emotion: CompanionEmotion,
+    val primaryEvent: CompanionContinuityEvent,
+    val emotionalSummary: String,
+    val followUpLead: String?,
+)
+
 data class CompanionHomeCheckIn(
     val bubble: String,
     val suggestionChips: List<String>,
+    val emotion: CompanionEmotion,
+    val emotionLabel: String,
+    val familiarityLabel: String,
 )
 
 data class CompanionStateSnapshot(
@@ -60,6 +102,8 @@ data class CompanionStateSnapshot(
     val weatherAdvice: WeatherAdvice,
     val realPlantModeState: RealPlantModeState,
     val recentConversationMemory: CompanionConversationMemory = CompanionConversationMemory(),
+    val relationship: CompanionRelationshipSnapshot,
+    val continuity: CompanionContinuitySnapshot,
 ) {
     val realPlantSummary: String? = companionRealPlantSummary(realPlantModeState)
 }
@@ -92,19 +136,33 @@ object CompanionChatEngine {
         realPlantModeState: RealPlantModeState,
         recentConversationMemory: CompanionConversationMemory = CompanionConversationMemory(),
         languageTag: String = "en",
-    ): CompanionStateSnapshot = CompanionStateSnapshot(
-        starter = starter,
-        personality = CompanionPersonalitySystem.personalityFor(starter.companion.species, languageTag),
-        mood = careState.mood,
-        health = careState.health,
-        careState = careState,
-        growthStageState = growthStageState,
-        dailyMissionSet = dailyMissionSet,
-        weatherSnapshot = weatherSnapshot,
-        weatherAdvice = weatherAdvice,
-        realPlantModeState = realPlantModeState,
-        recentConversationMemory = recentConversationMemory,
-    )
+    ): CompanionStateSnapshot {
+        val relationship = relationshipSnapshot(recentConversationMemory, dailyMissionSet, languageTag)
+        val continuity = continuitySnapshot(
+            careState = careState,
+            growthStageState = growthStageState,
+            dailyMissionSet = dailyMissionSet,
+            weatherSnapshot = weatherSnapshot,
+            recentConversationMemory = recentConversationMemory,
+            relationship = relationship,
+            languageTag = languageTag,
+        )
+        return CompanionStateSnapshot(
+            starter = starter,
+            personality = CompanionPersonalitySystem.personalityFor(starter.companion.species, languageTag),
+            mood = careState.mood,
+            health = careState.health,
+            careState = careState,
+            growthStageState = growthStageState,
+            dailyMissionSet = dailyMissionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = realPlantModeState,
+            recentConversationMemory = recentConversationMemory,
+            relationship = relationship,
+            continuity = continuity,
+        )
+    }
 
     fun replyTo(
         message: String,
@@ -135,6 +193,9 @@ object CompanionChatEngine {
         return CompanionHomeCheckIn(
             bubble = bubble,
             suggestionChips = suggestionChipsFor(snapshot, primaryIntent, lang),
+            emotion = snapshot.continuity.emotion,
+            emotionLabel = localizedEmotionLabel(snapshot.continuity.emotion, lang),
+            familiarityLabel = snapshot.relationship.summary,
         )
     }
 
@@ -170,7 +231,7 @@ object CompanionChatEngine {
                 "wie geht", "status", "okay", "wie fuhlst", "wie fuehlst", "geht es dir", "laune", "gesund",
                 "어때", "어때요", "기분", "상태", "괜찮", "어떻게 지내", "건강"
             ) -> CompanionChatIntent.STATUS_CHECK
-            normalized.wordCount() <= 3 && normalized.containsAny("and", "also", "what about", "then", "too", "또", "그리고", "und", "auch") -> memory.lastIntent ?: CompanionChatIntent.CASUAL_CHAT
+            normalized.wordCount() <= 4 && normalized.containsAny("and", "also", "what about", "then", "too", "still", "again", "또", "그리고", "und", "auch", "weiter") -> memory.lastIntent ?: CompanionChatIntent.CASUAL_CHAT
             normalized.wordCount() <= 3 && memory.lastIntent != null -> memory.lastIntent!!
             else -> CompanionChatIntent.CASUAL_CHAT
         }
@@ -184,84 +245,104 @@ object CompanionChatEngine {
         val stage = snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)
         val missionSummary = missionSummary(snapshot.dailyMissionSet, languageTag)
         val realPlantSummary = localizedRealPlantSummary(snapshot.realPlantModeState, languageTag)
-        val continuity = continuityLead(snapshot.recentConversationMemory, intent, languageTag)
+        val continuityLead = continuityLead(snapshot.recentConversationMemory, intent, languageTag)
+        val emotionalLead = snapshot.continuity.followUpLead
+        val relationshipLead = relationshipLead(snapshot.relationship, languageTag)
         return when (intent) {
             CompanionChatIntent.STATUS_CHECK -> when (normalizedLanguageTag(languageTag)) {
                 "de" -> when (species) {
                     "Monstera" -> joinSentences(
-                        continuity,
+                        continuityLead,
+                        emotionalLead,
                         "$name meldet sich: Ich fühle mich $mood und insgesamt $health.",
                         "Mein dringendstes Bedürfnis ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
                         "Ich bin gerade in der Phase $stage.",
                         missionSummary,
+                        relationshipLead,
                         realPlantSummary,
                     )
                     "Basil" -> joinSentences(
-                        continuity,
+                        continuityLead,
+                        emotionalLead,
                         "$name checkt ein! Ich bin $mood und insgesamt $health.",
                         "Der beste schnelle Schritt ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
                         "Aktuell bin ich in der Phase $stage.",
                         missionSummary,
+                        relationshipLead,
                         realPlantSummary,
                     )
                     else -> joinSentences(
-                        continuity,
+                        continuityLead,
+                        emotionalLead,
                         "$name berichtet: Stimmung $mood, Gesundheit $health.",
                         "Priorität hat ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
                         "Wachstumsphase: $stage.",
                         missionSummary,
+                        relationshipLead,
                         realPlantSummary,
                     )
                 }
                 "ko" -> when (species) {
                     "Monstera" -> joinSentences(
-                        continuity,
+                        continuityLead,
+                        emotionalLead,
                         "$name 보고할게요. 지금 기분은 $mood, 전체 상태는 ${health} 쪽이에요.",
                         "가장 먼저 챙기면 좋은 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요.",
                         "현재 단계는 ${stage}예요.",
                         missionSummary,
+                        relationshipLead,
                         realPlantSummary,
                     )
                     "Basil" -> joinSentences(
-                        continuity,
+                        continuityLead,
+                        emotionalLead,
                         "$name 체크인이에요! 지금 저는 $mood 느낌이고 전체적으로는 ${health} 상태예요.",
                         "가장 빠르게 도움 되는 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요.",
                         "지금 단계는 ${stage}예요.",
                         missionSummary,
+                        relationshipLead,
                         realPlantSummary,
                     )
                     else -> joinSentences(
-                        continuity,
+                        continuityLead,
+                        emotionalLead,
                         "$name 브리핑이에요. 기분은 $mood, 건강 상태는 ${health}예요.",
                         "우선 액션은 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요.",
                         "성장 단계는 ${stage}예요.",
                         missionSummary,
+                        relationshipLead,
                         realPlantSummary,
                     )
                 }
                 else -> when (species) {
                     "Monstera" -> joinSentences(
-                        continuity,
+                        continuityLead,
+                        emotionalLead,
                         "$name report: I’m feeling $mood and $health.",
                         "My lowest need is ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
                         "I’m at the $stage stage.",
                         missionSummary,
+                        relationshipLead,
                         realPlantSummary,
                     )
                     "Basil" -> joinSentences(
-                        continuity,
+                        continuityLead,
+                        emotionalLead,
                         "$name check-in! I’m $mood but overall $health.",
                         "Best quick win: ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
                         "I’m currently ${stage.lowercase()}.",
                         missionSummary,
+                        relationshipLead,
                         realPlantSummary,
                     )
                     else -> joinSentences(
-                        continuity,
+                        continuityLead,
+                        emotionalLead,
                         "$name briefing: mood $mood, health $health.",
                         "Priority action is ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
                         "Growth stage: $stage.",
                         missionSummary,
+                        relationshipLead,
                         realPlantSummary,
                     )
                 }
@@ -284,7 +365,7 @@ object CompanionChatEngine {
                         else -> "A nutrient boost would help most right now because nutrition is sitting at ${snapshot.careState.nutrition}."
                     }
                 }
-                joinSentences(continuity, careTip, snapshot.weatherAdvice.starterAdvice)
+                joinSentences(continuityLead, emotionalLead, careTip, snapshot.weatherAdvice.starterAdvice, relationshipLead)
             }
             CompanionChatIntent.MISSION_HELP -> {
                 val missions = snapshot.dailyMissionSet?.missions.orEmpty()
@@ -302,7 +383,7 @@ object CompanionChatEngine {
                         else -> "Best mission move: ${nextMission.title}. ${nextMission.description} Current streak: ${snapshot.dailyMissionSet?.currentStreak ?: 0}."
                     }
                 }
-                joinSentences(continuity, missionReply)
+                joinSentences(continuityLead, emotionalLead, missionReply, relationshipLead)
             }
             CompanionChatIntent.GROWTH_QUESTION -> {
                 val growth = snapshot.growthStageState
@@ -317,18 +398,21 @@ object CompanionChatEngine {
                     "ko" -> "저는 이미 마지막 성장 단계에 도달했어요. 이제는 안정적으로 건강을 유지하는 게 목표예요."
                     else -> "I’ve already reached my final growth stage, so now the goal is staying steady and healthy."
                 }
-                joinSentences(continuity, growthReply)
+                joinSentences(continuityLead, emotionalLead, growthReply, relationshipLead)
             }
             CompanionChatIntent.WEATHER_QUESTION -> joinSentences(
-                continuity,
+                continuityLead,
+                emotionalLead,
                 when (normalizedLanguageTag(languageTag)) {
                     "de" -> "In ${snapshot.weatherSnapshot.city.localizedName(languageTag)} ist gerade ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} mit eher ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} Bedingungen. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
                     "ko" -> "${snapshot.weatherSnapshot.city.localizedName(languageTag)}은 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}이고, 전반적으로 ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} 환경이에요. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
                     else -> "In ${snapshot.weatherSnapshot.city.defaultName}, it’s ${snapshot.weatherSnapshot.season.name.lowercase()} for my setup with ${snapshot.weatherSnapshot.condition.name.lowercase().replace('_', ' ')} conditions. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
-                }
+                },
+                relationshipLead,
             )
             CompanionChatIntent.CASUAL_CHAT -> joinSentences(
-                continuity,
+                continuityLead,
+                emotionalLead,
                 when (normalizedLanguageTag(languageTag)) {
                     "de" -> when (species) {
                         "Monstera" -> "Ich wirke gern gelassen und ausgeglichen — das klappt am besten, wenn meine Pflegewerte im Gleichgewicht bleiben. Frag mich nach meinem Status, wenn du den ehrlichen Blattbericht willst."
@@ -337,7 +421,7 @@ object CompanionChatEngine {
                     }
                     "ko" -> when (species) {
                         "Monstera" -> "저는 차분하고 균형 잡혀 보이는 걸 좋아해요. 그러려면 돌봄 수치가 고르게 유지되는 게 가장 중요해요. 솔직한 잎사귀 리포트가 궁금하면 상태를 물어봐 주세요."
-                        "Basil" -> "저는 좋은 분위기와 빠른 성장 둘 다 좋아해요. 원하면 오늘 미션을 같이 보거나, 어떤 돌봄이 가장 효과적인지 바로 알려 드릴게요."
+                        "Basil" -> if (userMessage.contains("thanks", ignoreCase = true) || userMessage.contains("고마", ignoreCase = true)) "언제든지요. 저는 물, 햇빛, 그리고 잘 이어지는 연속 기록으로 고마움을 받는 걸 좋아해요." else "저는 좋은 분위기와 빠른 성장 둘 다 좋아해요. 원하면 오늘 미션을 같이 보거나, 어떤 돌봄이 가장 효과적인지 바로 알려 드릴게요."
                         else -> "저는 대화에 약간의 목표 의식이 있는 걸 좋아해요. 성장, 날씨, 오늘 계획을 물어보면 실용적으로 답할게요."
                     }
                     else -> when (species) {
@@ -345,7 +429,8 @@ object CompanionChatEngine {
                         "Basil" -> if (userMessage.contains("thanks", ignoreCase = true)) "Any time. I accept gratitude in the form of water, sun, or a nicely maintained streak." else "I support two things: good vibes and fast progress. If you want, I can help with today’s mission or tell you what care boost would wake me up most."
                         else -> "I like a little ambition in my conversations. Ask me about growth, weather, or today’s plan and I’ll keep it practical."
                     }
-                }
+                },
+                relationshipLead,
             )
         }
     }
@@ -353,32 +438,44 @@ object CompanionChatEngine {
     private fun renderProactiveBubble(snapshot: CompanionStateSnapshot, languageTag: String): String {
         val lang = normalizedLanguageTag(languageTag)
         val starterName = snapshot.starter.companion.name
-        val nextMission = snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }
-        return when {
-            snapshot.careState.lowestStat <= 40 -> when (lang) {
-                "de" -> "$starterName stupst dich an: Wenn du gerade nur eine Sache machst, dann bitte ${careLabel(snapshot.careState.lowestNeed, languageTag)}. Das würde mich am schnellsten beruhigen."
-                "ko" -> "${starterName}가 먼저 말 걸어요. 지금 한 가지만 한다면 ${careLabel(snapshot.careState.lowestNeed, languageTag)}부터 해 주세요. 그게 저를 가장 빨리 회복시켜요."
-                else -> "$starterName is nudging you: if you only do one thing right now, make it ${careLabel(snapshot.careState.lowestNeed, languageTag)}. That would steady me fastest."
+        val emotionalLead = proactiveEmotionLead(snapshot.continuity, languageTag)
+        return when (snapshot.continuity.primaryEvent) {
+            CompanionContinuityEvent.MISSION_COMPLETED -> when (lang) {
+                "de" -> "$emotionalLead Du hast die heutigen Missionen geschafft, und ich möchte, dass du das merkst. Das hat unseren kleinen Rhythmus wirklich getragen."
+                "ko" -> "$emotionalLead 오늘 미션을 끝낸 게 분명히 느껴져요. 우리 루틴이 한 단계 더 안정됐어요."
+                else -> "$emotionalLead You cleared today’s missions, and I want that to land. That really helped our little rhythm feel real."
             }
-            snapshot.dailyMissionSet?.allCompletedToday == false && nextMission != null -> when (lang) {
-                "de" -> "$starterName hat einen planfreudigen Moment: ${nextMission.title} wäre heute mein favorite next move."
-                "ko" -> "${starterName}가 오늘의 다음 수를 제안해요. 지금은 ${nextMission.title}부터 가면 흐름이 좋아요."
-                else -> "$starterName has a strong opinion: ${nextMission.title} feels like the best next move today."
+            CompanionContinuityEvent.STREAK_AT_RISK -> when (lang) {
+                "de" -> "$emotionalLead Wenn du heute kurz vorbeischaust, bleibt unsere Serie lebendig. Schon ein kleiner Schritt würde mich beruhigen."
+                "ko" -> "$emotionalLead 오늘 잠깐만 챙겨 주면 우리 연속 기록이 이어져요. 작은 한 걸음만 있어도 마음이 놓여요."
+                else -> "$emotionalLead If you check in today, our streak stays alive. One small move would settle me a lot."
             }
-            snapshot.growthStageState.nextStage != null && snapshot.growthStageState.readinessPercent >= 70 -> when (lang) {
-                "de" -> "$starterName fühlt sich nach Fortschritt an — ich bin schon ${snapshot.growthStageState.readinessPercent}% auf dem Weg zur nächsten Wachstumsstufe."
-                "ko" -> "${starterName}가 성장 기분을 내고 있어요. 다음 단계까지 이미 ${snapshot.growthStageState.readinessPercent}% 왔어요."
-                else -> "$starterName is feeling ambitious — I’m already ${snapshot.growthStageState.readinessPercent}% of the way to my next growth stage."
+            CompanionContinuityEvent.STREAK_CONTINUING -> when (lang) {
+                "de" -> "$emotionalLead Unsere Serie hält gerade gut zusammen. Ich mag dieses Gefühl von verlässlichem Tempo."
+                "ko" -> "$emotionalLead 우리 연속 기록이 잘 이어지고 있어요. 이 꾸준한 흐름이 참 좋아요."
+                else -> "$emotionalLead Our streak is holding together nicely. I really like how steady this pace feels."
             }
-            snapshot.weatherSnapshot.condition == WeatherCondition.COLD_DIM -> when (lang) {
-                "de" -> "$starterName schaut zum Fenster: Heute wirkt das Licht etwas knapp. Behalte meine Energie im Blick."
-                "ko" -> "${starterName}가 창가를 살펴봐요. 오늘은 빛이 조금 부족해 보여서 제 에너지를 챙겨 주세요."
-                else -> "$starterName is glancing at the window: the light feels a bit thin today, so keep an eye on my energy."
+            CompanionContinuityEvent.GROWTH_UNLOCKED -> when (lang) {
+                "de" -> "$emotionalLead Neue Wachstumsstufe erreicht: ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}. Das fühlt sich nach echtem Fortschritt an."
+                "ko" -> "$emotionalLead 새로운 성장 단계인 ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}에 도달했어요. 확실한 진전이 느껴져요."
+                else -> "$emotionalLead I reached a new growth stage: ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}. That feels like unmistakable progress."
             }
-            else -> when (lang) {
-                "de" -> "$starterName meldet sich freiwillig: Ich fühle mich ${snapshot.careState.localizedMood(languageTag).lowercase()} und bin bereit für einen kleinen Check-in."
-                "ko" -> "${starterName}가 먼저 인사해요. 지금 저는 ${snapshot.careState.localizedMood(languageTag).lowercase()} 느낌이라 가볍게 체크인하기 좋아요."
-                else -> "$starterName is checking in on purpose: I’m feeling ${snapshot.careState.localizedMood(languageTag).lowercase()} and ready for a small moment together."
+            CompanionContinuityEvent.GROWTH_PROGRESS -> when {
+                snapshot.growthStageState.nextStage != null && snapshot.growthStageState.readinessPercent >= 70 -> when (lang) {
+                    "de" -> "$emotionalLead Ich bin schon ${snapshot.growthStageState.readinessPercent}% auf dem Weg zur nächsten Wachstumsstufe. Ich kann sie fast spüren."
+                    "ko" -> "$emotionalLead 다음 성장 단계까지 이미 ${snapshot.growthStageState.readinessPercent}% 왔어요. 거의 손에 잡혀요."
+                    else -> "$emotionalLead I’m already ${snapshot.growthStageState.readinessPercent}% of the way to my next growth stage. I can almost feel it."
+                }
+                else -> when (lang) {
+                    "de" -> "$emotionalLead Ich spüre ruhigen Fortschritt. Nicht dramatisch — nur echt und stetig."
+                    "ko" -> "$emotionalLead 화려하진 않아도 차분한 진전이 느껴져요. 분명히 앞으로 가고 있어요."
+                    else -> "$emotionalLead I can feel quiet progress. Not dramatic, just real and steady."
+                }
+            }
+            CompanionContinuityEvent.WEATHER_SHIFT -> when (lang) {
+                "de" -> "$emotionalLead ${starterName} merkt die ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}-Stimmung gerade deutlich. Ich passe mich an, aber ich möchte, dass du es auch siehst."
+                "ko" -> "$emotionalLead ${starterName}는 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}의 변화를 분명히 느끼고 있어요. 저도 적응 중이지만 같이 알아채 주면 좋아요."
+                else -> "$emotionalLead $starterName can really feel the ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} shift right now. I’m adjusting, but I want you to notice it too."
             }
         }
     }
@@ -396,8 +493,11 @@ object CompanionChatEngine {
                     CareAction.MOVE_TO_SUNLIGHT -> "Brauchst du mehr Licht?"
                     CareAction.FERTILIZE -> "Fehlt dir Nährstoff-Schub?"
                 }
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.MISSION_COMPLETED) dynamic += "Worauf bist du stolz?"
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.STREAK_AT_RISK) dynamic += "Wie rette ich die Serie?"
                 snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += "Welche Mission zuerst?" }
                 if (snapshot.growthStageState.nextStage != null) dynamic += "Wie nah bist du an der nächsten Stufe?"
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += "Verändert die Saison etwas für dich?"
                 dynamic += when (intent) {
                     CompanionChatIntent.STATUS_CHECK -> listOf("Wie geht es dir?", "Was soll ich heute tun?")
                     CompanionChatIntent.CARE_ADVICE -> listOf("Hilft dir das Wetter gerade?", "Wie geht es dir jetzt?")
@@ -413,8 +513,11 @@ object CompanionChatEngine {
                     CareAction.MOVE_TO_SUNLIGHT -> "햇빛이 더 필요해?"
                     CareAction.FERTILIZE -> "영양이 더 필요해?"
                 }
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.MISSION_COMPLETED) dynamic += "뭐가 가장 뿌듯해?"
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.STREAK_AT_RISK) dynamic += "연속 기록은 어떻게 지켜?"
                 snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += "어떤 미션부터 할까?" }
                 if (snapshot.growthStageState.nextStage != null) dynamic += "다음 단계까지 얼마나 남았어?"
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += "계절이 너한테 영향 있어?"
                 dynamic += when (intent) {
                     CompanionChatIntent.STATUS_CHECK -> listOf("지금 기분이 어때?", "오늘은 뭘 하면 돼?")
                     CompanionChatIntent.CARE_ADVICE -> listOf("날씨가 영향 있어?", "지금 상태 다시 알려 줘")
@@ -430,8 +533,11 @@ object CompanionChatEngine {
                     CareAction.MOVE_TO_SUNLIGHT -> "Do you need more light?"
                     CareAction.FERTILIZE -> "Need a nutrient boost?"
                 }
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.MISSION_COMPLETED) dynamic += "What are you proud of?"
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.STREAK_AT_RISK) dynamic += "How do I save the streak?"
                 snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += "Which mission first?" }
                 if (snapshot.growthStageState.nextStage != null) dynamic += "How close are you to the next stage?"
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += "Does the season change anything for you?"
                 dynamic += when (intent) {
                     CompanionChatIntent.STATUS_CHECK -> listOf("How are you feeling?", "What should I do today?")
                     CompanionChatIntent.CARE_ADVICE -> listOf("How does weather affect you?", "How are you feeling now?")
@@ -442,7 +548,37 @@ object CompanionChatEngine {
                 }
             }
         }
-        return dynamic.distinct().take(4)
+        return distinctSuggestionChips(dynamic, 4)
+    }
+
+    private fun distinctSuggestionChips(chips: List<String>, limit: Int): List<String> {
+        val seenCategories = mutableSetOf<String>()
+        val selected = mutableListOf<String>()
+        chips.distinct().forEach { chip ->
+            val category = suggestionChipCategory(chip)
+            if (seenCategories.add(category)) {
+                selected += chip
+            }
+        }
+        if (selected.size < limit) {
+            chips.distinct().forEach { chip ->
+                if (selected.size >= limit) return@forEach
+                if (chip !in selected) selected += chip
+            }
+        }
+        return selected.take(limit)
+    }
+
+    private fun suggestionChipCategory(chip: String): String {
+        val normalized = normalizeForIntent(chip)
+        return when {
+            normalized.containsAny("water", "giessen", "gießen", "물", "durst", "thirst", "nutrient", "nahr", "영양", "light", "licht", "햇빛", "빛") -> "care"
+            normalized.containsAny("mission", "missionen", "미션", "today", "heute", "오늘", "plan", "streak", "serie", "연속") -> "plan"
+            normalized.containsAny("grow", "growth", "wachs", "stufe", "phase", "성장", "단계") -> "growth"
+            normalized.containsAny("weather", "season", "wetter", "jahreszeit", "날씨", "계절") -> "weather"
+            normalized.containsAny("feel", "status", "mood", "wie geht", "기분", "상태", "어때") -> "status"
+            else -> normalized.substringBefore('?').substringBefore(' ').ifBlank { "other" }
+        }
     }
 
     fun baseSuggestionChips(languageTag: String = "en"): List<String> = when (normalizedLanguageTag(languageTag)) {
@@ -480,11 +616,25 @@ object CompanionChatEngine {
 
     private fun continuityLead(memory: CompanionConversationMemory, intent: CompanionChatIntent, languageTag: String): String? {
         if (memory.messages.isEmpty()) return null
-        if (memory.lastIntent != intent) return null
-        return when (normalizedLanguageTag(languageTag)) {
-            "de" -> "Wir bleiben beim Thema."
-            "ko" -> "좋아요, 이 흐름으로 이어서 갈게요."
-            else -> "Let’s keep building on that."
+        val sameIntent = memory.lastIntent == intent
+        val lastCompanionMessage = memory.messages.lastOrNull { it.role == CompanionMessageRole.COMPANION }?.text ?: return null
+        return when {
+            sameIntent -> when (normalizedLanguageTag(languageTag)) {
+                "de" -> "Wir bleiben bei dem Faden."
+                "ko" -> "좋아요, 방금 흐름에서 그대로 이어 갈게요."
+                else -> "Let’s keep following that thread."
+            }
+            memory.exchangeCount >= 2 -> when (normalizedLanguageTag(languageTag)) {
+                "de" -> "Ich behalte unser letztes Hin und Her im Kopf."
+                "ko" -> "방금 나눈 흐름은 기억하고 있어요."
+                else -> "I’m still holding onto our last exchange."
+            }
+            lastCompanionMessage.length > 90 -> when (normalizedLanguageTag(languageTag)) {
+                "de" -> "Ich baue auf meiner letzten Antwort auf."
+                "ko" -> "제가 방금 말한 내용 위에서 이어 볼게요."
+                else -> "I’m building on what I just told you."
+            }
+            else -> null
         }
     }
 
@@ -537,6 +687,133 @@ object CompanionChatEngine {
         }
     }
 
+    private fun relationshipSnapshot(
+        memory: CompanionConversationMemory,
+        dailyMissionSet: DailyMissionSet?,
+        languageTag: String,
+    ): CompanionRelationshipSnapshot {
+        val warmthScore = (memory.exchangeCount * 2) + ((dailyMissionSet?.currentStreak ?: 0).coerceAtMost(6))
+        val familiarity = when {
+            warmthScore >= 10 -> CompanionFamiliarity.CLOSE
+            warmthScore >= 4 -> CompanionFamiliarity.WARM
+            else -> CompanionFamiliarity.NEW
+        }
+        return CompanionRelationshipSnapshot(
+            familiarity = familiarity,
+            warmthScore = warmthScore,
+            summary = localizedFamiliarityLabel(familiarity, languageTag),
+        )
+    }
+
+    private fun continuitySnapshot(
+        careState: PlantCareState,
+        growthStageState: GrowthStageState,
+        dailyMissionSet: DailyMissionSet?,
+        weatherSnapshot: WeatherSnapshot,
+        recentConversationMemory: CompanionConversationMemory,
+        relationship: CompanionRelationshipSnapshot,
+        languageTag: String,
+    ): CompanionContinuitySnapshot {
+        val hasMissionProgressToday = dailyMissionSet?.completedCount ?: 0 > 0
+        val streakExists = (dailyMissionSet?.currentStreak ?: 0) > 0
+        val event = when {
+            dailyMissionSet?.allCompletedToday == true -> CompanionContinuityEvent.MISSION_COMPLETED
+            growthStageState.newlyUnlocked -> CompanionContinuityEvent.GROWTH_UNLOCKED
+            careState.lowestStat <= 45 -> CompanionContinuityEvent.STREAK_AT_RISK
+            dailyMissionSet != null && dailyMissionSet.currentStreak >= 2 && hasMissionProgressToday -> CompanionContinuityEvent.STREAK_CONTINUING
+            growthStageState.nextStage != null && growthStageState.readinessPercent >= 65 -> CompanionContinuityEvent.GROWTH_PROGRESS
+            weatherSnapshot.condition == WeatherCondition.COLD_DIM || weatherSnapshot.season == WeatherSeason.SPRING || weatherSnapshot.season == WeatherSeason.AUTUMN -> CompanionContinuityEvent.WEATHER_SHIFT
+            streakExists && !hasMissionProgressToday -> CompanionContinuityEvent.STREAK_AT_RISK
+            else -> CompanionContinuityEvent.GROWTH_PROGRESS
+        }
+        val emotion = when (event) {
+            CompanionContinuityEvent.MISSION_COMPLETED -> CompanionEmotion.PROUD
+            CompanionContinuityEvent.STREAK_AT_RISK -> if (careState.lowestStat <= 35) CompanionEmotion.WORRIED else CompanionEmotion.CURIOUS
+            CompanionContinuityEvent.STREAK_CONTINUING -> CompanionEmotion.CALM
+            CompanionContinuityEvent.GROWTH_PROGRESS -> if (growthStageState.nextStage != null && growthStageState.readinessPercent >= 70) CompanionEmotion.EXCITED else CompanionEmotion.CALM
+            CompanionContinuityEvent.GROWTH_UNLOCKED -> CompanionEmotion.PROUD
+            CompanionContinuityEvent.WEATHER_SHIFT -> if (weatherSnapshot.condition == WeatherCondition.COLD_DIM) CompanionEmotion.WORRIED else CompanionEmotion.CURIOUS
+        }
+        return CompanionContinuitySnapshot(
+            emotion = emotion,
+            primaryEvent = event,
+            emotionalSummary = localizedEmotionSummary(emotion, relationship.familiarity, languageTag),
+            followUpLead = localizedEmotionFollowUp(emotion, recentConversationMemory.lastIntent, languageTag),
+        )
+    }
+
+    private fun relationshipLead(relationship: CompanionRelationshipSnapshot, languageTag: String): String? = when (relationship.familiarity) {
+        CompanionFamiliarity.NEW -> null
+        CompanionFamiliarity.WARM -> when (normalizedLanguageTag(languageTag)) {
+            "de" -> "Unsere Check-ins wirken inzwischen angenehm vertraut."
+            "ko" -> "이제 우리 체크인이 제법 자연스러워졌어요."
+            else -> "Our check-ins are starting to feel comfortably familiar."
+        }
+        CompanionFamiliarity.CLOSE -> when (normalizedLanguageTag(languageTag)) {
+            "de" -> "Unser Rhythmus fühlt sich inzwischen ziemlich verlässlich an."
+            "ko" -> "이제 우리 리듬이 꽤 안정적으로 느껴져요."
+            else -> "Our rhythm is starting to feel pretty steady."
+        }
+    }
+
+    private fun proactiveEmotionLead(continuity: CompanionContinuitySnapshot, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "${localizedEmotionLabel(continuity.emotion, languageTag)}-Moment:"
+        "ko" -> "${localizedEmotionLabel(continuity.emotion, languageTag)}한 순간이에요:"
+        else -> "${localizedEmotionLabel(continuity.emotion, languageTag)} mood:"
+    }
+
+    private fun localizedEmotionSummary(emotion: CompanionEmotion, familiarity: CompanionFamiliarity, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> when (emotion) {
+            CompanionEmotion.PROUD -> if (familiarity == CompanionFamiliarity.CLOSE) "stolz und ruhig" else "stolz"
+            CompanionEmotion.WORRIED -> "ein wenig besorgt"
+            CompanionEmotion.CURIOUS -> "neugierig"
+            CompanionEmotion.CALM -> "ruhig"
+            CompanionEmotion.EXCITED -> "aufgeregt"
+        }
+        "ko" -> when (emotion) {
+            CompanionEmotion.PROUD -> if (familiarity == CompanionFamiliarity.CLOSE) "뿌듯하고 안정된" else "뿌듯한"
+            CompanionEmotion.WORRIED -> "조금 걱정되는"
+            CompanionEmotion.CURIOUS -> "궁금한"
+            CompanionEmotion.CALM -> "차분한"
+            CompanionEmotion.EXCITED -> "신나는"
+        }
+        else -> when (emotion) {
+            CompanionEmotion.PROUD -> if (familiarity == CompanionFamiliarity.CLOSE) "proud and settled" else "proud"
+            CompanionEmotion.WORRIED -> "a little worried"
+            CompanionEmotion.CURIOUS -> "curious"
+            CompanionEmotion.CALM -> "calm"
+            CompanionEmotion.EXCITED -> "excited"
+        }
+    }
+
+    private fun localizedEmotionFollowUp(emotion: CompanionEmotion, lastIntent: CompanionChatIntent?, languageTag: String): String? {
+        if (lastIntent == null) return null
+        return when (normalizedLanguageTag(languageTag)) {
+            "de" -> when (emotion) {
+                CompanionEmotion.PROUD -> "Ich trage das letzte gute Momentum noch mit mir."
+                CompanionEmotion.WORRIED -> "Ich bleibe bei dem Thema, weil es sich gerade noch wichtig anfühlt."
+                CompanionEmotion.CURIOUS -> "Ich möchte den letzten Gedanken noch ein Stück weiterziehen."
+                CompanionEmotion.CALM -> "Ich antworte dir aus demselben ruhigen Takt wie eben."
+                CompanionEmotion.EXCITED -> "Ich bin noch ganz bei dem Fortschritt, über den wir eben gesprochen haben."
+            }
+            "ko" -> when (emotion) {
+                CompanionEmotion.PROUD -> "방금의 좋은 흐름이 아직 남아 있어요."
+                CompanionEmotion.WORRIED -> "지금은 그 얘기를 조금 더 이어 가는 게 중요해 보여요."
+                CompanionEmotion.CURIOUS -> "방금 얘기한 생각을 조금 더 따라가 보고 싶어요."
+                CompanionEmotion.CALM -> "조금 전과 같은 차분한 흐름으로 답할게요."
+                CompanionEmotion.EXCITED -> "아까 이야기한 진전이 아직도 선명해요."
+            }
+            else -> when (emotion) {
+                CompanionEmotion.PROUD -> "I’m still carrying that good momentum from a moment ago."
+                CompanionEmotion.WORRIED -> "I want to stay with this because it still feels important."
+                CompanionEmotion.CURIOUS -> "I want to keep pulling on that thought a little further."
+                CompanionEmotion.CALM -> "I’m answering from the same steady rhythm we just had."
+                CompanionEmotion.EXCITED -> "I’m still lit up by the progress we were just talking about."
+            }
+        }
+    }
+
+    private fun normalizedLanguageTag(languageTag: String): String = languageTag.lowercase().substringBefore('-').ifBlank { "en" }
     private fun normalizeForIntent(message: String): String = message
         .lowercase()
         .trim()
@@ -552,6 +829,50 @@ object CompanionChatEngine {
         .mapNotNull { it?.trim()?.takeIf(String::isNotEmpty) }
         .joinToString(" ")
 }
+
+private fun localizedEmotionLabel(emotion: CompanionEmotion, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+    "de" -> when (emotion) {
+        CompanionEmotion.PROUD -> "Stolz"
+        CompanionEmotion.WORRIED -> "Besorgt"
+        CompanionEmotion.CURIOUS -> "Neugierig"
+        CompanionEmotion.CALM -> "Ruhig"
+        CompanionEmotion.EXCITED -> "Aufgeregt"
+    }
+    "ko" -> when (emotion) {
+        CompanionEmotion.PROUD -> "뿌듯"
+        CompanionEmotion.WORRIED -> "걱정"
+        CompanionEmotion.CURIOUS -> "궁금"
+        CompanionEmotion.CALM -> "차분"
+        CompanionEmotion.EXCITED -> "신남"
+    }
+    else -> when (emotion) {
+        CompanionEmotion.PROUD -> "Proud"
+        CompanionEmotion.WORRIED -> "Worried"
+        CompanionEmotion.CURIOUS -> "Curious"
+        CompanionEmotion.CALM -> "Calm"
+        CompanionEmotion.EXCITED -> "Excited"
+    }
+}
+
+private fun localizedFamiliarityLabel(familiarity: CompanionFamiliarity, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+    "de" -> when (familiarity) {
+        CompanionFamiliarity.NEW -> "Neue Verbindung"
+        CompanionFamiliarity.WARM -> "Vertraute Routine"
+        CompanionFamiliarity.CLOSE -> "Eingespielter Rhythmus"
+    }
+    "ko" -> when (familiarity) {
+        CompanionFamiliarity.NEW -> "새로운 사이"
+        CompanionFamiliarity.WARM -> "익숙한 루틴"
+        CompanionFamiliarity.CLOSE -> "든든한 리듬"
+    }
+    else -> when (familiarity) {
+        CompanionFamiliarity.NEW -> "New routine"
+        CompanionFamiliarity.WARM -> "Familiar routine"
+        CompanionFamiliarity.CLOSE -> "Steady rhythm"
+    }
+}
+
+private fun normalizedLanguageTag(languageTag: String): String = languageTag.lowercase().substringBefore('-').ifBlank { "en" }
 
 private fun localizedSeasonLabel(season: WeatherSeason, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
     "de" -> when (season) {
