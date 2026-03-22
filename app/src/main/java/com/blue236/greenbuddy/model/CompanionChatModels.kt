@@ -724,13 +724,13 @@ object CompanionChatEngine {
             growthStageState.nextStage != null && growthStageState.readinessPercent >= 65 -> CompanionContinuityEvent.GROWTH_PROGRESS
             weatherSnapshot.condition == WeatherCondition.COLD_DIM || weatherSnapshot.season == WeatherSeason.SPRING || weatherSnapshot.season == WeatherSeason.AUTUMN -> CompanionContinuityEvent.WEATHER_SHIFT
             streakExists && !hasMissionProgressToday -> CompanionContinuityEvent.STREAK_AT_RISK
-            else -> CompanionContinuityEvent.STREAK_CONTINUING
+            else -> CompanionContinuityEvent.GROWTH_PROGRESS
         }
         val emotion = when (event) {
             CompanionContinuityEvent.MISSION_COMPLETED -> CompanionEmotion.PROUD
             CompanionContinuityEvent.STREAK_AT_RISK -> if (careState.lowestStat <= 35) CompanionEmotion.WORRIED else CompanionEmotion.CURIOUS
             CompanionContinuityEvent.STREAK_CONTINUING -> CompanionEmotion.CALM
-            CompanionContinuityEvent.GROWTH_PROGRESS -> CompanionEmotion.EXCITED
+            CompanionContinuityEvent.GROWTH_PROGRESS -> if (growthStageState.nextStage != null && growthStageState.readinessPercent >= 70) CompanionEmotion.EXCITED else CompanionEmotion.CALM
             CompanionContinuityEvent.GROWTH_UNLOCKED -> CompanionEmotion.PROUD
             CompanionContinuityEvent.WEATHER_SHIFT -> if (weatherSnapshot.condition == WeatherCondition.COLD_DIM) CompanionEmotion.WORRIED else CompanionEmotion.CURIOUS
         }

@@ -275,6 +275,103 @@ class CompanionChatEngineTest {
     }
 
     @Test
+    fun proactiveCheckIn_zeroStreakBaselineDoesNotUseContinuingStreakTone() {
+        val baselineCareState = PlantCareState(hydration = 46, sunlight = 46, nutrition = 46)
+        val baselineGrowthState = resolveGrowthStageState(
+            starterId = starter.id,
+            progress = LessonProgress(totalXp = 0),
+            careState = baselineCareState,
+        )
+        val baselineMissionSet = DailyMissionProgress(
+            missionDate = LocalDate.of(2026, 7, 10).toString(),
+            currentStreak = 0,
+            longestStreak = 0,
+            lastCompletedDate = null,
+        ).resolveForToday(LocalDate.of(2026, 7, 10), LessonProgress(totalXp = 0), baselineCareState)
+        val baselineWeatherSnapshot = SeasonalWeatherProvider.snapshotFor("berlin", LocalDate.of(2026, 7, 10))
+        val baselineWeatherAdvice = WeatherAdviceGenerator.adviceFor(starter, baselineWeatherSnapshot)
+
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = baselineCareState,
+            growthStageState = baselineGrowthState,
+            dailyMissionSet = baselineMissionSet,
+            weatherSnapshot = baselineWeatherSnapshot,
+            weatherAdvice = baselineWeatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        val proactive = CompanionChatEngine.proactiveCheckIn(snapshot)
+
+        assertEquals(0, baselineMissionSet.completedCount)
+        assertFalse(proactive.bubble.contains("Our streak", ignoreCase = true))
+        assertFalse(proactive.bubble.contains("streak is holding", ignoreCase = true))
+        assertFalse(proactive.bubble.contains("steady this pace", ignoreCase = true))
+        assertFalse(proactive.bubble.contains("streak", ignoreCase = true))
+        assertTrue(snapshot.continuity.primaryEvent != CompanionContinuityEvent.STREAK_CONTINUING)
+    }
+
+    @Test
+    fun createSnapshot_prefersGrowthProgressOverStreakToneForNoStreakBaselineNearNextStage() {
+        val baselineCareState = PlantCareState(hydration = 60, sunlight = 60, nutrition = 60)
+        val baselineGrowthState = resolveGrowthStageState(
+            starterId = starter.id,
+            progress = LessonProgress(totalXp = 18),
+            careState = baselineCareState,
+        )
+        val baselineMissionSet = DailyMissionProgress(
+            missionDate = LocalDate.of(2026, 7, 10).toString(),
+            currentStreak = 0,
+            longestStreak = 0,
+            lastCompletedDate = null,
+        ).resolveForToday(LocalDate.of(2026, 7, 10), LessonProgress(totalXp = 18), baselineCareState)
+        val baselineWeatherSnapshot = SeasonalWeatherProvider.snapshotFor("berlin", LocalDate.of(2026, 7, 10))
+        val baselineWeatherAdvice = WeatherAdviceGenerator.adviceFor(starter, baselineWeatherSnapshot)
+
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = baselineCareState,
+            growthStageState = baselineGrowthState,
+            dailyMissionSet = baselineMissionSet,
+            weatherSnapshot = baselineWeatherSnapshot,
+            weatherAdvice = baselineWeatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        assertEquals(0, baselineMissionSet.completedCount)
+        assertEquals(CompanionContinuityEvent.GROWTH_PROGRESS, snapshot.continuity.primaryEvent)
+    }
+
+    @Test
+    fun createSnapshot_doesNotInventContinuingStreakForBaselineNoProgressState() {
+        val healthyCareState = careState.copy(hydration = 72, sunlight = 84, nutrition = 70)
+        val baselineGrowthState = resolveGrowthStageState(
+            starterId = starter.id,
+            progress = LessonProgress(totalXp = 0),
+            careState = healthyCareState,
+        )
+        val neutralWeatherSnapshot = SeasonalWeatherProvider.snapshotFor("berlin", LocalDate.of(2026, 7, 10))
+        val noProgressMissionSet = DailyMissionProgress(
+            missionDate = LocalDate.now().toString(),
+            currentStreak = 0,
+            longestStreak = 0,
+        ).resolveForToday(LocalDate.now(), LessonProgress(), healthyCareState)
+
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = healthyCareState,
+            growthStageState = baselineGrowthState,
+            dailyMissionSet = noProgressMissionSet,
+            weatherSnapshot = neutralWeatherSnapshot,
+            weatherAdvice = WeatherAdviceGenerator.adviceFor(starter, neutralWeatherSnapshot),
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        assertEquals(CompanionContinuityEvent.GROWTH_PROGRESS, snapshot.continuity.primaryEvent)
+        assertEquals(CompanionEmotion.CALM, snapshot.continuity.emotion)
+    }
+
+    @Test
     fun replyTo_usesContinuityLeadForFollowUps() {
         val firstReply = CompanionChatEngine.replyTo(
             "How are you growing?",
