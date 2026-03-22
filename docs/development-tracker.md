@@ -417,6 +417,17 @@ What still needs work:
 - [ ] Make unlocking/switching companions feel more rewarding
 - [ ] Improve collection overview and progression cues
 - [ ] Connect greenhouse screen to growth/evolution milestones more strongly
+- [ ] Add a greenhouse top summary card for current active plant, next unlock target, and collection momentum
+- [ ] Clean up inventory unlock-requirement internal representation so UI text stays locale-safe by design
+
+#### T4. F5 reward economy polish follow-ups
+- [ ] Refine combined reward feedback wording so action rewards and mission rewards are both understandable when they happen together
+- [ ] Make the purpose of leaf tokens more obvious earlier in onboarding
+- [ ] Revisit token pacing and cosmetic costs after more device/play testing
+
+#### T3. F12 companion follow-ups
+- [ ] Run a dedicated copy/localization nuance pass for companion tone (especially KO/DE)
+- [ ] Revisit familiarity pacing after more live usage feedback
 
 ---
 
