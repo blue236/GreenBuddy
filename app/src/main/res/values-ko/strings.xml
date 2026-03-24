@@ -152,6 +152,8 @@
     <string name="reward_feedback_daily_mission_complete">오늘의 미션 완료 · 리프 토큰 +%1$d</string>
     <string name="reward_feedback_daily_mission_complete_with_streak">오늘의 미션 완료 · 리프 토큰 +%1$d · 연속 보너스 +%2$d</string>
     <string name="reward_feedback_cosmetic_unlocked">%1$s %2$s 잠금 해제</string>
+    <string name="reward_feedback_greenhouse_unlock">새 온실 버디 해제: %1$s %2$s</string>
+    <string name="reward_feedback_with_greenhouse_unlock">%1$s · %2$s</string>
     <string name="notification_channel_name">GreenBuddy 알림</string>
     <string name="notification_channel_description">레슨, 돌봄, 루틴 체크인을 위한 부드러운 알림.</string>
 </resources>

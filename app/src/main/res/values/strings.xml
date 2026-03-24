@@ -166,6 +166,8 @@
     <string name="reward_feedback_daily_mission_complete">Daily missions complete · +%1$d leaf tokens</string>
     <string name="reward_feedback_daily_mission_complete_with_streak">Daily missions complete · +%1$d leaf tokens · streak bonus +%2$d</string>
     <string name="reward_feedback_cosmetic_unlocked">Unlocked %1$s %2$s</string>
+    <string name="reward_feedback_greenhouse_unlock">New greenhouse buddy unlocked: %1$s %2$s</string>
+    <string name="reward_feedback_with_greenhouse_unlock">%1$s · %2$s</string>
     <string name="notification_channel_name">GreenBuddy reminders</string>
     <string name="notification_channel_description">Gentle reminders for lessons, care, and routine check-ins.</string>
 </resources>

@@ -152,6 +152,8 @@
     <string name="reward_feedback_daily_mission_complete">Tägliche Missionen abgeschlossen · +%1$d Blatt-Token</string>
     <string name="reward_feedback_daily_mission_complete_with_streak">Tägliche Missionen abgeschlossen · +%1$d Blatt-Token · Serienbonus +%2$d</string>
     <string name="reward_feedback_cosmetic_unlocked">%1$s %2$s freigeschaltet</string>
+    <string name="reward_feedback_greenhouse_unlock">Neuer Gewächshaus-Buddy freigeschaltet: %1$s %2$s</string>
+    <string name="reward_feedback_with_greenhouse_unlock">%1$s · %2$s</string>
     <string name="notification_channel_name">GreenBuddy-Erinnerungen</string>
     <string name="notification_channel_description">Sanfte Erinnerungen für Lektionen, Pflege und Routine-Check-ins.</string>
 </resources>
