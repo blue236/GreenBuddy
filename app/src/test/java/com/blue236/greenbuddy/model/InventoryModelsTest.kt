@@ -70,6 +70,20 @@ class InventoryModelsTest {
     }
 
     @Test
+    fun activeInventoryEntryFallsBackToFirstOwnedPlantWhenNoEntryIsMarkedActive() {
+        val entries = buildInventoryEntries(
+            ownedStarterIds = setOf("monstera", "basil"),
+            selectedStarterId = "tomato",
+            lessonProgressByStarterId = emptyMap(),
+            careStateByStarterId = emptyMap(),
+        ).map { entry ->
+            if (entry.option.id == "monstera") entry.copy(isActive = false) else entry
+        }
+
+        assertEquals("monstera", activeInventoryEntry(entries)?.option?.id)
+    }
+
+    @Test
     fun unlockRequirementReflectsAutomaticUnlockFlowWithoutPlantCountAssumptions() {
         assertEquals(
             "Automatically unlocks when you complete any current plant track.",

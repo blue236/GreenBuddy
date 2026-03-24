@@ -14,6 +14,8 @@ fun defaultOwnedStarterIds(selectedStarterId: String): Set<String> = setOf(selec
 fun nextUnlockableStarterId(ownedStarterIds: Set<String>): String? =
     StarterPlants.options.firstOrNull { it.id !in ownedStarterIds }?.id
 
+fun activeInventoryEntry(entries: List<PlantInventoryEntry>): PlantInventoryEntry? =
+    entries.firstOrNull { it.isActive && it.isOwned } ?: entries.firstOrNull { it.isOwned }
 
 fun buildInventoryEntries(
     ownedStarterIds: Set<String>,

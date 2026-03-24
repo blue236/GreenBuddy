@@ -94,6 +94,11 @@
     <string name="greenhouse_growth_summary">Growth %1$s %2$s · %3$d%% ready</string>
     <string name="greenhouse_active_hint">Currently active. Lessons and care here push this plant toward its next evolution.</string>
     <string name="greenhouse_owned_hint">Owned and ready to switch in whenever you want a different growth path.</string>
+    <string name="greenhouse_summary_title">Greenhouse snapshot</string>
+    <string name="greenhouse_summary_active_value">Active now: %1$s %2$s · %3$s · %4$d%% ready</string>
+    <string name="greenhouse_summary_next_unlock_value">Next unlock: %1$s %2$s</string>
+    <string name="greenhouse_summary_all_unlocked">Every greenhouse companion is already unlocked.</string>
+    <string name="greenhouse_summary_momentum_value">Collection momentum: %1$d/%2$d companions collected</string>
     <string name="active">Active</string>
     <string name="switch_action">Switch</string>
     <string name="locked">Locked</string>

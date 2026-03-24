@@ -275,6 +275,50 @@ class CompanionChatEngineTest {
     }
 
     @Test
+    fun createSnapshot_doesNotMarkLowCareAsStreakRiskWhenNoStreakExists() {
+        val noStreakMissionSet = DailyMissionProgress(
+            missionDate = LocalDate.of(2026, 7, 10).toString(),
+            currentStreak = 0,
+            longestStreak = 0,
+            lastCompletedDate = null,
+        ).resolveForToday(LocalDate.of(2026, 7, 10), LessonProgress(totalXp = 0), careState.copy(hydration = 35, sunlight = 60, nutrition = 60))
+
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState.copy(hydration = 35, sunlight = 60, nutrition = 60),
+            growthStageState = resolveGrowthStageState(starter.id, LessonProgress(totalXp = 0), careState.copy(hydration = 35, sunlight = 60, nutrition = 60)),
+            dailyMissionSet = noStreakMissionSet,
+            weatherSnapshot = SeasonalWeatherProvider.snapshotFor("berlin", LocalDate.of(2026, 7, 10)),
+            weatherAdvice = WeatherAdviceGenerator.adviceFor(starter, SeasonalWeatherProvider.snapshotFor("berlin", LocalDate.of(2026, 7, 10))),
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        assertTrue(snapshot.continuity.primaryEvent != CompanionContinuityEvent.STREAK_AT_RISK)
+    }
+
+    @Test
+    fun createSnapshot_doesNotTreatThresholdOnlyCompletionAsContinuingProgress() {
+        val thresholdOnlyMissionSet = DailyMissionProgress(
+            missionDate = LocalDate.of(2026, 7, 10).toString(),
+            currentStreak = 3,
+            longestStreak = 3,
+            lastCompletedDate = LocalDate.of(2026, 7, 9).toString(),
+        ).resolveForToday(LocalDate.of(2026, 7, 10), LessonProgress(totalXp = 0), careState.copy(hydration = 80, sunlight = 80, nutrition = 80))
+
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState.copy(hydration = 80, sunlight = 80, nutrition = 80),
+            growthStageState = resolveGrowthStageState(starter.id, LessonProgress(totalXp = 0), careState.copy(hydration = 80, sunlight = 80, nutrition = 80)),
+            dailyMissionSet = thresholdOnlyMissionSet,
+            weatherSnapshot = SeasonalWeatherProvider.snapshotFor("berlin", LocalDate.of(2026, 7, 10)),
+            weatherAdvice = WeatherAdviceGenerator.adviceFor(starter, SeasonalWeatherProvider.snapshotFor("berlin", LocalDate.of(2026, 7, 10))),
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        assertTrue(snapshot.continuity.primaryEvent != CompanionContinuityEvent.STREAK_CONTINUING)
+    }
+
+    @Test
     fun proactiveCheckIn_zeroStreakBaselineDoesNotUseContinuingStreakTone() {
         val baselineCareState = PlantCareState(hydration = 46, sunlight = 46, nutrition = 46)
         val baselineGrowthState = resolveGrowthStageState(

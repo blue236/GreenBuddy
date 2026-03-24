@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -68,8 +69,17 @@ object ReminderNotifier {
             .setAutoCancel(true)
             .build()
 
-        NotificationManagerCompat.from(context).notify(reminder.type.notificationId, notification)
-        return true
+        return try {
+            notifySafely(context, reminder.type.notificationId, notification)
+            true
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun notifySafely(context: Context, notificationId: Int, notification: android.app.Notification) {
+        NotificationManagerCompat.from(context).notify(notificationId, notification)
     }
 
     private fun contentIntent(context: Context, type: ReminderType): PendingIntent {

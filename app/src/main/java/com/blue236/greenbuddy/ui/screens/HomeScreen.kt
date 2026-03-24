@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.R
 import com.blue236.greenbuddy.model.CareAction
+import com.blue236.greenbuddy.model.CareStatType
 import com.blue236.greenbuddy.model.CompanionChatEngine
 import com.blue236.greenbuddy.model.CompanionConversationMemory
 import com.blue236.greenbuddy.model.CompanionHomeCheckIn
@@ -446,7 +447,7 @@ private fun localizedMissionTitle(mission: DailyMission, localeTag: String): Str
         DailyMissionType.PERFORM_CARE_ACTION -> stringResource(R.string.mission_care_action_title)
         DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD -> stringResource(
             R.string.mission_keep_stat_title,
-            mission.statType?.label?.localizedStatLabel(localeTag) ?: "",
+            mission.statType.localizedStatLabel(localeTag),
             mission.threshold ?: 0,
         )
     }
@@ -459,30 +460,30 @@ private fun localizedMissionDescription(mission: DailyMission, localeTag: String
         DailyMissionType.PERFORM_CARE_ACTION -> stringResource(R.string.mission_care_action_description)
         DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD -> stringResource(
             R.string.mission_keep_stat_description,
-            mission.statType?.label?.localizedStatLabel(localeTag) ?: "",
+            mission.statType.localizedStatLabel(localeTag),
             mission.threshold ?: 0,
         )
     }
 }
 
-private fun String.localizedStatLabel(localeTag: String): String {
+private fun CareStatType?.localizedStatLabel(localeTag: String): String {
     return when (this) {
-        "Hydration" -> when {
+        CareStatType.HYDRATION -> when {
             localeTag.startsWith("ko") -> "수분"
             localeTag.startsWith("de") -> "Wasser"
-            else -> this
+            else -> "Hydration"
         }
-        "Sunlight" -> when {
+        CareStatType.SUNLIGHT -> when {
             localeTag.startsWith("ko") -> "햇빛"
             localeTag.startsWith("de") -> "Sonnenlicht"
-            else -> this
+            else -> "Sunlight"
         }
-        "Nutrition" -> when {
+        CareStatType.NUTRITION -> when {
             localeTag.startsWith("ko") -> "영양"
             localeTag.startsWith("de") -> "Nährstoffe"
-            else -> this
+            else -> "Nutrition"
         }
-        else -> this
+        null -> ""
     }
 }
 
