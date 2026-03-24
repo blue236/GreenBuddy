@@ -294,9 +294,9 @@ Current pass status:
 - [x] Locked entries use clearer localized unlock-requirement copy
 - [x] Greenhouse is more visibly connected to growth/evolution progress
 - [x] Inventory model tests expanded around switching/fallback/localized unlock-requirement behavior
-- [ ] Reconcile and verify branch health around the reported `unlockRequirementFor(...)` compile conflict
+- [x] Reconciled and verified branch health around the reported `unlockRequirementFor(...)` compile conflict
 - [ ] Consider one small Dex UI test for active / owned / locked label states after layout stabilizes
-- [ ] Consider a greenhouse top summary card for current active plant / next unlock target / collection momentum
+- [x] Added a greenhouse top summary card for current active plant / next unlock target / collection momentum
 - [ ] Add a stronger unlock-earned moment if collection motivation still feels flat in device testing
 
 Director note:

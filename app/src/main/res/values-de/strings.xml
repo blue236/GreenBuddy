@@ -94,6 +94,11 @@
     <string name="greenhouse_growth_summary">Wachstum %1$s %2$s · %3$d%% bereit</string>
     <string name="greenhouse_active_hint">Derzeit aktiv. Lektionen und Pflege hier treiben diese Pflanze zur nächsten Entwicklung.</string>
     <string name="greenhouse_owned_hint">Bereits im Besitz und jederzeit bereit zum Wechseln, wenn du einen anderen Wachstumspfad willst.</string>
+    <string name="greenhouse_summary_title">Gewächshaus-Überblick</string>
+    <string name="greenhouse_summary_active_value">Gerade aktiv: %1$s %2$s · %3$s · %4$d%% bereit</string>
+    <string name="greenhouse_summary_next_unlock_value">Nächste Freischaltung: %1$s %2$s</string>
+    <string name="greenhouse_summary_all_unlocked">Alle Gewächshaus-Begleiter sind bereits freigeschaltet.</string>
+    <string name="greenhouse_summary_momentum_value">Sammlungsfortschritt: %1$d/%2$d Begleitern gesammelt</string>
     <string name="active">Aktiv</string>
     <string name="switch_action">Wechseln</string>
     <string name="locked">Gesperrt</string>
@@ -108,7 +113,7 @@
     <string name="growth_final_stage_home">%1$s ist vollständig entwickelt. Halte die Pflege konstant, um diese Form zu bewahren.</string>
     <string name="growth_cta_celebrate">Entwicklung feiern</string>
     <string name="nice">Cool</string>
-    <string name="companion">Begleiter</string><string name="companion_chat_title">Begleiter-Chat</string><string name="companion_chat_input_placeholder">Wie fühlst du dich gerade?</string><string name="companion_chat_open">Chat öffnen</string><string name="companion_snapshot_summary">Stimmung %1$s · Gesundheit %2$s · Phase %3$s</string><string name="companion_continuity_summary">Emotion %1$s · Bindung %2$s</string><string name="companion_emotion_chip">Emotion: %1$s</string><string name="companion_familiarity_chip">Bindung: %1$s</string><string name="companion_chat_input_label">Frag deine Pflanze</string><string name="companion_chat_send">Senden</string><string name="companion_label_you">Du</string><string name="companion_label_buddy">Buddy</string><string name="companion_chat_hide">Chat ausblenden</string><string name="companion_chat_entry">Sprich mit %1$s darüber, wie es ihr geht, was sie braucht und wie der Plan für heute aussehen sollte.</string>
+    <string name="companion">Begleiter</string><string name="companion_proactive_title">Begleiter-Check-in</string><string name="companion_chat_title">Begleiter-Chat</string><string name="companion_chat_input_placeholder">Wie fühlst du dich gerade?</string><string name="companion_chat_open">Chat öffnen</string><string name="companion_snapshot_summary">Stimmung %1$s · Gesundheit %2$s · Phase %3$s</string><string name="companion_continuity_summary">Emotion %1$s · Bindung %2$s</string><string name="companion_emotion_chip">Emotion: %1$s</string><string name="companion_familiarity_chip">Bindung: %1$s</string><string name="companion_chat_input_label">Frag deine Pflanze</string><string name="companion_chat_send">Senden</string><string name="companion_label_you">Du</string><string name="companion_label_buddy">Buddy</string><string name="companion_chat_hide">Chat ausblenden</string><string name="companion_chat_entry">Sprich mit %1$s darüber, wie es ihr geht, was sie braucht und wie der Plan für heute aussehen sollte.</string>
     <string name="wallet_value">Wallet: %1$d Blatt-Token</string>
     <string name="reward_pulse">Belohnungsimpuls</string>
     <string name="reward_token_purpose">Blatt-Token kaufst du für Kosmetik ein. Lektionen geben meist etwa +%1$d, hilfreiche Pflege +%2$d und tägliche Missionen bringen größere Schübe.</string>

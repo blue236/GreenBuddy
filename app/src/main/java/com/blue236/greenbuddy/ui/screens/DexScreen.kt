@@ -28,12 +28,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blue236.greenbuddy.R
 import com.blue236.greenbuddy.model.PlantInventoryEntry
+import com.blue236.greenbuddy.model.activeInventoryEntry
 import com.blue236.greenbuddy.model.localizedGrowthTitle
 import com.blue236.greenbuddy.model.localizedHealth
 import com.blue236.greenbuddy.model.localizedMood
 import com.blue236.greenbuddy.model.localizedRequirementSummary
 import com.blue236.greenbuddy.model.localizedSubtitle
 import com.blue236.greenbuddy.model.localizedTitle
+import com.blue236.greenbuddy.model.nextUnlockableStarterId
 import com.blue236.greenbuddy.model.resolveGrowthStageState
 import com.blue236.greenbuddy.model.unlockRequirementFor
 
@@ -42,9 +44,52 @@ fun DexScreen(modifier: Modifier = Modifier, entries: List<PlantInventoryEntry>,
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val ownedCount = entries.count { it.isOwned }
     val totalCount = entries.size
+    val activeEntry = activeInventoryEntry(entries)
+    val nextUnlockOption = nextUnlockableStarterId(ownedStarterIds)?.let { nextId ->
+        entries.firstOrNull { it.option.id == nextId }?.option
+    }
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.greenhouse_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.greenhouse_subtitle, ownedCount, totalCount), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    stringResource(R.string.greenhouse_summary_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                activeEntry?.let { active ->
+                    val growthStageState = resolveGrowthStageState(active.option.id, active.progress, active.careState)
+                    Text(
+                        stringResource(
+                            R.string.greenhouse_summary_active_value,
+                            active.option.previewEmoji,
+                            active.option.localizedTitle(localeTag),
+                            growthStageState.currentStage.localizedGrowthTitle(localeTag),
+                            growthStageState.readinessPercent,
+                        ),
+                    )
+                }
+                Text(
+                    if (nextUnlockOption != null) {
+                        stringResource(
+                            R.string.greenhouse_summary_next_unlock_value,
+                            nextUnlockOption.previewEmoji,
+                            nextUnlockOption.localizedTitle(localeTag),
+                        )
+                    } else {
+                        stringResource(R.string.greenhouse_summary_all_unlocked)
+                    },
+                )
+                Text(
+                    stringResource(R.string.greenhouse_summary_momentum_value, ownedCount, totalCount),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
         entries.forEach { entry ->
             val option = entry.option
             val growthStageState = resolveGrowthStageState(option.id, entry.progress, entry.careState)

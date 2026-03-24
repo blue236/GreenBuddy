@@ -714,16 +714,19 @@ object CompanionChatEngine {
         relationship: CompanionRelationshipSnapshot,
         languageTag: String,
     ): CompanionContinuitySnapshot {
-        val hasMissionProgressToday = dailyMissionSet?.completedCount ?: 0 > 0
+        val activeProgressToday = dailyMissionSet?.missions?.any { mission ->
+            mission.isCompleted && (mission.type == DailyMissionType.COMPLETE_LESSON || mission.type == DailyMissionType.PERFORM_CARE_ACTION)
+        } == true
         val streakExists = (dailyMissionSet?.currentStreak ?: 0) > 0
+        val lowCareState = careState.lowestStat <= 45
         val event = when {
             dailyMissionSet?.allCompletedToday == true -> CompanionContinuityEvent.MISSION_COMPLETED
             growthStageState.newlyUnlocked -> CompanionContinuityEvent.GROWTH_UNLOCKED
-            careState.lowestStat <= 45 -> CompanionContinuityEvent.STREAK_AT_RISK
-            dailyMissionSet != null && dailyMissionSet.currentStreak >= 2 && hasMissionProgressToday -> CompanionContinuityEvent.STREAK_CONTINUING
+            streakExists && lowCareState -> CompanionContinuityEvent.STREAK_AT_RISK
+            dailyMissionSet != null && dailyMissionSet.currentStreak >= 2 && activeProgressToday -> CompanionContinuityEvent.STREAK_CONTINUING
             growthStageState.nextStage != null && growthStageState.readinessPercent >= 65 -> CompanionContinuityEvent.GROWTH_PROGRESS
             weatherSnapshot.condition == WeatherCondition.COLD_DIM || weatherSnapshot.season == WeatherSeason.SPRING || weatherSnapshot.season == WeatherSeason.AUTUMN -> CompanionContinuityEvent.WEATHER_SHIFT
-            streakExists && !hasMissionProgressToday -> CompanionContinuityEvent.STREAK_AT_RISK
+            streakExists && !activeProgressToday -> CompanionContinuityEvent.STREAK_AT_RISK
             else -> CompanionContinuityEvent.GROWTH_PROGRESS
         }
         val emotion = when (event) {
