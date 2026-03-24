@@ -295,9 +295,9 @@ Current pass status:
 - [x] Greenhouse is more visibly connected to growth/evolution progress
 - [x] Inventory model tests expanded around switching/fallback/localized unlock-requirement behavior
 - [x] Reconciled and verified branch health around the reported `unlockRequirementFor(...)` compile conflict
-- [ ] Consider one small Dex UI test for active / owned / locked label states after layout stabilizes
+- [x] Added a small Dex UI test for active / owned / locked label states after layout stabilized
 - [x] Added a greenhouse top summary card for current active plant / next unlock target / collection momentum
-- [ ] Add a stronger unlock-earned moment if collection motivation still feels flat in device testing
+- [x] Added a stronger unlock-earned moment by surfacing new greenhouse buddy unlock feedback when a track completes
 
 Director note:
 - T5 has a good first-pass direction: it improves meaning and readability rather than adding a new system.
