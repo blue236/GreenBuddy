@@ -158,17 +158,17 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             currentLesson.rewardXp,
             RewardState.lessonTokenReward(currentLesson.rewardXp),
         )
-        rewardFeedback.value = unlockedStarter?.let { starter ->
+        val unlockFeedback = unlockedStarter?.let { starter ->
             getApplication<Application>().getString(
-                R.string.reward_feedback_with_greenhouse_unlock,
-                baseFeedback,
-                getApplication<Application>().getString(
-                    R.string.reward_feedback_greenhouse_unlock,
-                    starter.localizedTitle(languageTag),
-                    starter.previewEmoji,
-                ),
+                R.string.reward_feedback_greenhouse_unlock,
+                starter.localizedTitle(languageTag),
+                starter.previewEmoji,
             )
-        } ?: baseFeedback
+        }
+        rewardFeedback.value = composeGreenhouseUnlockFeedback(
+            baseFeedback = baseFeedback,
+            unlockFeedback = unlockFeedback,
+        )
         emitFeedback(if (didUnlockGrowthStage(state.selectedStarterId, updatedLessonProgress, state.plantCareState, previousGrowthStage)) FeedbackEventType.GROWTH_UNLOCKED else FeedbackEventType.LESSON_SUCCESS)
         viewModelScope.launch {
             val now = System.currentTimeMillis()
