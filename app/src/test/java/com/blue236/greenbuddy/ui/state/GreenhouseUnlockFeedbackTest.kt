@@ -33,6 +33,18 @@ class GreenhouseUnlockFeedbackTest {
     }
 
     @Test
+    fun ignoresBlankUnlockFeedback() {
+        val base = "Lesson complete · +20 XP · +10 leaf tokens"
+
+        val result = composeGreenhouseUnlockFeedback(
+            baseFeedback = base,
+            unlockFeedback = "   ",
+        )
+
+        assertEquals(base, result)
+    }
+
+    @Test
     fun preservesLocalizedUnlockFeedbackWithoutChangingIt() {
         val base = "Lektion abgeschlossen · +20 XP · +10 Blatt-Token"
         val unlock = "Neuer Gewächshaus-Buddy freigeschaltet: Basilikum 🌱"
