@@ -296,6 +296,7 @@ Current pass status:
 - [x] Inventory model tests expanded around switching/fallback/localized unlock-requirement behavior
 - [x] Reconciled and verified branch health around the reported `unlockRequirementFor(...)` compile conflict
 - [x] Added a small Dex UI test for active / owned / locked label states after layout stabilized
+- [x] Added focused unit coverage for greenhouse unlock feedback composition and localized starter naming
 - [x] Added a greenhouse top summary card for current active plant / next unlock target / collection momentum
 - [x] Added a stronger unlock-earned moment by surfacing new greenhouse buddy unlock feedback when a track completes
 
