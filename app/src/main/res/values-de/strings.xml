@@ -146,6 +146,8 @@
     <string name="real_plant_mode">Echte-Pflanze-Modus</string>
     <string name="mirror_real_world_care">Übertrage echte Pflanzenpflege auf deinen Buddy</string>
     <string name="today_real_plant">Heute %1$d/%2$d</string>
+    <string name="home_extras_show">Unterstützende Details anzeigen</string>
+    <string name="home_extras_hide">Unterstützende Details ausblenden</string>
     <string name="reward_feedback_lesson_complete">Lektion abgeschlossen · +%1$d XP · +%2$d Blatt-Token</string>
     <string name="reward_feedback_care_helped">%1$s hat geholfen · +%2$d Blatt-Token</string>
     <string name="reward_feedback_care_no_effect">%1$s hatte keinen hilfreichen Effekt · keine Blatt-Token</string>
