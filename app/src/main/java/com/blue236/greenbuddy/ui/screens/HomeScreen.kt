@@ -101,14 +101,44 @@ fun HomeScreen(
     val currentLesson = progress.currentLessonOrNull(lessons)
     val zoneId = ZoneId.systemDefault()
     val completedToday = realPlantModeState.completedActionsOn(LocalDate.now(zoneId), zoneId)
+    val bestNextAction = remember(dailyMissionSet, careState, currentLesson, growthStageState, localeTag, dialogue.lessonNudge, dialogue.careGuidance) {
+        when {
+            dailyMissionSet != null && !dailyMissionSet.allCompletedToday && dailyMissionSet.completedCount == dailyMissionSet.totalCount - 1 ->
+                when {
+                    localeTag.startsWith("ko") -> "오늘 보상까지 한 걸음 남았어요. 마지막 미션 하나만 마무리해요."
+                    localeTag.startsWith("de") -> "Nur noch eine Mission bis zur heutigen Belohnung. Lass uns sie abschließen."
+                    else -> "One mission left for today’s reward. Let’s finish it."
+                }
+            careState.lowestStat <= 45 ->
+                when {
+                    localeTag.startsWith("ko") -> "지금은 ${careState.lowestNeed.localizedLabel(localeTag)}부터 챙기면 가장 큰 변화가 나와요."
+                    localeTag.startsWith("de") -> "Gerade hilft ${careState.lowestNeed.localizedLabel(localeTag)} am meisten."
+                    else -> "The biggest win right now is ${careState.lowestNeed.localizedLabel(localeTag)}."
+                }
+            currentLesson != null -> dialogue.lessonNudge
+            growthStageState.nextStage != null && growthStageState.readinessPercent >= 75 -> growthStageState.localizedUnlockHint(localeTag)
+            else -> dialogue.careGuidance
+        }
+    }
     var isCompanionChatOpen by rememberSaveable { mutableStateOf(false) }
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
-        GrowthOverviewCard(
-            growthStageState = growthStageState,
+        HomeHeroCard(
+            starter = starter,
+            companionHomeCheckIn = companionHomeCheckIn,
+            companionStateSnapshot = companionStateSnapshot,
+            headline = dialogue.headline,
+            supportLine = dialogue.line,
+            bestNextAction = bestNextAction,
             localeTag = localeTag,
-            onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
+            isCompanionChatOpen = isCompanionChatOpen,
+            onToggleCompanionChat = { isCompanionChatOpen = !isCompanionChatOpen },
+            onSubmitCompanionChatMessage = onSubmitCompanionChatMessage,
+            onOpenCompanionPrompt = { prompt ->
+                isCompanionChatOpen = true
+                onSubmitCompanionChatMessage(prompt)
+            },
         )
         dailyMissionSet?.let {
             DailyMissionCard(
@@ -116,57 +146,26 @@ fun HomeScreen(
                 localeTag = localeTag,
             )
         }
+        GrowthOverviewCard(
+            growthStageState = growthStageState,
+            localeTag = localeTag,
+            onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
+        )
+        StatCard(stringResource(R.string.care_actions)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { CareAction.entries.forEach { AssistChip(onClick = { onPerformCareAction(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
+            Text(bestNextAction, color = MaterialTheme.colorScheme.primary)
+        }
         RewardOverviewCard(
             rewardState = rewardState,
             rewardFeedback = rewardFeedback,
             localeTag = localeTag,
         )
-        StatCard(stringResource(R.string.companion)) { Text(dialogue.headline); Text(dialogue.line) }
-        StatCard(stringResource(R.string.companion_proactive_title)) {
-            Text(companionHomeCheckIn.bubble)
-            Text(
-                stringResource(
-                    R.string.companion_continuity_summary,
-                    companionHomeCheckIn.emotionLabel,
-                    companionHomeCheckIn.familiarityLabel,
-                ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 6.dp),
-            )
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                companionHomeCheckIn.suggestionChips.take(2).forEach { prompt ->
-                    AssistChip(onClick = {
-                        isCompanionChatOpen = true
-                        onSubmitCompanionChatMessage(prompt)
-                    }, label = { Text(prompt) })
-                }
-            }
-        }
-        StatCard(stringResource(R.string.companion_chat_title)) {
-            Text(stringResource(R.string.companion_chat_entry, starter.companion.name))
-            Text(companionStateSnapshot.personality.profileLabel, color = MaterialTheme.colorScheme.primary)
-            Button(onClick = { isCompanionChatOpen = !isCompanionChatOpen }, modifier = Modifier.padding(top = 8.dp)) {
-                Text(stringResource(if (isCompanionChatOpen) R.string.companion_chat_hide else R.string.companion_chat_open))
-            }
-            if (isCompanionChatOpen) {
-                CompanionChatCard(
-                    companionStateSnapshot = companionStateSnapshot,
-                    proactiveCheckIn = companionHomeCheckIn,
-                    languageTag = localeTag,
-                    onSubmitCompanionChatMessage = onSubmitCompanionChatMessage,
-                )
-            }
-        }
+        StatCard(stringResource(R.string.todays_lesson)) { Text(if (progress.isComplete(lessons)) stringResource(R.string.track_complete) else currentLesson?.title.orEmpty()); Text(dialogue.lessonNudge) }
         StatCard(stringResource(R.string.local_weather_title)) {
             Text(stringResource(R.string.weather_card_city, weatherSnapshot.city.defaultName), fontWeight = FontWeight.SemiBold)
             Text(weatherAdvice.summary)
             Text(weatherAdvice.starterAdvice, color = MaterialTheme.colorScheme.primary)
             Text(weatherAdvice.reminderHint, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        StatCard(stringResource(R.string.todays_lesson)) { Text(if (progress.isComplete(lessons)) stringResource(R.string.track_complete) else currentLesson?.title.orEmpty()); Text(dialogue.lessonNudge) }
-        StatCard(stringResource(R.string.care_actions)) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { CareAction.entries.forEach { AssistChip(onClick = { onPerformCareAction(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
-            Text(dialogue.careGuidance, color = MaterialTheme.colorScheme.primary)
         }
         StatCard(stringResource(R.string.real_plant_mode)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) { Text(stringResource(R.string.mirror_real_world_care)); Switch(checked = realPlantModeState.enabled, onCheckedChange = onSetRealPlantModeEnabled) }
@@ -174,6 +173,68 @@ fun HomeScreen(
                 Text(stringResource(R.string.today_real_plant, completedToday.size, RealPlantCareAction.entries.size))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { RealPlantCareAction.entries.forEach { AssistChip(onClick = { onLogRealPlantCare(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun HomeHeroCard(
+    starter: StarterPlantOption,
+    companionHomeCheckIn: CompanionHomeCheckIn,
+    companionStateSnapshot: CompanionStateSnapshot,
+    headline: String,
+    supportLine: String,
+    bestNextAction: String,
+    localeTag: String,
+    isCompanionChatOpen: Boolean,
+    onToggleCompanionChat: () -> Unit,
+    onSubmitCompanionChatMessage: (String) -> Unit,
+    onOpenCompanionPrompt: (String) -> Unit,
+) {
+    StatCard(stringResource(R.string.companion_proactive_title)) {
+        Text(headline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(supportLine)
+        Text(
+            companionHomeCheckIn.bubble,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        Text(
+            bestNextAction,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        Text(
+            stringResource(
+                R.string.companion_continuity_summary,
+                companionHomeCheckIn.emotionLabel,
+                companionHomeCheckIn.familiarityLabel,
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+            companionHomeCheckIn.suggestionChips.take(2).forEach { prompt ->
+                AssistChip(onClick = { onOpenCompanionPrompt(prompt) }, label = { Text(prompt) })
+            }
+        }
+        Text(
+            stringResource(R.string.companion_chat_entry, starter.companion.name),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        Text(companionStateSnapshot.personality.profileLabel, color = MaterialTheme.colorScheme.primary)
+        Button(onClick = onToggleCompanionChat, modifier = Modifier.padding(top = 8.dp)) {
+            Text(stringResource(if (isCompanionChatOpen) R.string.companion_chat_hide else R.string.companion_chat_open))
+        }
+        if (isCompanionChatOpen) {
+            CompanionChatCard(
+                companionStateSnapshot = companionStateSnapshot,
+                proactiveCheckIn = companionHomeCheckIn,
+                languageTag = localeTag,
+                onSubmitCompanionChatMessage = onSubmitCompanionChatMessage,
+            )
         }
     }
 }

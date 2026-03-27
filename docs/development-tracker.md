@@ -380,61 +380,87 @@ What still needs work:
 
 ## TODO
 
-### Priority P1 — polish what is already real
+### Priority P1 — Finch-inspired orchestration polish
 
-#### T1. F1 mission UX polish
-- [ ] Expand Home mission card from summary-only to visible per-mission checklist
-- [ ] Show mission titles/descriptions on Home
-- [ ] Show clearer reward payoff when daily mission set completes
-- [ ] Add clearer streak milestone celebration (for example every 3 days)
-- [ ] Review streak reset / missed-day UX copy
-- [ ] Add tests for day rollover / streak edge cases if coverage is weak
+#### T1. Home hierarchy / command-center pass
+- [x] Rebuild Home around a stricter hierarchy: companion hero → today’s missions → growth progress → quick care → contextual extras
+- [x] Add one clear “best next action” CTA near the top of Home
+- [x] Reduce equal-weight card density so the screen answers “how is my buddy / what should I do next / what do I get?” at a glance
+- [ ] Move secondary systems behind progressive disclosure where possible
+- [ ] Validate that Home feels calmer and lower-cognitive-load on device
 
-#### T2. F2 growth UX polish
-- [ ] Surface growth progress more clearly on Home
-- [ ] Improve evolution/unlock celebration moment
-- [ ] Make species-specific growth differences more visible in UI copy
-- [ ] Review whether greenhouse should reflect growth stage more prominently
-- [ ] Clean up any old/duplicated growth presentation logic if it still exists
+#### T2. Mission ritual / daily motivation pass
+- [ ] Turn missions into a more visual 3-step ritual with icon, plain-language title, tiny reward cue, and clearer completion state
+- [ ] Add a stronger “one more to finish today” progress arc
+- [ ] Add warmer streak milestone celebration with softer plant-themed framing
+- [ ] Rework missed-day / streak reset copy to feel encouraging rather than punitive
+- [ ] Add or expand tests around mission completion and streak milestone UX where practical
 
-#### T3. F12 validation / stabilization
-- [ ] Smoke test Phase 3 continuity/emotion UX on device
-- [ ] Validate proactive messaging frequency / usefulness
-- [ ] Check suggestion chips quality after recent memory changes
-- [ ] Check that familiarity/bond language feels earned, not random
-- [ ] Commit roadmap/doc changes once validated
+#### T3. Companion hero UX pass
+- [ ] Promote the companion into a true Home hero zone with one emotionally readable line and one high-value suggestion chip
+- [ ] Make companion text act as the emotional guide for missions/growth rather than a parallel feature card
+- [ ] Add lightweight visual emotion cues (expression/posture/color/motion/haptic) without making the UI noisy
+- [ ] Keep companion guidance short enough to feel immediate rather than chatty
+- [ ] Run a dedicated copy/localization nuance pass for companion tone (especially KO/DE)
+
+#### T4. Growth clarity / unlock delight pass
+- [ ] Keep growth visibility above the fold with clearer “how close / what helps most / what unlocks next” communication
+- [ ] Strengthen unlock/evolution moments with a larger celebratory sheet or modal-level reveal
+- [ ] Make species-specific growth differences more visible in copy and progression framing
+- [ ] Add direct follow-up actions from unlock moments (for example “See in Greenhouse” / “Keep growing”)
+- [ ] Validate that daily actions feel clearly connected to growth progress
 
 ---
 
-### Priority P2 — deepen retention loops
+### Priority P2 — retention loop depth and warmth
 
-#### T4. F5 reward economy polish
-- [x] Improve reward visibility after lessons / care / mission completion
-- [ ] Review token pacing and cosmetic costs
-- [x] Consider simple unlock-track presentation in addition to shop
-- [ ] Make the purpose of tokens more obvious earlier in onboarding
+#### T5. Reward purpose / reward-track clarity
+- [ ] Make token purpose more obvious earlier in onboarding and Home
+- [ ] Surface current wallet + nearest meaningful unlock in a lighter-weight Home strip
+- [ ] Refine combined reward feedback wording so action, mission, and unlock rewards stack more clearly
+- [ ] Review token pacing and cosmetic costs after more device/play testing
+- [ ] Consider whether a softer self-expression framing would make cosmetics feel more meaningful
 
-#### T5. F4 greenhouse loop polish
-- [ ] Make unlocking/switching companions feel more rewarding
-- [ ] Improve collection overview and progression cues
-- [ ] Connect greenhouse screen to growth/evolution milestones more strongly
-- [ ] Add a greenhouse top summary card for current active plant, next unlock target, and collection momentum
+#### T6. Greenhouse as a place, not just a list
+- [ ] Reframe Greenhouse to feel more like a warm room/garden space than a plain dex list
+- [ ] Strengthen collection overview with active plant / collection progress / next unlock / recent milestone at the top
+- [ ] Make owned / active / locked states more visually distinct and collectible-feeling
+- [ ] Add mini bio / growth history / favorite conditions / unlock path detail for companions over time
 - [ ] Clean up inventory unlock-requirement internal representation so UI text stays locale-safe by design
 
-#### T4. F5 reward economy polish follow-ups
-- [ ] Refine combined reward feedback wording so action rewards and mission rewards are both understandable when they happen together
-- [ ] Make the purpose of leaf tokens more obvious earlier in onboarding
-- [ ] Revisit token pacing and cosmetic costs after more device/play testing
+#### T7. Multi-horizon progression visibility
+- [ ] Make “today / this week / long-term” progression more explicit across Home, Profile, and Greenhouse
+- [ ] Add simple continuity language such as recent care streaks, weekly growth movement, and milestone counts
+- [ ] Make Profile feel more like identity/history and less like a settings-adjacent status dump
 
-#### T3. F12 companion follow-ups
-- [ ] Run a dedicated copy/localization nuance pass for companion tone (especially KO/DE)
-- [ ] Revisit familiarity pacing after more live usage feedback
+#### T8. Real plant mode value framing
+- [ ] Reposition real plant mode as a bridge between digital buddy and real plant care, not just a toggle
+- [ ] Surface clearer user benefits (logging, reminders, reflection, seasonal support)
+- [ ] Add light Home acknowledgment when real-plant mode is enabled and drifting stale
+- [ ] Decide whether a mini timeline/journal should replace or complement checklist-style logging
 
 ---
 
-### Priority P3 — content depth expansion
+### Priority P3 — onboarding, settings, and content depth
 
-#### T6. F3 lesson expansion
+#### T9. Onboarding clarity / emotional framing
+- [ ] Rework onboarding as a short story: choose starter → meet personality → understand growth → see reward loop
+- [ ] Teach the Home hierarchy explicitly during onboarding
+- [ ] Show one example unlock/reward early so currency and progression have immediate meaning
+- [ ] Consider reminder tone/frequency setup during onboarding rather than burying it later
+
+#### T10. Settings personalization / tone controls
+- [ ] Reorganize settings around user intent: companion, reminders, language, accessibility/motion, real plant mode
+- [ ] Let users tune companion intensity / reminder softness / haptics more explicitly
+- [ ] Preview tone choices for notifications and companion prompts where useful
+
+#### T11. Visual design warmth pass
+- [ ] Soften UI density with more breathing room and fewer equally heavy hard-edged cards
+- [ ] Use warmer backgrounds and species-linked accent colors more intentionally
+- [ ] Make companion/plant art more central than generic UI chrome
+- [ ] Add motion sparingly for idle life and milestone delight
+
+#### T12. F3 lesson expansion
 - [ ] Increase lesson count per starter beyond the current baseline
 - [ ] Add richer wrong-answer feedback or explanation copy
 - [ ] Review lesson progression difficulty curve
@@ -445,14 +471,18 @@ What still needs work:
 # Recommended next implementation order
 
 ## Next 1-2 tasks
-1. **T1. F1 mission UX polish**
-2. **T2. F2 growth UX polish**
-3. **T3. F12 validation / stabilization**
+1. **T1. Home hierarchy / command-center pass**
+2. **T2. Mission ritual / daily motivation pass**
+3. **T3. Companion hero UX pass**
 
 ## After that
-4. **T4. F5 reward economy polish**
-5. **T5. F4 greenhouse loop polish**
-6. **T6. F3 lesson expansion**
+4. **T4. Growth clarity / unlock delight pass**
+5. **T5. Reward purpose / reward-track clarity**
+6. **T6. Greenhouse as a place, not just a list**
+7. **T7. Multi-horizon progression visibility**
+8. **T8. Real plant mode value framing**
+9. **T9-T11 onboarding / settings / visual warmth passes**
+10. **T12. F3 lesson expansion**
 
 ---
 
