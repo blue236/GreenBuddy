@@ -121,6 +121,7 @@ fun HomeScreen(
         }
     }
     var isCompanionChatOpen by rememberSaveable { mutableStateOf(false) }
+    var areExtrasExpanded by rememberSaveable { mutableStateOf(false) }
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
@@ -153,25 +154,30 @@ fun HomeScreen(
         )
         StatCard(stringResource(R.string.care_actions)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { CareAction.entries.forEach { AssistChip(onClick = { onPerformCareAction(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
-            Text(bestNextAction, color = MaterialTheme.colorScheme.primary)
+            Text(dialogue.careGuidance, color = MaterialTheme.colorScheme.primary)
         }
-        RewardOverviewCard(
-            rewardState = rewardState,
-            rewardFeedback = rewardFeedback,
-            localeTag = localeTag,
-        )
-        StatCard(stringResource(R.string.todays_lesson)) { Text(if (progress.isComplete(lessons)) stringResource(R.string.track_complete) else currentLesson?.title.orEmpty()); Text(dialogue.lessonNudge) }
-        StatCard(stringResource(R.string.local_weather_title)) {
-            Text(stringResource(R.string.weather_card_city, weatherSnapshot.city.defaultName), fontWeight = FontWeight.SemiBold)
-            Text(weatherAdvice.summary)
-            Text(weatherAdvice.starterAdvice, color = MaterialTheme.colorScheme.primary)
-            Text(weatherAdvice.reminderHint, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Button(onClick = { areExtrasExpanded = !areExtrasExpanded }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(if (areExtrasExpanded) R.string.home_extras_hide else R.string.home_extras_show))
         }
-        StatCard(stringResource(R.string.real_plant_mode)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) { Text(stringResource(R.string.mirror_real_world_care)); Switch(checked = realPlantModeState.enabled, onCheckedChange = onSetRealPlantModeEnabled) }
-            if (realPlantModeState.enabled) {
-                Text(stringResource(R.string.today_real_plant, completedToday.size, RealPlantCareAction.entries.size))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { RealPlantCareAction.entries.forEach { AssistChip(onClick = { onLogRealPlantCare(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
+        if (areExtrasExpanded) {
+            RewardOverviewCard(
+                rewardState = rewardState,
+                rewardFeedback = rewardFeedback,
+                localeTag = localeTag,
+            )
+            StatCard(stringResource(R.string.todays_lesson)) { Text(if (progress.isComplete(lessons)) stringResource(R.string.track_complete) else currentLesson?.title.orEmpty()); Text(dialogue.lessonNudge) }
+            StatCard(stringResource(R.string.local_weather_title)) {
+                Text(stringResource(R.string.weather_card_city, weatherSnapshot.city.defaultName), fontWeight = FontWeight.SemiBold)
+                Text(weatherAdvice.summary)
+                Text(weatherAdvice.starterAdvice, color = MaterialTheme.colorScheme.primary)
+                Text(weatherAdvice.reminderHint, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            StatCard(stringResource(R.string.real_plant_mode)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) { Text(stringResource(R.string.mirror_real_world_care)); Switch(checked = realPlantModeState.enabled, onCheckedChange = onSetRealPlantModeEnabled) }
+                if (realPlantModeState.enabled) {
+                    Text(stringResource(R.string.today_real_plant, completedToday.size, RealPlantCareAction.entries.size))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { RealPlantCareAction.entries.forEach { AssistChip(onClick = { onLogRealPlantCare(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
+                }
             }
         }
     }
