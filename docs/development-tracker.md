@@ -383,9 +383,9 @@ What still needs work:
 ### Priority P1 — Finch-inspired orchestration polish
 
 #### T1. Home hierarchy / command-center pass
-- [ ] Rebuild Home around a stricter hierarchy: companion hero → today’s missions → growth progress → quick care → contextual extras
-- [ ] Add one clear “best next action” CTA near the top of Home
-- [ ] Reduce equal-weight card density so the screen answers “how is my buddy / what should I do next / what do I get?” at a glance
+- [x] Rebuild Home around a stricter hierarchy: companion hero → today’s missions → growth progress → quick care → contextual extras
+- [x] Add one clear “best next action” CTA near the top of Home
+- [x] Reduce equal-weight card density so the screen answers “how is my buddy / what should I do next / what do I get?” at a glance
 - [ ] Move secondary systems behind progressive disclosure where possible
 - [ ] Validate that Home feels calmer and lower-cognitive-load on device
 

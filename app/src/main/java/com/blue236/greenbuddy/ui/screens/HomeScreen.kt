@@ -180,6 +180,68 @@ fun HomeScreen(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
+private fun HomeHeroCard(
+    starter: StarterPlantOption,
+    companionHomeCheckIn: CompanionHomeCheckIn,
+    companionStateSnapshot: CompanionStateSnapshot,
+    headline: String,
+    supportLine: String,
+    bestNextAction: String,
+    localeTag: String,
+    isCompanionChatOpen: Boolean,
+    onToggleCompanionChat: () -> Unit,
+    onSubmitCompanionChatMessage: (String) -> Unit,
+    onOpenCompanionPrompt: (String) -> Unit,
+) {
+    StatCard(stringResource(R.string.companion_proactive_title)) {
+        Text(headline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(supportLine)
+        Text(
+            companionHomeCheckIn.bubble,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        Text(
+            bestNextAction,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        Text(
+            stringResource(
+                R.string.companion_continuity_summary,
+                companionHomeCheckIn.emotionLabel,
+                companionHomeCheckIn.familiarityLabel,
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+            companionHomeCheckIn.suggestionChips.take(2).forEach { prompt ->
+                AssistChip(onClick = { onOpenCompanionPrompt(prompt) }, label = { Text(prompt) })
+            }
+        }
+        Text(
+            stringResource(R.string.companion_chat_entry, starter.companion.name),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        Text(companionStateSnapshot.personality.profileLabel, color = MaterialTheme.colorScheme.primary)
+        Button(onClick = onToggleCompanionChat, modifier = Modifier.padding(top = 8.dp)) {
+            Text(stringResource(if (isCompanionChatOpen) R.string.companion_chat_hide else R.string.companion_chat_open))
+        }
+        if (isCompanionChatOpen) {
+            CompanionChatCard(
+                companionStateSnapshot = companionStateSnapshot,
+                proactiveCheckIn = companionHomeCheckIn,
+                languageTag = localeTag,
+                onSubmitCompanionChatMessage = onSubmitCompanionChatMessage,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
 private fun CompanionChatCard(
     companionStateSnapshot: CompanionStateSnapshot,
     proactiveCheckIn: CompanionHomeCheckIn,
