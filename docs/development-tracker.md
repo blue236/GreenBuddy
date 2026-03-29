@@ -395,11 +395,11 @@ Notes from the latest pass:
 - reward progress/feedback is lightly surfaced outside the extras section so payoff remains visible
 
 #### T2. Mission ritual / daily motivation pass
-- [ ] Turn missions into a more visual 3-step ritual with icon, plain-language title, tiny reward cue, and clearer completion state
-- [ ] Add a stronger “one more to finish today” progress arc
-- [ ] Add warmer streak milestone celebration with softer plant-themed framing
+- [x] Turn missions into a more visual 3-step ritual with icon, plain-language title, tiny reward cue, and clearer completion state
+- [x] Add a stronger “one more to finish today” progress arc
+- [x] Add warmer streak milestone celebration with softer plant-themed framing
 - [ ] Rework missed-day / streak reset copy to feel encouraging rather than punitive
-- [ ] Add or expand tests around mission completion and streak milestone UX where practical
+- [x] Add or expand tests around mission completion and streak milestone UX where practical
 
 #### T3. Companion hero UX pass
 - [ ] Promote the companion into a true Home hero zone with one emotionally readable line and one high-value suggestion chip

@@ -135,9 +135,12 @@
     <string name="daily_mission_reward_summary_incomplete">Schließe alle Missionen ab, um heute +%1$d Blatt-Token zu verdienen.</string>
     <string name="daily_mission_reward_summary_complete">Alle Missionen geschafft. Tagesbelohnung verdient: +%1$d Blatt-Token.</string>
     <string name="daily_mission_reward_summary_with_streak">Alle Missionen geschafft. Tagesbelohnung verdient: +%1$d Blatt-Token plus Serienbonus.</string>
-    <string name="daily_mission_streak_chip">🔥 %1$d-Tage-Serie</string>
+    <string name="daily_mission_progress_arc_one_left">%1$d von %2$d erledigt · noch ein kleiner Schritt bis zur heutigen Belohnung</string>
+    <string name="daily_mission_progress_arc_general">%1$d von %2$d erledigt · dein heutiges Ritual läuft</string>
+    <string name="daily_mission_reward_chip">+%1$d Blätter</string>
+    <string name="daily_mission_streak_chip">🌿 %1$d-Tage-Pflegekette</string>
     <string name="daily_mission_streak_bonus_chip">Bonus +%1$d</string>
-    <string name="daily_mission_streak_milestone">%1$d-Tage-Serienmeilenstein erreicht · +%2$d Bonus-Blatt-Token</string>
+    <string name="daily_mission_streak_milestone">Pflegekette %1$d erreicht · +%2$d Bonus-Blatt-Token</string>
     <string name="todays_lesson">Heutige Lektion</string>
     <string name="track_complete">Pfad abgeschlossen</string>
     <string name="care_actions">Pflegeaktionen</string>

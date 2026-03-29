@@ -442,11 +442,17 @@ private fun DailyMissionCard(
     missionSet: DailyMissionSet,
     localeTag: String,
 ) {
+    val progressArcText = if (!missionSet.allCompletedToday && missionSet.completedCount == missionSet.totalCount - 1) {
+        stringResource(R.string.daily_mission_progress_arc_one_left, missionSet.completedCount, missionSet.totalCount)
+    } else {
+        stringResource(R.string.daily_mission_progress_arc_general, missionSet.completedCount, missionSet.totalCount)
+    }
     StatCard(stringResource(R.string.daily_missions)) {
+        Text(progressArcText, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(bottom = 4.dp),
+            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
         ) {
             AssistChip(
                 onClick = { },
@@ -455,6 +461,10 @@ private fun DailyMissionCard(
             AssistChip(
                 onClick = { },
                 label = { Text(stringResource(R.string.daily_mission_streak_chip, missionSet.currentStreak)) },
+            )
+            AssistChip(
+                onClick = { },
+                label = { Text(stringResource(R.string.daily_mission_reward_chip, missionSet.dailyRewardTokens)) },
             )
             if (missionSet.pendingStreakReward) {
                 AssistChip(
@@ -468,6 +478,7 @@ private fun DailyMissionCard(
             MissionChecklistRow(
                 mission = mission,
                 localeTag = localeTag,
+                rewardTokens = missionRewardTokens(missionSet),
             )
         }
 
@@ -499,6 +510,7 @@ private fun DailyMissionCard(
 private fun MissionChecklistRow(
     mission: DailyMission,
     localeTag: String,
+    rewardTokens: Int,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -508,7 +520,7 @@ private fun MissionChecklistRow(
         Box(
             modifier = Modifier
                 .padding(top = 2.dp)
-                .size(20.dp)
+                .size(24.dp)
                 .background(
                     color = if (mission.isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
                     shape = CircleShape,
@@ -516,14 +528,24 @@ private fun MissionChecklistRow(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = if (mission.isCompleted) "✓" else "",
+                text = if (mission.isCompleted) "✓" else missionIconFor(mission),
                 color = if (mission.isCompleted) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
             )
         }
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(localizedMissionTitle(mission, localeTag), fontWeight = FontWeight.SemiBold)
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.weight(1f)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(localizedMissionTitle(mission, localeTag), fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                AssistChip(
+                    onClick = { },
+                    label = { Text(stringResource(R.string.daily_mission_reward_chip, rewardTokens)) },
+                )
+            }
             Text(
                 localizedMissionDescription(mission, localeTag),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -557,6 +579,15 @@ private fun localizedMissionDescription(mission: DailyMission, localeTag: String
             mission.threshold ?: 0,
         )
     }
+}
+
+private fun missionRewardTokens(missionSet: DailyMissionSet): Int =
+    (missionSet.dailyRewardTokens / missionSet.totalCount).coerceAtLeast(1)
+
+private fun missionIconFor(mission: DailyMission): String = when (mission.type) {
+    DailyMissionType.COMPLETE_LESSON -> "📘"
+    DailyMissionType.PERFORM_CARE_ACTION -> "💧"
+    DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD -> "☀️"
 }
 
 private fun CareStatType?.localizedStatLabel(localeTag: String): String {
