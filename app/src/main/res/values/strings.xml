@@ -149,9 +149,13 @@
     <string name="daily_mission_reward_summary_incomplete">Complete all missions to earn +%1$d leaf tokens today.</string>
     <string name="daily_mission_reward_summary_complete">All missions cleared. Daily reward earned: +%1$d leaf tokens.</string>
     <string name="daily_mission_reward_summary_with_streak">All missions cleared. Daily reward earned: +%1$d leaf tokens, plus a streak bonus.</string>
-    <string name="daily_mission_streak_chip">🔥 %1$d-day streak</string>
+    <string name="daily_mission_progress_arc_one_left">%1$d of %2$d done · one more gentle step for today’s reward</string>
+    <string name="daily_mission_progress_arc_general">%1$d of %2$d done · your care ritual is underway</string>
+    <string name="daily_mission_reward_chip">+%1$d leaves</string>
+    <string name="daily_mission_streak_chip">🌿 %1$d-day care chain</string>
     <string name="daily_mission_streak_bonus_chip">Bonus +%1$d</string>
-    <string name="daily_mission_streak_milestone">%1$d-day streak milestone reached · +%2$d bonus leaf tokens</string>
+    <string name="daily_mission_streak_milestone">Care chain %1$d reached · +%2$d bonus leaf tokens</string>
+    <string name="daily_mission_streak_reset_gentle">Your care chain took a pause, but today is a gentle fresh start.</string>
     <string name="todays_lesson">Today’s lesson</string>
     <string name="track_complete">Track complete</string>
     <string name="care_actions">Care actions</string>

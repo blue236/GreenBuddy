@@ -135,9 +135,13 @@
     <string name="daily_mission_reward_summary_incomplete">모든 미션을 완료하면 오늘 리프 토큰 +%1$d를 받아요.</string>
     <string name="daily_mission_reward_summary_complete">모든 미션 완료. 오늘의 보상으로 리프 토큰 +%1$d를 받았어요.</string>
     <string name="daily_mission_reward_summary_with_streak">모든 미션 완료. 오늘의 보상 리프 토큰 +%1$d와 연속 보너스를 받았어요.</string>
-    <string name="daily_mission_streak_chip">🔥 %1$d일 연속</string>
+    <string name="daily_mission_progress_arc_one_left">%1$d/%2$d 완료 · 오늘 보상까지 부드럽게 한 걸음만 더 남았어요</string>
+    <string name="daily_mission_progress_arc_general">%1$d/%2$d 완료 · 오늘의 돌봄 루틴이 잘 이어지고 있어요</string>
+    <string name="daily_mission_reward_chip">리프 +%1$d</string>
+    <string name="daily_mission_streak_chip">🌿 %1$d일 돌봄 연결</string>
     <string name="daily_mission_streak_bonus_chip">보너스 +%1$d</string>
-    <string name="daily_mission_streak_milestone">%1$d일 연속 달성 · 보너스 리프 토큰 +%2$d</string>
+    <string name="daily_mission_streak_milestone">돌봄 연결 %1$d일 달성 · 보너스 리프 토큰 +%2$d</string>
+    <string name="daily_mission_streak_reset_gentle">돌봄 연결이 잠시 쉬었지만, 오늘 다시 부드럽게 시작하면 돼요.</string>
     <string name="todays_lesson">오늘의 레슨</string>
     <string name="track_complete">트랙 완료</string>
     <string name="care_actions">돌봄 액션</string>
