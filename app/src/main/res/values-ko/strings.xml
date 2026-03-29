@@ -148,6 +148,13 @@
     <string name="today_real_plant">오늘 %1$d/%2$d</string>
     <string name="home_extras_show">보조 정보 보기</string>
     <string name="home_extras_hide">보조 정보 숨기기</string>
+    <string name="home_best_action_finish_reward">오늘 보상까지 한 걸음 남았어요. 마지막 미션 하나만 마무리해요.</string>
+    <string name="home_best_action_low_need">지금은 %1$s부터 챙기면 가장 큰 변화가 나와요.</string>
+    <string name="home_best_action_cta_lesson">레슨 이어서 하기</string>
+    <string name="home_best_action_cta_care">%1$s 하기</string>
+    <string name="home_best_action_cta_growth">계속 성장시키기</string>
+    <string name="home_reward_strip_ready">미션 %1$d/%2$d 완료 · 하나만 더 하면 오늘 보상이에요</string>
+    <string name="home_reward_strip_feedback">최근 보상: %1$s</string>
     <string name="reward_feedback_lesson_complete">레슨 완료 · +%1$d XP · +%2$d 리프 토큰</string>
     <string name="reward_feedback_care_helped">%1$s이(가) 도움이 됐어요 · +%2$d 리프 토큰</string>
     <string name="reward_feedback_care_no_effect">%1$s은(는) 도움이 되지 않았어요 · 리프 토큰 없음</string>

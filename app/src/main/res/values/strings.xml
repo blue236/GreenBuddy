@@ -162,6 +162,13 @@
     <string name="today_real_plant">Today %1$d/%2$d</string>
     <string name="home_extras_show">Show supporting details</string>
     <string name="home_extras_hide">Hide supporting details</string>
+    <string name="home_best_action_finish_reward">One mission left for today’s reward. Let’s finish it.</string>
+    <string name="home_best_action_low_need">The biggest win right now is %1$s.</string>
+    <string name="home_best_action_cta_lesson">Continue lesson</string>
+    <string name="home_best_action_cta_care">Do %1$s</string>
+    <string name="home_best_action_cta_growth">Keep growing</string>
+    <string name="home_reward_strip_ready">%1$d/%2$d missions done · one more for today’s reward</string>
+    <string name="home_reward_strip_feedback">Latest reward: %1$s</string>
     <string name="reward_feedback_lesson_complete">Lesson complete · +%1$d XP · +%2$d leaf tokens</string>
     <string name="reward_feedback_care_helped">%1$s helped · +%2$d leaf tokens</string>
     <string name="reward_feedback_care_no_effect">%1$s had no helpful effect · no leaf tokens</string>

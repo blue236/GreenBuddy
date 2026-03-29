@@ -148,6 +148,13 @@
     <string name="today_real_plant">Heute %1$d/%2$d</string>
     <string name="home_extras_show">Unterstützende Details anzeigen</string>
     <string name="home_extras_hide">Unterstützende Details ausblenden</string>
+    <string name="home_best_action_finish_reward">Nur noch eine Mission bis zur heutigen Belohnung. Lass uns sie abschließen.</string>
+    <string name="home_best_action_low_need">Gerade hilft %1$s am meisten.</string>
+    <string name="home_best_action_cta_lesson">Lektion fortsetzen</string>
+    <string name="home_best_action_cta_care">%1$s machen</string>
+    <string name="home_best_action_cta_growth">Weiter wachsen</string>
+    <string name="home_reward_strip_ready">%1$d/%2$d Missionen erledigt · noch eine bis zur heutigen Belohnung</string>
+    <string name="home_reward_strip_feedback">Neueste Belohnung: %1$s</string>
     <string name="reward_feedback_lesson_complete">Lektion abgeschlossen · +%1$d XP · +%2$d Blatt-Token</string>
     <string name="reward_feedback_care_helped">%1$s hat geholfen · +%2$d Blatt-Token</string>
     <string name="reward_feedback_care_no_effect">%1$s hatte keinen hilfreichen Effekt · keine Blatt-Token</string>

@@ -389,6 +389,11 @@ What still needs work:
 - [x] Move secondary systems behind progressive disclosure where possible
 - [ ] Validate that Home feels calmer and lower-cognitive-load on device
 
+Notes from the latest pass:
+- best-next-action copy moved into string resources
+- hero now exposes a real CTA button instead of guidance-only text
+- reward progress/feedback is lightly surfaced outside the extras section so payoff remains visible
+
 #### T2. Mission ritual / daily motivation pass
 - [ ] Turn missions into a more visual 3-step ritual with icon, plain-language title, tiny reward cue, and clearer completion state
 - [ ] Add a stronger “one more to finish today” progress arc

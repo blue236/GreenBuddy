@@ -101,27 +101,26 @@ fun HomeScreen(
     val currentLesson = progress.currentLessonOrNull(lessons)
     val zoneId = ZoneId.systemDefault()
     val completedToday = realPlantModeState.completedActionsOn(LocalDate.now(zoneId), zoneId)
-    val bestNextAction = remember(dailyMissionSet, careState, currentLesson, growthStageState, localeTag, dialogue.lessonNudge, dialogue.careGuidance) {
-        when {
-            dailyMissionSet != null && !dailyMissionSet.allCompletedToday && dailyMissionSet.completedCount == dailyMissionSet.totalCount - 1 ->
-                when {
-                    localeTag.startsWith("ko") -> "오늘 보상까지 한 걸음 남았어요. 마지막 미션 하나만 마무리해요."
-                    localeTag.startsWith("de") -> "Nur noch eine Mission bis zur heutigen Belohnung. Lass uns sie abschließen."
-                    else -> "One mission left for today’s reward. Let’s finish it."
-                }
-            careState.lowestStat <= 45 ->
-                when {
-                    localeTag.startsWith("ko") -> "지금은 ${careState.lowestNeed.localizedLabel(localeTag)}부터 챙기면 가장 큰 변화가 나와요."
-                    localeTag.startsWith("de") -> "Gerade hilft ${careState.lowestNeed.localizedLabel(localeTag)} am meisten."
-                    else -> "The biggest win right now is ${careState.lowestNeed.localizedLabel(localeTag)}."
-                }
-            currentLesson != null -> dialogue.lessonNudge
-            growthStageState.nextStage != null && growthStageState.readinessPercent >= 75 -> growthStageState.localizedUnlockHint(localeTag)
-            else -> dialogue.careGuidance
-        }
+    val bestNextAction = when {
+        dailyMissionSet != null && !dailyMissionSet.allCompletedToday && dailyMissionSet.completedCount == dailyMissionSet.totalCount - 1 ->
+            stringResource(R.string.home_best_action_finish_reward)
+        careState.lowestStat <= 45 ->
+            stringResource(R.string.home_best_action_low_need, careState.lowestNeed.localizedLabel(localeTag))
+        currentLesson != null -> dialogue.lessonNudge
+        growthStageState.nextStage != null && growthStageState.readinessPercent >= 75 -> growthStageState.localizedUnlockHint(localeTag)
+        else -> dialogue.careGuidance
+    }
+    val bestNextActionLabel = when {
+        dailyMissionSet != null && !dailyMissionSet.allCompletedToday -> stringResource(R.string.home_best_action_cta_lesson)
+        careState.lowestStat <= 45 -> stringResource(R.string.home_best_action_cta_care, careState.lowestNeed.localizedLabel(localeTag))
+        currentLesson != null -> stringResource(R.string.home_best_action_cta_lesson)
+        else -> stringResource(R.string.home_best_action_cta_growth)
     }
     var isCompanionChatOpen by rememberSaveable { mutableStateOf(false) }
     var areExtrasExpanded by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(rewardFeedback) {
+        if (rewardFeedback != null) areExtrasExpanded = true
+    }
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
@@ -132,6 +131,7 @@ fun HomeScreen(
             headline = dialogue.headline,
             supportLine = dialogue.line,
             bestNextAction = bestNextAction,
+            bestNextActionLabel = bestNextActionLabel,
             localeTag = localeTag,
             isCompanionChatOpen = isCompanionChatOpen,
             onToggleCompanionChat = { isCompanionChatOpen = !isCompanionChatOpen },
@@ -139,6 +139,12 @@ fun HomeScreen(
             onOpenCompanionPrompt = { prompt ->
                 isCompanionChatOpen = true
                 onSubmitCompanionChatMessage(prompt)
+            },
+            onRunBestNextAction = {
+                when {
+                    careState.lowestStat <= 45 -> onPerformCareAction(careState.lowestNeed)
+                    else -> isCompanionChatOpen = true
+                }
             },
         )
         dailyMissionSet?.let {
@@ -152,6 +158,26 @@ fun HomeScreen(
             localeTag = localeTag,
             onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
         )
+        dailyMissionSet?.let { missionSet ->
+            if (!missionSet.allCompletedToday) {
+                StatCard(stringResource(R.string.reward_pulse)) {
+                    Text(
+                        stringResource(R.string.home_reward_strip_ready, missionSet.completedCount, missionSet.totalCount),
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+        }
+        rewardFeedback?.let {
+            StatCard(stringResource(R.string.reward_pulse)) {
+                Text(
+                    stringResource(R.string.home_reward_strip_feedback, it),
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
         StatCard(stringResource(R.string.care_actions)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { CareAction.entries.forEach { AssistChip(onClick = { onPerformCareAction(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
             Text(dialogue.careGuidance, color = MaterialTheme.colorScheme.primary)
@@ -192,25 +218,30 @@ private fun HomeHeroCard(
     headline: String,
     supportLine: String,
     bestNextAction: String,
+    bestNextActionLabel: String,
     localeTag: String,
     isCompanionChatOpen: Boolean,
     onToggleCompanionChat: () -> Unit,
     onSubmitCompanionChatMessage: (String) -> Unit,
     onOpenCompanionPrompt: (String) -> Unit,
+    onRunBestNextAction: () -> Unit,
 ) {
     StatCard(stringResource(R.string.companion_proactive_title)) {
         Text(headline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(supportLine)
         Text(
-            companionHomeCheckIn.bubble,
+            bestNextAction,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 4.dp),
         )
-        Text(
-            bestNextAction,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(top = 4.dp),
-        )
+        Button(onClick = onRunBestNextAction, modifier = Modifier.padding(top = 8.dp)) {
+            Text(bestNextActionLabel)
+        }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+            companionHomeCheckIn.suggestionChips.take(2).forEach { prompt ->
+                AssistChip(onClick = { onOpenCompanionPrompt(prompt) }, label = { Text(prompt) })
+            }
+        }
         Text(
             stringResource(
                 R.string.companion_continuity_summary,
@@ -218,23 +249,18 @@ private fun HomeHeroCard(
                 companionHomeCheckIn.familiarityLabel,
             ),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp),
+            modifier = Modifier.padding(top = 6.dp),
         )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-            companionHomeCheckIn.suggestionChips.take(2).forEach { prompt ->
-                AssistChip(onClick = { onOpenCompanionPrompt(prompt) }, label = { Text(prompt) })
-            }
-        }
-        Text(
-            stringResource(R.string.companion_chat_entry, starter.companion.name),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-        Text(companionStateSnapshot.personality.profileLabel, color = MaterialTheme.colorScheme.primary)
         Button(onClick = onToggleCompanionChat, modifier = Modifier.padding(top = 8.dp)) {
             Text(stringResource(if (isCompanionChatOpen) R.string.companion_chat_hide else R.string.companion_chat_open))
         }
         if (isCompanionChatOpen) {
+            Text(
+                stringResource(R.string.companion_chat_entry, starter.companion.name),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            Text(companionStateSnapshot.personality.profileLabel, color = MaterialTheme.colorScheme.primary)
             CompanionChatCard(
                 companionStateSnapshot = companionStateSnapshot,
                 proactiveCheckIn = companionHomeCheckIn,
