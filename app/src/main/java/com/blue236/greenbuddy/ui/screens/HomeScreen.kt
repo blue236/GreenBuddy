@@ -449,6 +449,10 @@ private fun DailyMissionCard(
     }
     StatCard(stringResource(R.string.daily_missions)) {
         Text(progressArcText, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+        LinearProgressIndicator(
+            progress = { missionSet.completedCount.toFloat() / missionSet.totalCount.toFloat() },
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        )
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -474,11 +478,14 @@ private fun DailyMissionCard(
             }
         }
 
+        val firstIncompleteMissionId = missionSet.missions.firstOrNull { !it.isCompleted }?.id
         missionSet.missions.forEach { mission ->
             MissionChecklistRow(
                 mission = mission,
                 localeTag = localeTag,
                 rewardTokens = missionRewardTokens(missionSet),
+                emphasizeNext = mission.id == firstIncompleteMissionId,
+                showRewardCue = mission.id == firstIncompleteMissionId,
             )
         }
 
@@ -502,6 +509,12 @@ private fun DailyMissionCard(
                 stringResource(R.string.daily_mission_streak_milestone, missionSet.currentStreak, missionSet.streakRewardTokens),
                 fontWeight = FontWeight.SemiBold,
             )
+        } else if (missionSet.streakWasRecentlyBroken) {
+            Text(
+                stringResource(R.string.daily_mission_streak_reset_gentle),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
     }
 }
@@ -511,9 +524,17 @@ private fun MissionChecklistRow(
     mission: DailyMission,
     localeTag: String,
     rewardTokens: Int,
+    emphasizeNext: Boolean,
+    showRewardCue: Boolean,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = if (emphasizeNext && !mission.isCompleted) MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.medium,
+            )
+            .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Top,
     ) {
@@ -541,10 +562,12 @@ private fun MissionChecklistRow(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(localizedMissionTitle(mission, localeTag), fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                AssistChip(
-                    onClick = { },
-                    label = { Text(stringResource(R.string.daily_mission_reward_chip, rewardTokens)) },
-                )
+                if (showRewardCue) {
+                    AssistChip(
+                        onClick = { },
+                        label = { Text(stringResource(R.string.daily_mission_reward_chip, rewardTokens)) },
+                    )
+                }
             }
             Text(
                 localizedMissionDescription(mission, localeTag),

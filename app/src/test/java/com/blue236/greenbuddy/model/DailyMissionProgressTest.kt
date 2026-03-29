@@ -87,6 +87,23 @@ class DailyMissionProgressTest {
     }
 
     @Test
+    fun resolveForToday_marksWhenStreakWasRecentlyBroken() {
+        val missionSet = DailyMissionProgress(
+            missionDate = today.minusDays(2).toString(),
+            currentStreak = 4,
+            longestStreak = 4,
+            lastCompletedDate = today.minusDays(2).toString(),
+        ).resolveForToday(
+            today = today,
+            lessonProgress = LessonProgress(),
+            careState = PlantCareState(hydration = 30, sunlight = 30, nutrition = 30),
+        )
+
+        assertTrue(missionSet.streakWasRecentlyBroken)
+        assertEquals(0, missionSet.currentStreak)
+    }
+
+    @Test
     fun completeDailyMissions_restartsStreakAtOneAfterMissedDay() {
         val progress = DailyMissionProgress(
             missionDate = today.minusDays(2).toString(),

@@ -34,6 +34,7 @@ data class DailyMissionSet(
     val streakRewardClaimedForStreak: Int?,
     val dailyRewardTokens: Int = DAILY_REWARD_TOKENS,
     val streakRewardTokens: Int = STREAK_REWARD_TOKENS,
+    val streakWasRecentlyBroken: Boolean = false,
 ) {
     val completedCount: Int = missions.count { it.isCompleted }
     val totalCount: Int = missions.size
@@ -68,6 +69,7 @@ fun DailyMissionProgress.resolveForToday(
     lessonProgress: LessonProgress,
     careState: PlantCareState,
 ): DailyMissionSet {
+    val streakWasRecentlyBroken = wasBrokenBefore(today)
     val normalized = normalizedFor(today)
     val thresholdConfig = thresholdConfigFor(today)
 
@@ -116,6 +118,7 @@ fun DailyMissionProgress.resolveForToday(
         allCompletedToday = allCompletedToday,
         dailyRewardClaimed = normalized.claimedDailyRewardDate == today.toString(),
         streakRewardClaimedForStreak = normalized.streakRewardClaimedForStreak,
+        streakWasRecentlyBroken = streakWasRecentlyBroken,
     )
 }
 
@@ -181,6 +184,11 @@ fun DailyMissionProgress.claimStreakRewardIfEligible(today: LocalDate): DailyMis
     if (streak == 0 || streak % DailyMissionSet.STREAK_REWARD_EVERY_DAYS != 0) return normalized
     if (normalized.streakRewardClaimedForStreak == streak) return normalized
     return normalized.copy(streakRewardClaimedForStreak = streak)
+}
+
+fun DailyMissionProgress.wasBrokenBefore(today: LocalDate): Boolean {
+    val previousDate = lastCompletedDate?.let(LocalDate::parse) ?: return false
+    return currentStreak > 0 && previousDate.isBefore(today.minusDays(1))
 }
 
 private fun thresholdConfigFor(date: LocalDate): ThresholdConfig {

@@ -119,7 +119,7 @@ class HomeScreenMissionCardTest {
         composeTestRule.onNodeWithText(activity.getString(R.string.daily_mission_progress_arc_general, 1, 3)).assertIsDisplayed()
         composeTestRule.onNodeWithText(activity.getString(R.string.completed_of_total, 1, 3)).assertIsDisplayed()
         composeTestRule.onNodeWithText(activity.getString(R.string.daily_mission_streak_chip, 2)).assertIsDisplayed()
-        composeTestRule.onAllNodesWithText(activity.getString(R.string.daily_mission_reward_chip, 5)).assertCountEquals(4)
+        composeTestRule.onAllNodesWithText(activity.getString(R.string.daily_mission_reward_chip, 5)).assertCountEquals(2)
 
         composeTestRule.onNodeWithText(activity.getString(R.string.mission_complete_lesson_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(activity.getString(R.string.mission_complete_lesson_description)).assertIsDisplayed()
