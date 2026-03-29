@@ -386,8 +386,13 @@ What still needs work:
 - [x] Rebuild Home around a stricter hierarchy: companion hero → today’s missions → growth progress → quick care → contextual extras
 - [x] Add one clear “best next action” CTA near the top of Home
 - [x] Reduce equal-weight card density so the screen answers “how is my buddy / what should I do next / what do I get?” at a glance
-- [ ] Move secondary systems behind progressive disclosure where possible
+- [x] Move secondary systems behind progressive disclosure where possible
 - [ ] Validate that Home feels calmer and lower-cognitive-load on device
+
+Notes from the latest pass:
+- best-next-action copy moved into string resources
+- hero now exposes a real CTA button instead of guidance-only text
+- reward progress/feedback is lightly surfaced outside the extras section so payoff remains visible
 
 #### T2. Mission ritual / daily motivation pass
 - [ ] Turn missions into a more visual 3-step ritual with icon, plain-language title, tiny reward cue, and clearer completion state
