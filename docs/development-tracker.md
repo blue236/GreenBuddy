@@ -402,29 +402,44 @@ Notes from the latest pass:
 - [x] Add or expand tests around mission completion and streak milestone UX where practical
 
 #### T3. Companion hero UX pass
-- [ ] Promote the companion into a true Home hero zone with one emotionally readable line and one high-value suggestion chip
-- [ ] Make companion text act as the emotional guide for missions/growth rather than a parallel feature card
-- [ ] Add lightweight visual emotion cues (expression/posture/color/motion/haptic) without making the UI noisy
-- [ ] Keep companion guidance short enough to feel immediate rather than chatty
+- [x] Promote the companion into a true Home hero zone with one emotionally readable line and one high-value suggestion chip
+- [x] Make companion text act as the emotional guide for missions/growth rather than a parallel feature card
+- [x] Add lightweight visual emotion cues (expression/posture/color/motion/haptic) without making the UI noisy
+- [x] Keep companion guidance short enough to feel immediate rather than chatty
 - [ ] Run a dedicated copy/localization nuance pass for companion tone (especially KO/DE)
 
+Notes from the latest pass:
+- companion hero now uses emotion-tinted visual treatment plus a lightweight mood emoji cue
+- proactive suggestion area reduced to one higher-value chip so the hero reads faster
+- best-next-action guidance is grouped into a clearer companion-led action block instead of feeling like a separate card
+
 #### T4. Growth clarity / unlock delight pass
-- [ ] Keep growth visibility above the fold with clearer “how close / what helps most / what unlocks next” communication
-- [ ] Strengthen unlock/evolution moments with a larger celebratory sheet or modal-level reveal
-- [ ] Make species-specific growth differences more visible in copy and progression framing
-- [ ] Add direct follow-up actions from unlock moments (for example “See in Greenhouse” / “Keep growing”)
+- [x] Keep growth visibility above the fold with clearer “how close / what helps most / what unlocks next” communication
+- [x] Strengthen unlock/evolution moments with a larger celebratory sheet or modal-level reveal
+- [x] Make species-specific growth differences more visible in copy and progression framing
+- [x] Add direct follow-up actions from unlock moments (for example “See in Greenhouse” / “Keep growing”)
 - [ ] Validate that daily actions feel clearly connected to growth progress
+
+Notes from the latest pass:
+- Home growth card now separates readiness, next-stage target, and requirement context more clearly
+- unlock state uses a stronger full-width celebration block with explicit follow-up actions
+- progression framing is more readable at a glance instead of compressing all growth meaning into a single text line
 
 ---
 
 ### Priority P2 — retention loop depth and warmth
 
 #### T5. Reward purpose / reward-track clarity
-- [ ] Make token purpose more obvious earlier in onboarding and Home
-- [ ] Surface current wallet + nearest meaningful unlock in a lighter-weight Home strip
+- [x] Make token purpose more obvious earlier in onboarding and Home
+- [x] Surface current wallet + nearest meaningful unlock in a lighter-weight Home strip
 - [ ] Refine combined reward feedback wording so action, mission, and unlock rewards stack more clearly
 - [ ] Review token pacing and cosmetic costs after more device/play testing
 - [ ] Consider whether a softer self-expression framing would make cosmetics feel more meaningful
+
+Notes from the latest pass:
+- Home now surfaces a compact reward strip outside extras so wallet + next unlock are visible earlier
+- token-purpose explanation is now easier to notice without opening the fuller reward card
+- this keeps reward motivation in the main Home loop without adding another heavy full-detail section
 
 #### T6. Greenhouse as a place, not just a list
 - [ ] Reframe Greenhouse to feel more like a warm room/garden space than a plain dex list
@@ -470,6 +485,30 @@ Notes from the latest pass:
 - [ ] Add richer wrong-answer feedback or explanation copy
 - [ ] Review lesson progression difficulty curve
 - [ ] Expand species differentiation in lesson themes and rewards
+
+#### T13. Learn experience refresh (Duolingo-inspired, GreenBuddy-adapted)
+- [ ] Replace the current stacked Learn screen with a stronger learning-flow layout
+- [ ] Add a compact top progress/status strip for lesson progress and momentum
+- [ ] Turn the intro area into a dominant lesson/unit hero with companion-led motivation
+- [ ] Introduce a visible lesson path / node hierarchy showing completed, current, and upcoming content
+- [ ] Convert radio-list answers into larger tappable answer tiles with clearer selected/correct/incorrect states
+- [ ] Move LearnScreen to a Scaffold-style layout with a stronger bottom CTA / feedback area
+- [ ] Introduce an explicit Learn UI state model (idle / evaluated-correct / evaluated-incorrect / completed)
+- [ ] Move inline wrong-answer copy into string resources before deeper UX expansion
+- [ ] Validate whether single-quiz lessons are enough, or whether a multi-step challenge/session model is needed
+
+Decisions locked from Jonathan + Steve review:
+- We will follow a Duolingo-inspired structure, but adapt it into a calmer plant-growth learning journey rather than copying Duolingo literally.
+- We will not copy Duolingo's exact zig-zag path, iconography, colors, or mascot behavior.
+- The first pass will be a UI-only MVP on the current lesson model.
+- Domain/model expansion comes later only if the refreshed UI proves the direction is worth deepening.
+
+Next action items:
+- [ ] Build Learn MVP with progress strip + lesson hero + large answer tiles + stronger bottom CTA
+- [ ] Add answer evaluation states and CTA state transitions
+- [ ] Move Learn wrong-answer strings into resources
+- [ ] Add/update Compose UI tests for selection, correctness, CTA states, and completion behavior
+- [ ] After MVP device review, decide whether to add lesson path nodes immediately or in phase 2
 
 ---
 

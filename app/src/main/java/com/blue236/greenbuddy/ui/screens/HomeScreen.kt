@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -40,6 +41,7 @@ import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CareStatType
 import com.blue236.greenbuddy.model.CompanionChatEngine
 import com.blue236.greenbuddy.model.CompanionConversationMemory
+import com.blue236.greenbuddy.model.CompanionEmotion
 import com.blue236.greenbuddy.model.CompanionHomeCheckIn
 import com.blue236.greenbuddy.model.CompanionMessageRole
 import com.blue236.greenbuddy.model.CompanionPersonalitySystem
@@ -124,6 +126,41 @@ fun HomeScreen(
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
+        GrowthOverviewCard(
+            growthStageState = growthStageState,
+            localeTag = localeTag,
+            onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
+        )
+        dailyMissionSet?.let {
+            DailyMissionCard(
+                missionSet = it,
+                localeTag = localeTag,
+            )
+        }
+        dailyMissionSet?.let { missionSet ->
+            if (!missionSet.allCompletedToday) {
+                StatCard(stringResource(R.string.reward_pulse)) {
+                    Text(
+                        stringResource(R.string.home_reward_strip_ready, missionSet.completedCount, missionSet.totalCount),
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+        }
+        rewardFeedback?.let {
+            StatCard(stringResource(R.string.reward_pulse)) {
+                Text(
+                    stringResource(R.string.home_reward_strip_feedback, it),
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
+        CompactRewardStrip(
+            rewardState = rewardState,
+            localeTag = localeTag,
+        )
         HomeHeroCard(
             starter = starter,
             companionHomeCheckIn = companionHomeCheckIn,
@@ -147,37 +184,6 @@ fun HomeScreen(
                 }
             },
         )
-        dailyMissionSet?.let {
-            DailyMissionCard(
-                missionSet = it,
-                localeTag = localeTag,
-            )
-        }
-        GrowthOverviewCard(
-            growthStageState = growthStageState,
-            localeTag = localeTag,
-            onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
-        )
-        dailyMissionSet?.let { missionSet ->
-            if (!missionSet.allCompletedToday) {
-                StatCard(stringResource(R.string.reward_pulse)) {
-                    Text(
-                        stringResource(R.string.home_reward_strip_ready, missionSet.completedCount, missionSet.totalCount),
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-        }
-        rewardFeedback?.let {
-            StatCard(stringResource(R.string.reward_pulse)) {
-                Text(
-                    stringResource(R.string.home_reward_strip_feedback, it),
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
         StatCard(stringResource(R.string.care_actions)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { CareAction.entries.forEach { AssistChip(onClick = { onPerformCareAction(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
             Text(dialogue.careGuidance, color = MaterialTheme.colorScheme.primary)
@@ -226,19 +232,68 @@ private fun HomeHeroCard(
     onOpenCompanionPrompt: (String) -> Unit,
     onRunBestNextAction: () -> Unit,
 ) {
+    val emotionContainerColor = when (companionHomeCheckIn.emotion) {
+        CompanionEmotion.PROUD, CompanionEmotion.EXCITED -> MaterialTheme.colorScheme.primaryContainer
+        CompanionEmotion.CURIOUS -> MaterialTheme.colorScheme.tertiaryContainer
+        CompanionEmotion.CALM -> MaterialTheme.colorScheme.secondaryContainer
+        CompanionEmotion.WORRIED -> MaterialTheme.colorScheme.errorContainer
+    }
+    val emotionContentColor = when (companionHomeCheckIn.emotion) {
+        CompanionEmotion.PROUD, CompanionEmotion.EXCITED -> MaterialTheme.colorScheme.onPrimaryContainer
+        CompanionEmotion.CURIOUS -> MaterialTheme.colorScheme.onTertiaryContainer
+        CompanionEmotion.CALM -> MaterialTheme.colorScheme.onSecondaryContainer
+        CompanionEmotion.WORRIED -> MaterialTheme.colorScheme.onErrorContainer
+    }
+
     StatCard(stringResource(R.string.companion_proactive_title)) {
-        Text(headline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-        Text(supportLine)
-        Text(
-            bestNextAction,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(top = 4.dp),
-        )
-        Button(onClick = onRunBestNextAction, modifier = Modifier.padding(top = 8.dp)) {
-            Text(bestNextActionLabel)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(emotionContainerColor.copy(alpha = 0.55f), shape = MaterialTheme.shapes.large)
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(headline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(supportLine, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text(
+                text = companionEmotionEmoji(companionHomeCheckIn.emotion),
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(start = 12.dp),
+            )
         }
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-            companionHomeCheckIn.suggestionChips.take(2).forEach { prompt ->
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 10.dp),
+        ) {
+            AssistChip(
+                onClick = { },
+                label = { Text(stringResource(R.string.companion_emotion_chip, companionHomeCheckIn.emotionLabel)) },
+            )
+            AssistChip(
+                onClick = { },
+                label = { Text(stringResource(R.string.companion_familiarity_chip, companionHomeCheckIn.familiarityLabel)) },
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+                .background(emotionContainerColor.copy(alpha = 0.3f), shape = MaterialTheme.shapes.large)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(bestNextAction, color = emotionContentColor, fontWeight = FontWeight.SemiBold)
+            Button(onClick = onRunBestNextAction) {
+                Text(bestNextActionLabel)
+            }
+            companionHomeCheckIn.suggestionChips.firstOrNull()?.let { prompt ->
                 AssistChip(onClick = { onOpenCompanionPrompt(prompt) }, label = { Text(prompt) })
             }
         }
@@ -249,9 +304,15 @@ private fun HomeHeroCard(
                 companionHomeCheckIn.familiarityLabel,
             ),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 6.dp),
+            modifier = Modifier.padding(top = 8.dp),
         )
-        Button(onClick = onToggleCompanionChat, modifier = Modifier.padding(top = 8.dp)) {
+        Text(
+            stringResource(R.string.companion_chat_title),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        OutlinedButton(onClick = onToggleCompanionChat, modifier = Modifier.padding(top = 8.dp)) {
             Text(stringResource(if (isCompanionChatOpen) R.string.companion_chat_hide else R.string.companion_chat_open))
         }
         if (isCompanionChatOpen) {
@@ -405,14 +466,21 @@ private fun GrowthOverviewCard(
         }
 
         if (growthStageState.newlyUnlocked) {
-            Card {
-                Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            ) {
+                Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         stringResource(R.string.new_evolution_unlocked, growthStageState.currentStage.localizedGrowthTitle(localeTag)),
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(growthStageState.currentStage.localizedUnlockedMessage(localeTag))
-                    Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.growth_cta_celebrate)) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.growth_cta_celebrate)) }
+                        OutlinedButton(onClick = onAcknowledgeGrowthStage) { Text(stringResource(R.string.home_best_action_cta_growth)) }
+                    }
                 }
             }
         }
@@ -420,19 +488,92 @@ private fun GrowthOverviewCard(
         growthStageState.nextStage?.let { nextStage ->
             LinearProgressIndicator(
                 progress = { growthStageState.progressToNextStage },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
             )
-            AssistChip(
-                onClick = { },
-                label = { Text(stringResource(R.string.growth_next_stage_chip, nextStage.localizedGrowthTitle(localeTag))) },
-            )
-            Text(growthStageState.localizedRequirementSummary(localeTag), fontWeight = FontWeight.SemiBold)
-            Text(growthStageState.localizedUnlockHint(localeTag), color = MaterialTheme.colorScheme.primary)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 8.dp),
+            ) {
+                AssistChip(
+                    onClick = { },
+                    label = { Text(stringResource(R.string.growth_next_stage_chip, nextStage.localizedGrowthTitle(localeTag))) },
+                )
+                AssistChip(
+                    onClick = { },
+                    label = { Text(growthStageState.localizedRequirementSummary(localeTag)) },
+                )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(growthStageState.localizedUnlockHint(localeTag), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        stringResource(R.string.home_best_action_cta_growth),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         } ?: Text(
             stringResource(R.string.growth_final_stage_home, growthStageState.currentStage.localizedGrowthTitle(localeTag)),
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = 8.dp),
         )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CompactRewardStrip(
+    rewardState: RewardState,
+    localeTag: String,
+) {
+    val nextCosmetic = rewardState.nextUnlockableCosmetic
+    StatCard(stringResource(R.string.reward_pulse)) {
+        Text(stringResource(R.string.wallet_value, rewardState.leafTokens), fontWeight = FontWeight.SemiBold)
+        Text(
+            stringResource(
+                R.string.reward_token_purpose,
+                RewardState.lessonTokenReward(24),
+                RewardState.careTokenReward(),
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        nextCosmetic?.let { item ->
+            val tokensNeeded = rewardState.tokensNeededFor(item)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 8.dp),
+            ) {
+                AssistChip(
+                    onClick = { },
+                    label = { Text(stringResource(R.string.reward_next_unlock_chip, item.emoji, item.localizedName(localeTag))) },
+                )
+                AssistChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            if (tokensNeeded == 0) {
+                                stringResource(R.string.reward_ready_to_buy_chip)
+                            } else {
+                                stringResource(R.string.reward_tokens_needed_chip, tokensNeeded)
+                            },
+                        )
+                    },
+                )
+            }
+        }
     }
 }
 
@@ -611,6 +752,14 @@ private fun missionIconFor(mission: DailyMission): String = when (mission.type) 
     DailyMissionType.COMPLETE_LESSON -> "📘"
     DailyMissionType.PERFORM_CARE_ACTION -> "💧"
     DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD -> "☀️"
+}
+
+private fun companionEmotionEmoji(emotion: CompanionEmotion): String = when (emotion) {
+    CompanionEmotion.PROUD -> "🌟"
+    CompanionEmotion.WORRIED -> "🌧️"
+    CompanionEmotion.CURIOUS -> "🌱"
+    CompanionEmotion.CALM -> "🍃"
+    CompanionEmotion.EXCITED -> "✨"
 }
 
 private fun CareStatType?.localizedStatLabel(localeTag: String): String {
