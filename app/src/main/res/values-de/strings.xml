@@ -40,6 +40,17 @@
     <string name="reward_already_claimed">Lektion abgeschlossen. Belohnung bereits abgeholt.</string>
     <string name="answer_to_unlock">Antworte richtig, um die nächste Lektion freizuschalten.</string>
     <string name="pick_answer_first">Wähle zuerst eine Antwort.</string>
+    <string name="learn_try_again">Noch nicht ganz — versuch’s noch einmal.</string>
+    <string name="learn_continue">Weiter wachsen</string>
+    <string name="learn_status_ready">Bereit</string>
+    <string name="learn_status_retry">Nochmal versuchen</string>
+    <string name="learn_status_complete">Gut gemacht</string>
+    <string name="learn_path_title">Heutiger Lernpfad</string>
+    <string name="learn_path_current">Aktuell</string>
+    <string name="learn_path_done">Erledigt</string>
+    <string name="learn_path_up_next">Als Nächstes</string>
+    <string name="learn_preview_title">Lektionsvorschau</string>
+    <string name="learn_reward_ready">Belohnung wartet</string>
     <string name="lesson_completed">Lektion abgeschlossen</string>
     <string name="check_answer">Antwort prüfen</string>
     <string name="profile_title">Profil</string>
