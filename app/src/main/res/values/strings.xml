@@ -40,6 +40,17 @@
     <string name="reward_already_claimed">Lesson completed. Reward already claimed.</string>
     <string name="answer_to_unlock">Answer correctly to unlock the next lesson.</string>
     <string name="pick_answer_first">Pick an answer first.</string>
+    <string name="learn_try_again">Not quite — try again.</string>
+    <string name="learn_continue">Continue growing</string>
+    <string name="learn_status_ready">Ready</string>
+    <string name="learn_status_retry">Try again</string>
+    <string name="learn_status_complete">Nice work</string>
+    <string name="learn_path_title">Today’s path</string>
+    <string name="learn_path_current">Current</string>
+    <string name="learn_path_done">Done</string>
+    <string name="learn_path_up_next">Up next</string>
+    <string name="learn_preview_title">Lesson preview</string>
+    <string name="learn_reward_ready">Reward waiting</string>
     <string name="lesson_completed">Lesson completed</string>
     <string name="check_answer">Check answer</string>
     <string name="profile_title">Profile</string>

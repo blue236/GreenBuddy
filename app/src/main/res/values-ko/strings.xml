@@ -40,6 +40,17 @@
     <string name="reward_already_claimed">레슨 완료. 보상은 이미 받았어요.</string>
     <string name="answer_to_unlock">정답을 맞히면 다음 레슨이 열려요.</string>
     <string name="pick_answer_first">먼저 답을 골라 주세요.</string>
+    <string name="learn_try_again">조금 아쉬워요. 한 번 더 해봐요.</string>
+    <string name="learn_continue">계속 성장하기</string>
+    <string name="learn_status_ready">준비됨</string>
+    <string name="learn_status_retry">다시 도전</string>
+    <string name="learn_status_complete">잘했어요</string>
+    <string name="learn_path_title">오늘의 학습 경로</string>
+    <string name="learn_path_current">현재</string>
+    <string name="learn_path_done">완료</string>
+    <string name="learn_path_up_next">다음</string>
+    <string name="learn_preview_title">레슨 미리보기</string>
+    <string name="learn_reward_ready">보상 대기 중</string>
     <string name="lesson_completed">레슨 완료</string>
     <string name="check_answer">정답 확인</string>
     <string name="profile_title">프로필</string>
