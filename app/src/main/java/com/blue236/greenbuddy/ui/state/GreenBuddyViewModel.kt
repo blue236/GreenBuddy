@@ -149,13 +149,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             return false
         }
         val unlockedStarter = result.unlockedStarterId?.let { unlockedId -> StarterPlants.options.firstOrNull { it.id == unlockedId } }
-        val missionOutcome = missionEngine.evaluateCompletionRewards(
-            progress = state.dailyMissionProgress.recordLessonCompletion(today),
-            rewardState = state.rewardState.rewardForLesson(currentLesson.rewardXp),
-            lessonProgress = result.lessonProgress,
-            careState = state.plantCareState,
-            today = today,
-        )
+        val missionOutcome = result.missionRewardOutcome ?: return false
         val baseFeedback = rewardEngine.lessonFeedback(currentLesson.rewardXp, missionOutcome)
         rewardFeedback.value = rewardEngine.greenhouseUnlockFeedback(baseFeedback, unlockedStarter, languageTag)
         val unlockedGrowth = growthEngine.didUnlock(state.selectedStarterId, result.lessonProgress, state.plantCareState, previousGrowthStage)

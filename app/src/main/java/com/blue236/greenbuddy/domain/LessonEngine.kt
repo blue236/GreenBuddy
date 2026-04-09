@@ -18,6 +18,7 @@ data class LessonActionResult(
     val lessonProgress: LessonProgress,
     val missionProgress: DailyMissionProgress,
     val rewardState: RewardState,
+    val missionRewardOutcome: MissionRewardOutcome? = null,
     val unlockedStarterId: String? = null,
 )
 
@@ -66,6 +67,7 @@ class LessonEngine(
             lessonProgress = updatedLessonProgress,
             missionProgress = missionOutcome.progress,
             rewardState = missionOutcome.rewardState,
+            missionRewardOutcome = missionOutcome,
             unlockedStarterId = unlockedStarterId,
         )
     }
