@@ -36,6 +36,7 @@ data class AppPreferences(
 data class GreenBuddyUiState(
     val selectedTab: Tab = Tab.HOME,
     val starterOptions: List<StarterPlantOption> = StarterPlants.options,
+    val lessons: List<Lesson> = LessonCatalog.forSpecies(StarterPlants.options.first().companion.species),
     val selectedStarterId: String = StarterPlants.options.first().id,
     val ownedStarterIds: Set<String> = defaultOwnedStarterIds(StarterPlants.options.first().id),
     val onboardingComplete: Boolean = false,
