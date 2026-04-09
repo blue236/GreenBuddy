@@ -235,8 +235,10 @@ private fun TodaysLessonPrimaryCard(
             fontWeight = FontWeight.SemiBold,
         )
         Text(lessonNudge, color = MaterialTheme.colorScheme.primary)
-        Button(onClick = onOpenTodayLesson, modifier = Modifier.padding(top = 8.dp)) {
-            Text(stringResource(R.string.home_best_action_cta_lesson))
+        if (!lessonComplete) {
+            Button(onClick = onOpenTodayLesson, modifier = Modifier.padding(top = 8.dp)) {
+                Text(stringResource(R.string.home_best_action_cta_lesson))
+            }
         }
     }
 }
