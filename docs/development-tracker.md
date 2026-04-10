@@ -12,32 +12,68 @@ Use this file to keep `TODO`, `IN PROGRESS`, and `DONE` updated as work moves.
 ## Current snapshot
 
 ### Branch context
-- Current active branch when this tracker was created: `feature/f12-phase3-continuity-emotion`
+- Current stabilization branch: `feature/refactor-plan-v1-mvp-stabilization`
 
 ### Product state summary
-GreenBuddy is **past bare MVP** and already contains working foundations for:
-- starter selection
-- lesson progression
-- care actions
-- reminder notifications
-- localization (EN/KO/DE foundation)
-- weather / seasonal feedback
-- haptic polish
-- reward economy foundation
+GreenBuddy is now a working Compose MVP with real foundations for:
+- onboarding + starter selection
+- lesson progression + XP rewards
+- care actions + persistent plant state
+- daily missions + streak rewards
+- growth stages / unlock surfacing
+- reward wallet + cosmetics foundation
 - greenhouse / inventory foundation
+- reminder notifications foundation
+- weather / seasonal feedback foundation
 - real-plant mode foundation
-- companion chat, proactive expression, and continuity/emotion layers
+- companion chat + proactive Home expression
+- localization support (EN / KO / DE)
 
 ### Strategic reading of the current state
-The companion-related work (especially F12) is ahead of the original roadmap order.
-The next high-value work should likely focus on:
-1. polishing retention loops already in the app
-2. improving visibility / UX clarity of implemented systems
-3. expanding content depth where the foundation is already done
+The highest-value work is no longer basic feature invention. The current priority is:
+1. stabilizing the MVP architecture
+2. reducing ViewModel sprawl
+3. externalizing content incrementally
+4. tightening Home / Learn clarity around retention and lesson follow-through
 
 ---
 
 # Status board
+
+## IN PROGRESS
+
+### R1. Refactor Plan v1 for MVP stabilization
+**Status:** IN PROGRESS
+
+Goals:
+- synchronize README/docs with actual implementation
+- split business logic out of `GreenBuddyViewModel` into domain engines/coordinators
+- externalize lesson/content/notification text incrementally into assets/resources
+- make Today’s Lesson the primary Home CTA
+- add minimal analytics/event logging hooks for MVP validation
+
+Delivered so far on this branch:
+- `README.md` updated to reflect the real MVP rather than a scaffold-only state
+- initial domain extraction added:
+  - `LessonEngine`
+  - `RewardEngine`
+  - `GrowthEngine`
+  - `MissionEngine`
+  - `CompanionCoordinator`
+  - `RealPlantCoordinator`
+- initial analytics logger added (`AndroidAnalyticsLogger`)
+- initial lesson content loader added (`LessonContentLoader`)
+- first external lesson content asset added (`app/src/main/assets/content/lessons-en.json`)
+- `GreenBuddyUiState` now carries loaded lessons
+- app/reminder wiring has started moving onto content-loader/coordinator seams
+- Home now surfaces Today’s Lesson as a stronger primary CTA near the top
+
+Still open in this pass:
+- reduce `GreenBuddyViewModel` responsibility further
+- expand externalized content beyond the first lesson asset
+- review and tighten Home lesson-first hierarchy after device validation
+- add or extend tests around new seams where useful
+- package this branch into a clean PR once cohesive
 
 ## DONE
 

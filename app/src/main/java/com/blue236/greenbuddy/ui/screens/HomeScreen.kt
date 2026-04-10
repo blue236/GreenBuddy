@@ -97,6 +97,7 @@ fun HomeScreen(
     onAcknowledgeGrowthStage: () -> Unit,
     onSetRealPlantModeEnabled: (Boolean) -> Unit,
     onLogRealPlantCare: (RealPlantCareAction) -> Unit,
+    onOpenTodayLesson: () -> Unit,
 ) {
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons, localeTag)
@@ -126,6 +127,12 @@ fun HomeScreen(
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
+        TodaysLessonPrimaryCard(
+            currentLesson = currentLesson,
+            lessonComplete = progress.isComplete(lessons),
+            lessonNudge = dialogue.lessonNudge,
+            onOpenTodayLesson = onOpenTodayLesson,
+        )
         GrowthOverviewCard(
             growthStageState = growthStageState,
             localeTag = localeTag,
@@ -197,7 +204,6 @@ fun HomeScreen(
                 rewardFeedback = rewardFeedback,
                 localeTag = localeTag,
             )
-            StatCard(stringResource(R.string.todays_lesson)) { Text(if (progress.isComplete(lessons)) stringResource(R.string.track_complete) else currentLesson?.title.orEmpty()); Text(dialogue.lessonNudge) }
             StatCard(stringResource(R.string.local_weather_title)) {
                 Text(stringResource(R.string.weather_card_city, weatherSnapshot.city.defaultName), fontWeight = FontWeight.SemiBold)
                 Text(weatherAdvice.summary)
@@ -210,6 +216,28 @@ fun HomeScreen(
                     Text(stringResource(R.string.today_real_plant, completedToday.size, RealPlantCareAction.entries.size))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { RealPlantCareAction.entries.forEach { AssistChip(onClick = { onLogRealPlantCare(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TodaysLessonPrimaryCard(
+    currentLesson: Lesson?,
+    lessonComplete: Boolean,
+    lessonNudge: String,
+    onOpenTodayLesson: () -> Unit,
+) {
+    StatCard(stringResource(R.string.todays_lesson)) {
+        Text(
+            text = if (lessonComplete) stringResource(R.string.track_complete) else currentLesson?.title.orEmpty(),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(lessonNudge, color = MaterialTheme.colorScheme.primary)
+        if (!lessonComplete) {
+            Button(onClick = onOpenTodayLesson, modifier = Modifier.padding(top = 8.dp)) {
+                Text(stringResource(R.string.home_best_action_cta_lesson))
             }
         }
     }

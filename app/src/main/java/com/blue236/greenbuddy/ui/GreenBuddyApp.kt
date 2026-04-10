@@ -30,7 +30,6 @@ import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.hapticConstant
-import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.Tab
@@ -100,7 +99,7 @@ fun GreenBuddyAppContent(
 ) {
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val view = LocalView.current
-    val lessons = LessonCatalog.forSpecies(uiState.selectedStarter.companion.species, localeTag)
+    val lessons = uiState.lessons
     LaunchedEffect(uiState.feedbackEvent?.id) {
         uiState.feedbackEvent?.let { event ->
             view.performHapticFeedback(event.type.hapticConstant())
@@ -155,6 +154,7 @@ fun GreenBuddyAppContent(
                 onAcknowledgeGrowthStage,
                 onSetRealPlantModeEnabled,
                 onLogRealPlantCare,
+                onOpenTodayLesson = { onSelectTab(Tab.LEARN) },
             )
             Tab.LEARN -> LearnScreen(modifier, uiState.selectedStarter, lessons, uiState.lessonProgress, uiState.plantCareState, onSubmitLessonAnswer)
             Tab.DEX -> DexScreen(modifier, uiState.inventoryEntries, uiState.ownedStarterIds, onSelectStarter)
