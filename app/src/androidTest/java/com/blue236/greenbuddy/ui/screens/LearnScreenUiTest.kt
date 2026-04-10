@@ -9,6 +9,7 @@ import com.blue236.greenbuddy.model.LessonCatalog
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.PlantCareState
 import com.blue236.greenbuddy.model.StarterPlants
+import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.ui.theme.GreenBuddyTheme
 import org.junit.Rule
 import org.junit.Test

@@ -1,5 +1,7 @@
 package com.blue236.greenbuddy.model
 
+import com.blue236.greenbuddy.data.content.ReminderCopy
+
 private const val HOUR_MS = 60L * 60L * 1000L
 private const val DAY_MS = 24L * HOUR_MS
 private const val RECENT_APP_OPEN_WINDOW_MS = 18L * HOUR_MS
@@ -38,7 +40,11 @@ data class ReminderSnapshot(
 )
 
 object ReminderDecider {
-    fun notificationFor(snapshot: ReminderSnapshot, nowMillis: Long): ReminderNotification? {
+    fun notificationFor(
+        snapshot: ReminderSnapshot,
+        nowMillis: Long,
+        copy: Map<ReminderType, ReminderCopy> = emptyMap(),
+    ): ReminderNotification? {
         if (!snapshot.onboardingComplete) return null
 
         val lastAppOpenAt = snapshot.reminderState.lastAppOpenAtMillis
@@ -48,25 +54,37 @@ object ReminderDecider {
         if (lastNotificationSentAt != null && nowMillis - lastNotificationSentAt < NOTIFICATION_COOLDOWN_MS) return null
 
         return when {
-            shouldSendStreakWarning(snapshot, nowMillis) -> ReminderNotification(
-                type = ReminderType.STREAK_WARNING,
-                title = "Keep your GreenBuddy routine alive",
-                message = "${snapshot.starterName} has missed you. Drop in today so the habit doesn’t go cold.",
-            )
+            shouldSendStreakWarning(snapshot, nowMillis) -> {
+                val reminderCopy = copy[ReminderType.STREAK_WARNING]
+                ReminderNotification(
+                    type = ReminderType.STREAK_WARNING,
+                    title = reminderCopy?.title ?: "Keep your GreenBuddy routine alive",
+                    message = reminderCopy?.message?.replace("{starterName}", snapshot.starterName)
+                        ?: "${snapshot.starterName} has missed you. Drop in today so the habit doesn’t go cold.",
+                )
+            }
 
-            shouldSendCareReminder(snapshot, nowMillis) -> ReminderNotification(
-                type = ReminderType.CARE,
-                title = "${snapshot.starterName} needs a quick care check",
-                message = careMessageFor(snapshot.careState),
-            )
+            shouldSendCareReminder(snapshot, nowMillis) -> {
+                val reminderCopy = copy[ReminderType.CARE]
+                ReminderNotification(
+                    type = ReminderType.CARE,
+                    title = reminderCopy?.title?.replace("{starterName}", snapshot.starterName)
+                        ?: "${snapshot.starterName} needs a quick care check",
+                    message = careMessageFor(snapshot.careState),
+                )
+            }
 
-            shouldSendLessonReminder(snapshot, nowMillis) -> ReminderNotification(
-                type = ReminderType.LESSON_READY,
-                title = "A GreenBuddy lesson is ready",
-                message = snapshot.currentLessonTitle
-                    ?.let { "Your next lesson, '$it', is waiting whenever you have a minute." }
-                    ?: "Your next GreenBuddy lesson is ready whenever you have a minute.",
-            )
+            shouldSendLessonReminder(snapshot, nowMillis) -> {
+                val reminderCopy = copy[ReminderType.LESSON_READY]
+                ReminderNotification(
+                    type = ReminderType.LESSON_READY,
+                    title = reminderCopy?.title ?: "A GreenBuddy lesson is ready",
+                    message = snapshot.currentLessonTitle?.let { lessonTitle ->
+                        reminderCopy?.messageWithLesson?.replace("{lessonTitle}", lessonTitle)
+                            ?: "Your next lesson, '$lessonTitle', is waiting whenever you have a minute."
+                    } ?: (reminderCopy?.messageWithoutLesson ?: "Your next GreenBuddy lesson is ready whenever you have a minute."),
+                )
+            }
 
             else -> null
         }

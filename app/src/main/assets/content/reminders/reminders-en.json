@@ -1,0 +1,14 @@
+{
+  "streak_warning": {
+    "title": "Keep your GreenBuddy rhythm alive",
+    "message": "{starterName} has missed you. Drop in today so the habit doesn’t go cold."
+  },
+  "care": {
+    "title": "{starterName} needs a quick care check"
+  },
+  "lesson_ready": {
+    "title": "A GreenBuddy lesson is ready",
+    "message_with_lesson": "Your next lesson, '{lessonTitle}', is waiting whenever you have a minute.",
+    "message_without_lesson": "Your next GreenBuddy lesson is ready whenever you have a minute."
+  }
+}
