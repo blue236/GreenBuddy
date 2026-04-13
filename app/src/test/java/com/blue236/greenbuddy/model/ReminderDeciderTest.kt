@@ -1,5 +1,6 @@
 package com.blue236.greenbuddy.model
 
+import com.blue236.greenbuddy.data.content.ReminderCopy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -82,6 +83,50 @@ class ReminderDeciderTest {
         )
 
         assertNull(reminder)
+    }
+
+    @Test
+    fun notificationFor_usesInjectedCopyForLessonReminder() {
+        val reminder = ReminderDecider.notificationFor(
+            snapshot = baseSnapshot(),
+            nowMillis = now,
+            copy = mapOf(
+                ReminderType.LESSON_READY to ReminderCopy(
+                    title = "Custom lesson title",
+                    messageWithLesson = "Start '{lessonTitle}' now.",
+                    messageWithoutLesson = "Start your next lesson now.",
+                ),
+            ),
+        )
+
+        assertEquals(ReminderType.LESSON_READY, reminder?.type)
+        assertEquals("Custom lesson title", reminder?.title)
+        assertEquals("Start 'Reading Monstera leaves' now.", reminder?.message)
+    }
+
+    @Test
+    fun notificationFor_usesInjectedStarterPlaceholderCopyForStreakReminder() {
+        val reminder = ReminderDecider.notificationFor(
+            snapshot = baseSnapshot(
+                careState = PlantCareState(hydration = 20, sunlight = 30, nutrition = 40),
+                reminderState = ReminderState(
+                    lastAppOpenAtMillis = now - 50L * 60L * 60L * 1000L,
+                    lastCareActionAtMillis = now - 50L * 60L * 60L * 1000L,
+                    lastLessonCompletedAtMillis = now - 50L * 60L * 60L * 1000L,
+                ),
+            ),
+            nowMillis = now,
+            copy = mapOf(
+                ReminderType.STREAK_WARNING to ReminderCopy(
+                    title = "Stay in rhythm",
+                    message = "{starterName} is waiting for you.",
+                ),
+            ),
+        )
+
+        assertEquals(ReminderType.STREAK_WARNING, reminder?.type)
+        assertEquals("Stay in rhythm", reminder?.title)
+        assertEquals("Mochi is waiting for you.", reminder?.message)
     }
 
     private fun baseSnapshot(

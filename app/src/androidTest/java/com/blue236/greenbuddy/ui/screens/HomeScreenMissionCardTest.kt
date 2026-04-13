@@ -167,6 +167,7 @@ class HomeScreenMissionCardTest {
                     onAcknowledgeGrowthStage = {},
                     onSetRealPlantModeEnabled = {},
                     onLogRealPlantCare = {},
+                    onOpenTodayLesson = {},
                 )
             }
         }
@@ -236,6 +237,7 @@ class HomeScreenMissionCardTest {
                     onAcknowledgeGrowthStage = {},
                     onSetRealPlantModeEnabled = {},
                     onLogRealPlantCare = {},
+                    onOpenTodayLesson = {},
                 )
             }
         }
@@ -294,6 +296,7 @@ class HomeScreenMissionCardTest {
                     onAcknowledgeGrowthStage = {},
                     onSetRealPlantModeEnabled = {},
                     onLogRealPlantCare = {},
+                    onOpenTodayLesson = {},
                 )
             }
         }

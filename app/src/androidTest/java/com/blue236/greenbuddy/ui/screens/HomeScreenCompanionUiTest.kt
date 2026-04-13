@@ -71,6 +71,7 @@ class HomeScreenCompanionUiTest {
                     onAcknowledgeGrowthStage = {},
                     onSetRealPlantModeEnabled = {},
                     onLogRealPlantCare = {},
+                    onOpenTodayLesson = {},
                 )
             }
         }
