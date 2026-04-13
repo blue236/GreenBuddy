@@ -14,6 +14,11 @@ import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.WeatherAdvice
 import com.blue236.greenbuddy.model.WeatherSnapshot
 
+data class CompanionMessageResult(
+    val reply: com.blue236.greenbuddy.model.CompanionChatReply,
+    val updatedMemory: CompanionConversationMemory,
+)
+
 class CompanionCoordinator {
     fun snapshot(
         starter: StarterPlantOption,
@@ -40,11 +45,13 @@ class CompanionCoordinator {
     fun homeCheckIn(snapshot: CompanionStateSnapshot, languageTag: String): CompanionHomeCheckIn =
         CompanionChatEngine.proactiveCheckIn(snapshot, languageTag)
 
-    fun reply(message: String, snapshot: CompanionStateSnapshot, languageTag: String) =
-        CompanionChatEngine.replyTo(message = message, snapshot = snapshot, languageTag = languageTag)
-
-    fun updatedMemoryFor(reply: com.blue236.greenbuddy.model.CompanionChatReply, snapshot: CompanionStateSnapshot) =
-        CompanionChatEngine.updatedMemoryFor(reply, snapshot)
+    fun handleMessage(message: String, snapshot: CompanionStateSnapshot, languageTag: String): CompanionMessageResult {
+        val reply = CompanionChatEngine.replyTo(message = message, snapshot = snapshot, languageTag = languageTag)
+        return CompanionMessageResult(
+            reply = reply,
+            updatedMemory = CompanionChatEngine.updatedMemoryFor(reply, snapshot),
+        )
+    }
 
     fun reminderCopy(
         type: ReminderType,

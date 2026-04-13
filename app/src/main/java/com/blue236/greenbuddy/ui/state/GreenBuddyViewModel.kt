@@ -212,14 +212,13 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     fun submitCompanionChatMessage(message: String) {
         val state = uiState.value
         val languageTag = state.appLanguage.languageTag ?: currentLanguageTag()
-        val reply = companionCoordinator.reply(
+        val result = companionCoordinator.handleMessage(
             message = message,
             snapshot = state.companionStateSnapshot,
             languageTag = languageTag,
         )
-        val updatedMemory = companionCoordinator.updatedMemoryFor(reply, state.companionStateSnapshot)
         analyticsLogger.log(AnalyticsEvent("companion_message_sent", mapOf("starter_id" to state.selectedStarterId)))
-        viewModelScope.launch { repository.saveCompanionConversationMemory(state.selectedStarterId, updatedMemory) }
+        viewModelScope.launch { repository.saveCompanionConversationMemory(state.selectedStarterId, result.updatedMemory) }
     }
     fun logRealPlantCare(action: RealPlantCareAction) {
         val state = uiState.value
