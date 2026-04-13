@@ -8,6 +8,7 @@ import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
 import com.blue236.greenbuddy.data.content.LessonContentLoader
 import com.blue236.greenbuddy.domain.AnalyticsEvent
 import com.blue236.greenbuddy.domain.AndroidAnalyticsLogger
+import com.blue236.greenbuddy.domain.CareEngine
 import com.blue236.greenbuddy.domain.CompanionCoordinator
 import com.blue236.greenbuddy.domain.GrowthEngine
 import com.blue236.greenbuddy.domain.LessonEngine
@@ -50,6 +51,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val growthEngine = GrowthEngine()
     private val rewardEngine = RewardEngine(application)
     private val lessonEngine = LessonEngine(missionEngine)
+    private val careEngine = CareEngine(missionEngine)
     private val companionCoordinator = CompanionCoordinator()
     private val realPlantCoordinator = RealPlantCoordinator()
     private val selectedTab = MutableStateFlow(Tab.HOME)
@@ -170,24 +172,34 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val state = uiState.value
         val today = LocalDate.now()
         val previousGrowthStage = state.growthStageState.currentStage.rank
-        val updatedCareState = state.plantCareState.apply(action)
-        val wasHelpful = updatedCareState.isMeaningfullyImprovedFrom(state.plantCareState)
-        val missionOutcome = missionEngine.evaluateCompletionRewards(
-            progress = state.dailyMissionProgress.recordCareAction(today),
-            rewardState = state.rewardState.rewardForCareAction(wasHelpful),
-            lessonProgress = state.lessonProgress,
-            careState = updatedCareState,
+        val result = careEngine.performAction(
+            action = action,
+            currentCareState = state.plantCareState,
+            currentLessonProgress = state.lessonProgress,
+            currentMissionProgress = state.dailyMissionProgress,
+            currentRewardState = state.rewardState,
             today = today,
         )
-        rewardFeedback.value = rewardEngine.careFeedback(action, state.appLanguage.languageTag ?: currentLanguageTag(), wasHelpful, missionOutcome)
-        if (wasHelpful) {
-            emitFeedback(if (growthEngine.didUnlock(state.selectedStarterId, state.lessonProgress, updatedCareState, previousGrowthStage)) FeedbackEventType.GROWTH_UNLOCKED else FeedbackEventType.CARE_SUCCESS)
+        rewardFeedback.value = rewardEngine.careFeedback(
+            action,
+            state.appLanguage.languageTag ?: currentLanguageTag(),
+            result.wasHelpful,
+            result.missionRewardOutcome,
+        )
+        if (result.wasHelpful) {
+            emitFeedback(
+                if (growthEngine.didUnlock(state.selectedStarterId, state.lessonProgress, result.updatedCareState, previousGrowthStage)) {
+                    FeedbackEventType.GROWTH_UNLOCKED
+                } else {
+                    FeedbackEventType.CARE_SUCCESS
+                },
+            )
         }
-        analyticsLogger.log(AnalyticsEvent("care_action", mapOf("action" to action.name, "starter_id" to state.selectedStarterId, "helpful" to wasHelpful.toString())))
+        analyticsLogger.log(AnalyticsEvent("care_action", mapOf("action" to action.name, "starter_id" to state.selectedStarterId, "helpful" to result.wasHelpful.toString())))
         viewModelScope.launch {
             val now = System.currentTimeMillis()
-            repository.saveCareStateAndMissionProgress(state.selectedStarterId, updatedCareState, missionOutcome.progress)
-            repository.saveRewardState(missionOutcome.rewardState)
+            repository.saveCareStateAndMissionProgress(state.selectedStarterId, result.updatedCareState, result.missionRewardOutcome.progress)
+            repository.saveRewardState(result.missionRewardOutcome.rewardState)
             repository.recordCareAction(now)
             repository.recordAppOpen(now)
         }
