@@ -10,6 +10,7 @@ import com.blue236.greenbuddy.domain.AnalyticsEvent
 import com.blue236.greenbuddy.domain.AndroidAnalyticsLogger
 import com.blue236.greenbuddy.domain.CareEngine
 import com.blue236.greenbuddy.domain.CompanionCoordinator
+import com.blue236.greenbuddy.domain.CosmeticCoordinator
 import com.blue236.greenbuddy.domain.GrowthEngine
 import com.blue236.greenbuddy.domain.LessonEngine
 import com.blue236.greenbuddy.domain.MissionEngine
@@ -53,6 +54,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val lessonEngine = LessonEngine(missionEngine)
     private val careEngine = CareEngine(missionEngine)
     private val companionCoordinator = CompanionCoordinator()
+    private val cosmeticCoordinator = CosmeticCoordinator()
     private val realPlantCoordinator = RealPlantCoordinator()
     private val selectedTab = MutableStateFlow(Tab.HOME)
     private val rewardFeedback = MutableStateFlow<String?>(null)
@@ -235,13 +237,17 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     }
     fun purchaseCosmetic(item: CosmeticItem) {
         val s = uiState.value
-        if (!s.rewardState.canPurchase(item)) return
-        val updated = s.rewardState.purchase(item)
+        val result = cosmeticCoordinator.purchase(item, s.rewardState)
+        if (!result.accepted) return
         rewardFeedback.value = rewardEngine.cosmeticFeedback(item, s.appLanguage.languageTag ?: currentLanguageTag())
         analyticsLogger.log(AnalyticsEvent("cosmetic_purchased", mapOf("item_id" to item.id)))
-        viewModelScope.launch { repository.saveRewardState(updated) }
+        viewModelScope.launch { repository.saveRewardState(result.updatedRewardState) }
     }
-    fun equipCosmetic(itemId: String) { val s = uiState.value; val updated = s.rewardState.equip(itemId); if (updated != s.rewardState) viewModelScope.launch { repository.saveRewardState(updated) } }
+    fun equipCosmetic(itemId: String) {
+        val s = uiState.value
+        val updated = cosmeticCoordinator.equip(itemId, s.rewardState)
+        if (updated != s.rewardState) viewModelScope.launch { repository.saveRewardState(updated) }
+    }
     fun acknowledgeGrowthStage() {
         analyticsLogger.log(AnalyticsEvent("growth_acknowledged", mapOf("starter_id" to uiState.value.selectedStarterId)))
         viewModelScope.launch { repository.saveSeenGrowthStageRank(uiState.value.selectedStarterId, uiState.value.growthStageState.currentStage.rank) }
