@@ -12,7 +12,11 @@ Use this file to keep `TODO`, `IN PROGRESS`, and `DONE` updated as work moves.
 ## Current snapshot
 
 ### Branch context
-- Current stabilization branch: `feature/refactor-plan-v1-mvp-stabilization`
+- Latest docs-refresh branch: `feature/docs-current-status-refresh`
+- Recent stabilization work was merged incrementally through:
+  - PR #15 — MVP stabilization refactor base
+  - PR #16 — reminder copy loading + content loader tests
+  - PR #17 — ViewModel care/companion flow slim-down
 
 ### Product state summary
 GreenBuddy is now a working Compose MVP with real foundations for:
@@ -52,28 +56,36 @@ Goals:
 - make Today’s Lesson the primary Home CTA
 - add minimal analytics/event logging hooks for MVP validation
 
-Delivered so far on this branch:
-- `README.md` updated to reflect the real MVP rather than a scaffold-only state
+Delivered so far on `main`:
+- `README.md` was updated to reflect the real MVP rather than a scaffold-only state
 - initial domain extraction added:
   - `LessonEngine`
   - `RewardEngine`
   - `GrowthEngine`
   - `MissionEngine`
+  - `CareEngine`
   - `CompanionCoordinator`
   - `RealPlantCoordinator`
 - initial analytics logger added (`AndroidAnalyticsLogger`)
 - initial lesson content loader added (`LessonContentLoader`)
 - first external lesson content asset added (`app/src/main/assets/content/lessons-en.json`)
 - `GreenBuddyUiState` now carries loaded lessons
-- app/reminder wiring has started moving onto content-loader/coordinator seams
+- app/reminder wiring started moving onto content-loader/coordinator seams
+- generic reminder copy loading added via `ReminderCopyLoader`
+- focused tests added for:
+  - mission reward behavior
+  - care engine behavior
+  - lesson content loader behavior
+  - reminder copy injection behavior
 - Home now surfaces Today’s Lesson as a stronger primary CTA near the top
+- `GreenBuddyViewModel` care and companion message flows were slimmed down one step
 
 Still open in this pass:
 - reduce `GreenBuddyViewModel` responsibility further
-- expand externalized content beyond the first lesson asset
+- expand externalized content beyond the first lesson asset and English reminder asset
 - review and tighten Home lesson-first hierarchy after device validation
-- add or extend tests around new seams where useful
-- package this branch into a clean PR once cohesive
+- keep extending tests around new seams where useful
+- define the next stabilization slice after PR #17
 
 ## DONE
 
@@ -207,7 +219,7 @@ Notes:
 ---
 
 ### F3. Lesson content expansion + quiz variety — baseline implemented
-**Status:** DONE (baseline) / content expansion still open
+**Status:** DONE (baseline) / content externalization still expanding
 
 Implemented:
 - per-species lesson tracks
