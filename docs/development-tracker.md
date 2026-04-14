@@ -17,6 +17,7 @@ Use this file to keep `TODO`, `IN PROGRESS`, and `DONE` updated as work moves.
   - PR #15 — MVP stabilization refactor base
   - PR #16 — reminder copy loading + content loader tests
   - PR #17 — ViewModel care/companion flow slim-down
+  - PR #19 — cosmetic flow orchestration slim-down
 
 ### Product state summary
 GreenBuddy is now a working Compose MVP with real foundations for:
@@ -79,13 +80,15 @@ Delivered so far on `main`:
   - reminder copy injection behavior
 - Home now surfaces Today’s Lesson as a stronger primary CTA near the top
 - `GreenBuddyViewModel` care and companion message flows were slimmed down one step
+- cosmetic purchase/equip orchestration now routes through `CosmeticCoordinator`
+- focused tests added for cosmetic coordinator behavior
 
 Still open in this pass:
 - reduce `GreenBuddyViewModel` responsibility further
 - expand externalized content beyond the first lesson asset and English reminder asset
 - review and tighten Home lesson-first hierarchy after device validation
 - keep extending tests around new seams where useful
-- define the next stabilization slice after PR #17
+- define the next stabilization slice after PR #19
 
 ## DONE
 
