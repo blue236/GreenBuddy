@@ -26,11 +26,26 @@ GreenBuddy already includes a working Compose MVP with:
 - EN / KO / DE localization support
 
 The current refactor direction focuses on **MVP stabilization**, not a rewrite:
-- reducing `GreenBuddyViewModel` responsibility
+- reducing `GreenBuddyViewModel` responsibility incrementally
 - moving business logic behind domain engines/coordinators
-- externalizing content incrementally
+- externalizing lesson/reminder content incrementally
 - prioritizing Today’s Lesson more strongly on Home
 - adding minimal analytics logging for validation
+
+Recent stabilization progress already merged on `main` includes:
+- initial domain seams:
+  - `LessonEngine`
+  - `RewardEngine`
+  - `GrowthEngine`
+  - `MissionEngine`
+  - `CareEngine`
+  - `CompanionCoordinator`
+  - `RealPlantCoordinator`
+- initial asset-backed lesson loading via `LessonContentLoader`
+- externalized generic reminder copy loading via `ReminderCopyLoader`
+- focused seam tests for mission/care/content/reminder behavior
+- Home lesson-first CTA promotion
+- slimmer lesson/care/companion orchestration inside `GreenBuddyViewModel`
 
 ## Tech stack
 
@@ -68,14 +83,15 @@ High-level areas:
 ## Refactor Plan v1 focus
 
 Current stabilization goals:
-1. synchronize docs with implementation reality
-2. split business logic out of `GreenBuddyViewModel`
-3. externalize lesson/content/notification text incrementally
-4. make Today’s Lesson the primary Home CTA
-5. add minimal local analytics/event logging hooks
+1. keep docs synchronized with implementation reality
+2. continue splitting business logic out of `GreenBuddyViewModel`
+3. continue externalizing lesson/content/notification text incrementally
+4. keep Today’s Lesson as the primary Home CTA and validate hierarchy on device
+5. extend minimal local analytics/event logging hooks carefully
 
 ## Notes
 
 - The app remains **local-first**.
 - The current work intentionally prefers **incremental refactor over rewrite**.
 - Content externalization is currently partial and expected to expand over time.
+- The stabilization work is being delivered as small follow-up PRs on top of `main`, not as a single large rewrite.
