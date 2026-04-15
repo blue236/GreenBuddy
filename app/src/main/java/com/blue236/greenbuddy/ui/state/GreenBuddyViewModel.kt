@@ -11,6 +11,7 @@ import com.blue236.greenbuddy.domain.AndroidAnalyticsLogger
 import com.blue236.greenbuddy.domain.CareEngine
 import com.blue236.greenbuddy.domain.CompanionCoordinator
 import com.blue236.greenbuddy.domain.CosmeticCoordinator
+import com.blue236.greenbuddy.domain.FeedbackCoordinator
 import com.blue236.greenbuddy.domain.GrowthEngine
 import com.blue236.greenbuddy.domain.LessonEngine
 import com.blue236.greenbuddy.domain.MissionEngine
@@ -21,7 +22,6 @@ import com.blue236.greenbuddy.model.AppLanguage
 import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.FeedbackEvent
-import com.blue236.greenbuddy.model.FeedbackEventType
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.RealPlantCareAction
@@ -55,6 +55,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val careEngine = CareEngine(missionEngine)
     private val companionCoordinator = CompanionCoordinator()
     private val cosmeticCoordinator = CosmeticCoordinator()
+    private val feedbackCoordinator = FeedbackCoordinator()
     private val realPlantCoordinator = RealPlantCoordinator()
     private val selectedTab = MutableStateFlow(Tab.HOME)
     private val rewardFeedback = MutableStateFlow<String?>(null)
@@ -157,7 +158,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         val baseFeedback = rewardEngine.lessonFeedback(currentLesson.rewardXp, missionOutcome)
         rewardFeedback.value = rewardEngine.greenhouseUnlockFeedback(baseFeedback, unlockedStarter, languageTag)
         val unlockedGrowth = growthEngine.didUnlock(state.selectedStarterId, result.lessonProgress, state.plantCareState, previousGrowthStage)
-        emitFeedback(if (unlockedGrowth) FeedbackEventType.GROWTH_UNLOCKED else FeedbackEventType.LESSON_SUCCESS)
+        feedbackEvent.value = feedbackCoordinator.lessonEvent(unlockedGrowth)
         analyticsLogger.log(AnalyticsEvent("lesson_completed", mapOf("lesson_id" to currentLesson.id, "starter_id" to state.selectedStarterId)))
         viewModelScope.launch {
             val now = System.currentTimeMillis()
@@ -188,14 +189,17 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             result.wasHelpful,
             result.missionRewardOutcome,
         )
-        if (result.wasHelpful) {
-            emitFeedback(
-                if (growthEngine.didUnlock(state.selectedStarterId, state.lessonProgress, result.updatedCareState, previousGrowthStage)) {
-                    FeedbackEventType.GROWTH_UNLOCKED
-                } else {
-                    FeedbackEventType.CARE_SUCCESS
-                },
-            )
+        val feedback = feedbackCoordinator.careEvent(
+            wasHelpful = result.wasHelpful,
+            unlockedGrowth = growthEngine.didUnlock(
+                state.selectedStarterId,
+                state.lessonProgress,
+                result.updatedCareState,
+                previousGrowthStage,
+            ),
+        )
+        if (feedback != null) {
+            feedbackEvent.value = feedback
         }
         analyticsLogger.log(AnalyticsEvent("care_action", mapOf("action" to action.name, "starter_id" to state.selectedStarterId, "helpful" to result.wasHelpful.toString())))
         viewModelScope.launch {
@@ -260,10 +264,6 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         AppCompatDelegate.setApplicationLocales(appLanguage.asLocaleListCompat())
         analyticsLogger.log(AnalyticsEvent("language_selected", mapOf("language" to appLanguage.name)))
         viewModelScope.launch { repository.saveAppLanguage(appLanguage) }
-    }
-
-    private fun emitFeedback(type: FeedbackEventType) {
-        feedbackEvent.value = FeedbackEvent(id = System.nanoTime(), type = type)
     }
 
     private fun currentLanguageTag(): String = getApplication<Application>().resources.configuration.locales[0]?.toLanguageTag().orEmpty().ifBlank { "en" }
