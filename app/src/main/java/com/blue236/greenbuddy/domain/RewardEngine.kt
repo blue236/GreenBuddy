@@ -12,8 +12,8 @@ import com.blue236.greenbuddy.model.localizedTitle
 
 class RewardEngine(
     private val context: Context,
-) {
-    fun lessonFeedback(
+) : RewardEngineContract {
+    override fun lessonFeedback(
         rewardXp: Int,
         missionOutcome: MissionRewardOutcome,
     ): String = when {
@@ -33,7 +33,7 @@ class RewardEngine(
         )
     }
 
-    fun careFeedback(
+    override fun careFeedback(
         action: CareAction,
         languageTag: String,
         wasHelpful: Boolean,
@@ -65,7 +65,7 @@ class RewardEngine(
         item.emoji,
     )
 
-    fun greenhouseUnlockFeedback(baseFeedback: String, unlockedStarter: StarterPlantOption?, languageTag: String): String =
+    override fun greenhouseUnlockFeedback(baseFeedback: String, unlockedStarter: StarterPlantOption?, languageTag: String): String =
         unlockedStarter?.let { starter ->
             context.getString(
                 R.string.reward_feedback_with_greenhouse_unlock,
