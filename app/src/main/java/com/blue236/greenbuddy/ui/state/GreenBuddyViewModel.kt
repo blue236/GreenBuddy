@@ -23,12 +23,9 @@ import com.blue236.greenbuddy.model.CareAction
 import com.blue236.greenbuddy.model.CosmeticItem
 import com.blue236.greenbuddy.model.FeedbackEvent
 import com.blue236.greenbuddy.model.GreenBuddyUiState
-import com.blue236.greenbuddy.model.LessonProgress
 import com.blue236.greenbuddy.model.RealPlantCareAction
 import com.blue236.greenbuddy.model.StarterPlants
 import com.blue236.greenbuddy.model.Tab
-import com.blue236.greenbuddy.model.WeatherAdviceGenerator
-import com.blue236.greenbuddy.model.SeasonalWeatherProvider
 import com.blue236.greenbuddy.model.asLocaleListCompat
 import com.blue236.greenbuddy.model.normalizedFor
 import com.blue236.greenbuddy.model.recordCareAction
@@ -57,6 +54,15 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val cosmeticCoordinator = CosmeticCoordinator()
     private val feedbackCoordinator = FeedbackCoordinator()
     private val realPlantCoordinator = RealPlantCoordinator()
+    private val uiStateAssembler = UiStateAssembler(
+        missionEngine = missionEngine,
+        growthEngine = growthEngine,
+        companionCoordinator = companionCoordinator,
+        lessonsForStarter = { starterId, localeTag ->
+            val starter = StarterPlants.options.first { it.id == starterId }
+            lessonContentLoader.lessonsFor(starter.companion.species, localeTag)
+        },
+    )
     private val selectedTab = MutableStateFlow(Tab.HOME)
     private val rewardFeedback = MutableStateFlow<String?>(null)
     private val feedbackEvent = MutableStateFlow<FeedbackEvent?>(null)
@@ -74,50 +80,13 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     val uiState: StateFlow<GreenBuddyUiState> = combine(repository.preferences, selectedTab, rewardFeedback, feedbackEvent) { preferences, tab, feedback, pendingFeedback ->
-        val localeTag = preferences.appLanguage.languageTag ?: currentLanguageTag()
-        val lessonsByStarterId = StarterPlants.options.associate { it.id to lessonContentLoader.lessonsFor(it.companion.species, localeTag) }
-        val normalizedLessonProgressByStarterId = preferences.lessonProgressByStarterId.mapValues { (starterId, progress) ->
-            progress.normalizedFor(lessonsByStarterId[starterId].orEmpty())
-        }
-        val selectedLessons = lessonsByStarterId[preferences.selectedStarter.id].orEmpty()
-        val selectedLessonProgress = normalizedLessonProgressByStarterId[preferences.selectedStarter.id] ?: LessonProgress()
-        val selectedCareState = preferences.plantCareState
-        val normalizedDailyMissionProgress = preferences.dailyMissionProgress.normalizedFor(LocalDate.now())
-        val todayMissions = missionEngine.resolveToday(normalizedDailyMissionProgress, selectedLessonProgress, selectedCareState, LocalDate.now())
-        val growthStageState = growthEngine.resolve(preferences.selectedStarter.id, selectedLessonProgress, selectedCareState, preferences.seenGrowthStageRank)
-        val weatherSnapshot = SeasonalWeatherProvider.snapshotFor(preferences.selectedWeatherCityId, LocalDate.now())
-        val weatherAdvice = WeatherAdviceGenerator.adviceFor(preferences.selectedStarter, weatherSnapshot, localeTag)
-        val companionSnapshot = companionCoordinator.snapshot(
-            starter = preferences.selectedStarter,
-            careState = selectedCareState,
-            growthStageState = growthStageState,
-            dailyMissionSet = todayMissions,
-            weatherSnapshot = weatherSnapshot,
-            weatherAdvice = weatherAdvice,
-            realPlantModeState = preferences.realPlantModeState,
-            recentConversationMemory = preferences.companionConversationMemory,
-            languageTag = localeTag,
-        )
-        GreenBuddyUiState(
+        uiStateAssembler.assemble(
+            preferences = preferences,
             selectedTab = tab,
-            selectedStarterId = preferences.selectedStarter.id,
-            ownedStarterIds = preferences.ownedStarterIds,
-            onboardingComplete = preferences.onboardingComplete,
-            lessons = selectedLessons,
-            lessonProgressByStarterId = normalizedLessonProgressByStarterId,
-            plantCareStateByStarterId = preferences.plantCareStateByStarterId,
-            dailyMissionProgress = normalizedDailyMissionProgress,
-            dailyMissionSet = todayMissions,
-            growthStageState = growthStageState,
-            rewardState = preferences.rewardState,
             rewardFeedback = feedback,
             feedbackEvent = pendingFeedback,
-            realPlantModeState = preferences.realPlantModeState,
-            weatherSnapshot = weatherSnapshot,
-            weatherAdvice = weatherAdvice,
-            companionStateSnapshot = companionSnapshot,
-            companionHomeCheckIn = companionCoordinator.homeCheckIn(companionSnapshot, localeTag),
-            appLanguage = preferences.appLanguage,
+            localeTag = preferences.appLanguage.languageTag ?: currentLanguageTag(),
+            today = LocalDate.now(),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GreenBuddyUiState())
 

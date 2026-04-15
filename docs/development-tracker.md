@@ -81,15 +81,16 @@ Delivered so far on `main`:
 - Home now surfaces Today’s Lesson as a stronger primary CTA near the top
 - `GreenBuddyViewModel` care and companion message flows were slimmed down one step
 - cosmetic purchase/equip orchestration now routes through `CosmeticCoordinator`
-- feedback-event selection for lesson/care flows is moving behind a dedicated `FeedbackCoordinator`
-- focused tests added for cosmetic coordinator behavior and feedback coordinator behavior
+- feedback-event selection for lesson/care flows now routes through a dedicated `FeedbackCoordinator`
+- `GreenBuddyUiState` combine-block assembly now routes through `UiStateAssembler`
+- focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, and ui-state assembly behavior
 
 Still open in this pass:
-- reduce `GreenBuddyViewModel` responsibility further, especially derived state assembly
+- reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler` extraction
 - expand externalized content beyond the first lesson asset and English reminder asset
 - review and tighten Home lesson-first hierarchy after device validation
 - keep extending tests around new seams where useful
-- define the next stabilization slice after feedback-event coordination cleanup
+- define the next stabilization slice after ui-state assembly cleanup
 
 ## DONE
 
