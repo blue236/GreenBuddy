@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
 import com.blue236.greenbuddy.data.content.LessonContentLoader
 import com.blue236.greenbuddy.domain.AnalyticsEvent
+import com.blue236.greenbuddy.domain.ActionUiCoordinator
 import com.blue236.greenbuddy.domain.AndroidAnalyticsLogger
 import com.blue236.greenbuddy.domain.CareEngine
 import com.blue236.greenbuddy.domain.CompanionCoordinator
@@ -53,6 +54,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val companionCoordinator = CompanionCoordinator()
     private val cosmeticCoordinator = CosmeticCoordinator()
     private val feedbackCoordinator = FeedbackCoordinator()
+    private val actionUiCoordinator = ActionUiCoordinator(rewardEngine, feedbackCoordinator, growthEngine)
     private val realPlantCoordinator = RealPlantCoordinator()
     private val uiStateAssembler = UiStateAssembler(
         missionEngine = missionEngine,
@@ -124,10 +126,18 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         }
         val unlockedStarter = result.unlockedStarterId?.let { unlockedId -> StarterPlants.options.firstOrNull { it.id == unlockedId } }
         val missionOutcome = result.missionRewardOutcome ?: return false
-        val baseFeedback = rewardEngine.lessonFeedback(currentLesson.rewardXp, missionOutcome)
-        rewardFeedback.value = rewardEngine.greenhouseUnlockFeedback(baseFeedback, unlockedStarter, languageTag)
-        val unlockedGrowth = growthEngine.didUnlock(state.selectedStarterId, result.lessonProgress, state.plantCareState, previousGrowthStage)
-        feedbackEvent.value = feedbackCoordinator.lessonEvent(unlockedGrowth)
+        val uiOutcome = actionUiCoordinator.lessonOutcome(
+            starterId = state.selectedStarterId,
+            previousGrowthStage = previousGrowthStage,
+            languageTag = languageTag,
+            rewardXp = currentLesson.rewardXp,
+            missionOutcome = missionOutcome,
+            unlockedStarter = unlockedStarter,
+            updatedLessonProgress = result.lessonProgress,
+            currentCareState = state.plantCareState,
+        )
+        rewardFeedback.value = uiOutcome.rewardFeedback
+        feedbackEvent.value = uiOutcome.feedbackEvent
         analyticsLogger.log(AnalyticsEvent("lesson_completed", mapOf("lesson_id" to currentLesson.id, "starter_id" to state.selectedStarterId)))
         viewModelScope.launch {
             val now = System.currentTimeMillis()
@@ -152,23 +162,19 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             currentRewardState = state.rewardState,
             today = today,
         )
-        rewardFeedback.value = rewardEngine.careFeedback(
-            action,
-            state.appLanguage.languageTag ?: currentLanguageTag(),
-            result.wasHelpful,
-            result.missionRewardOutcome,
-        )
-        val feedback = feedbackCoordinator.careEvent(
+        val uiOutcome = actionUiCoordinator.careOutcome(
+            starterId = state.selectedStarterId,
+            previousGrowthStage = previousGrowthStage,
+            languageTag = state.appLanguage.languageTag ?: currentLanguageTag(),
+            action = action,
             wasHelpful = result.wasHelpful,
-            unlockedGrowth = growthEngine.didUnlock(
-                state.selectedStarterId,
-                state.lessonProgress,
-                result.updatedCareState,
-                previousGrowthStage,
-            ),
+            missionOutcome = result.missionRewardOutcome,
+            currentLessonProgress = state.lessonProgress,
+            updatedCareState = result.updatedCareState,
         )
-        if (feedback != null) {
-            feedbackEvent.value = feedback
+        rewardFeedback.value = uiOutcome.rewardFeedback
+        if (uiOutcome.feedbackEvent != null) {
+            feedbackEvent.value = uiOutcome.feedbackEvent
         }
         analyticsLogger.log(AnalyticsEvent("care_action", mapOf("action" to action.name, "starter_id" to state.selectedStarterId, "helpful" to result.wasHelpful.toString())))
         viewModelScope.launch {

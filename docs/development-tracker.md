@@ -83,14 +83,15 @@ Delivered so far on `main`:
 - cosmetic purchase/equip orchestration now routes through `CosmeticCoordinator`
 - feedback-event selection for lesson/care flows now routes through a dedicated `FeedbackCoordinator`
 - `GreenBuddyUiState` combine-block assembly now routes through `UiStateAssembler`
-- focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, and ui-state assembly behavior
+- lesson/care UI outcome shaping now routes through `ActionUiCoordinator`
+- focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, ui-state assembly behavior, and action-ui coordination behavior
 
 Still open in this pass:
-- reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler` extraction
+- reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler` and `ActionUiCoordinator` extractions
 - expand externalized content beyond the first lesson asset and English reminder asset
 - review and tighten Home lesson-first hierarchy after device validation
 - keep extending tests around new seams where useful
-- define the next stabilization slice after ui-state assembly cleanup
+- define the next stabilization slice after lesson/care UI coordination cleanup
 
 ## DONE
 
