@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
 import com.blue236.greenbuddy.data.content.LessonContentLoader
 import com.blue236.greenbuddy.domain.AnalyticsEvent
+import com.blue236.greenbuddy.domain.ActionPersistenceCoordinator
 import com.blue236.greenbuddy.domain.ActionUiCoordinator
 import com.blue236.greenbuddy.domain.AndroidAnalyticsLogger
 import com.blue236.greenbuddy.domain.CareEngine
@@ -55,6 +56,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val cosmeticCoordinator = CosmeticCoordinator()
     private val feedbackCoordinator = FeedbackCoordinator()
     private val actionUiCoordinator = ActionUiCoordinator(rewardEngine, feedbackCoordinator, growthEngine)
+    private val actionPersistenceCoordinator = ActionPersistenceCoordinator()
     private val realPlantCoordinator = RealPlantCoordinator()
     private val uiStateAssembler = UiStateAssembler(
         missionEngine = missionEngine,
@@ -138,14 +140,22 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         )
         rewardFeedback.value = uiOutcome.rewardFeedback
         feedbackEvent.value = uiOutcome.feedbackEvent
-        analyticsLogger.log(AnalyticsEvent("lesson_completed", mapOf("lesson_id" to currentLesson.id, "starter_id" to state.selectedStarterId)))
+        val persistenceOutcome = actionPersistenceCoordinator.lessonOutcome(
+            starterId = state.selectedStarterId,
+            lessonId = currentLesson.id,
+            lessonProgress = result.lessonProgress,
+            missionProgress = missionOutcome.progress,
+            rewardState = missionOutcome.rewardState,
+            unlockedStarterId = unlockedStarter?.id,
+        )
+        analyticsLogger.log(persistenceOutcome.analyticsEvent)
         viewModelScope.launch {
             val now = System.currentTimeMillis()
-            repository.saveLessonAndMissionProgress(state.selectedStarterId, result.lessonProgress, missionOutcome.progress)
-            repository.saveRewardState(missionOutcome.rewardState)
+            repository.saveLessonAndMissionProgress(persistenceOutcome.starterId, persistenceOutcome.lessonProgress, persistenceOutcome.missionProgress)
+            repository.saveRewardState(persistenceOutcome.rewardState)
             repository.recordLessonCompleted(now)
             repository.recordAppOpen(now)
-            unlockedStarter?.let { repository.unlockStarter(it.id) }
+            persistenceOutcome.unlockedStarterId?.let { repository.unlockStarter(it) }
         }
         return true
     }
@@ -176,11 +186,19 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
         if (uiOutcome.feedbackEvent != null) {
             feedbackEvent.value = uiOutcome.feedbackEvent
         }
-        analyticsLogger.log(AnalyticsEvent("care_action", mapOf("action" to action.name, "starter_id" to state.selectedStarterId, "helpful" to result.wasHelpful.toString())))
+        val persistenceOutcome = actionPersistenceCoordinator.careOutcome(
+            starterId = state.selectedStarterId,
+            actionName = action.name,
+            wasHelpful = result.wasHelpful,
+            updatedCareState = result.updatedCareState,
+            missionProgress = result.missionRewardOutcome.progress,
+            rewardState = result.missionRewardOutcome.rewardState,
+        )
+        analyticsLogger.log(persistenceOutcome.analyticsEvent)
         viewModelScope.launch {
             val now = System.currentTimeMillis()
-            repository.saveCareStateAndMissionProgress(state.selectedStarterId, result.updatedCareState, result.missionRewardOutcome.progress)
-            repository.saveRewardState(result.missionRewardOutcome.rewardState)
+            repository.saveCareStateAndMissionProgress(persistenceOutcome.starterId, persistenceOutcome.updatedCareState, persistenceOutcome.missionProgress)
+            repository.saveRewardState(persistenceOutcome.rewardState)
             repository.recordCareAction(now)
             repository.recordAppOpen(now)
         }
