@@ -22,7 +22,29 @@ class LessonContentLoaderTest {
     }
 
     @Test
-    fun lessonsFor_fallsBackToEnglishAssetWhenLanguageSpecificAssetIsMissing() {
+    fun lessonsFor_loadsLocalizedKoreanLessonsWhenAssetExists() {
+        val loader = LessonContentLoader(context)
+
+        val lessons = loader.lessonsFor("Monstera", "ko")
+
+        assertFalse(lessons.isEmpty())
+        assertEquals("monstera_light", lessons.first().id)
+        assertEquals("강한 직사광선 대신 밝은 간접광", lessons.first().title)
+    }
+
+    @Test
+    fun lessonsFor_loadsLocalizedGermanLessonsWhenAssetExists() {
+        val loader = LessonContentLoader(context)
+
+        val lessons = loader.lessonsFor("Monstera", "de")
+
+        assertFalse(lessons.isEmpty())
+        assertEquals("monstera_light", lessons.first().id)
+        assertEquals("Helles Fensterlicht ohne Blattbrand", lessons.first().title)
+    }
+
+    @Test
+    fun lessonsFor_fallsBackToEnglishAssetWhenSpeciesIsMissingInLanguageSpecificAsset() {
         val loader = LessonContentLoader(context)
 
         val english = loader.lessonsFor("Basil", "en")

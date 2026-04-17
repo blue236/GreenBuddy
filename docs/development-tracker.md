@@ -87,11 +87,12 @@ Delivered so far on `main`:
 - lesson/care persistence and analytics payload shaping now route through `ActionPersistenceCoordinator`
 - misc action persistence/analytics shaping for real-plant, companion, cosmetics, growth acknowledgment, weather selection, and app language now route through `MiscActionCoordinator`
 - reminder copy externalization now includes localized asset coverage for English, Korean, and German
-- focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, ui-state assembly behavior, action-ui coordination behavior, action-persistence coordination behavior, misc-action coordination behavior, and reminder-copy loader behavior
+- lesson content externalization now includes localized Monstera lesson assets for Korean and German, while other species continue to use English fallback
+- focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, ui-state assembly behavior, action-ui coordination behavior, action-persistence coordination behavior, misc-action coordination behavior, reminder-copy loader behavior, and lesson-content loader localization/fallback behavior
 
 Still open in this pass:
 - reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler`, `ActionUiCoordinator`, `ActionPersistenceCoordinator`, and `MiscActionCoordinator` extractions
-- expand externalized content beyond the first lesson asset and initial reminder locale set
+- expand externalized content beyond the first localized lesson slice and initial reminder locale set
 - review and tighten Home lesson-first hierarchy after device validation
 - keep extending tests around new seams where useful
 - define the next stabilization slice after misc-action coordination cleanup
