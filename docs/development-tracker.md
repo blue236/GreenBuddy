@@ -85,14 +85,15 @@ Delivered so far on `main`:
 - `GreenBuddyUiState` combine-block assembly now routes through `UiStateAssembler`
 - lesson/care UI outcome shaping now routes through `ActionUiCoordinator`
 - lesson/care persistence and analytics payload shaping now route through `ActionPersistenceCoordinator`
-- focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, ui-state assembly behavior, action-ui coordination behavior, and action-persistence coordination behavior
+- misc action persistence/analytics shaping for real-plant, companion, cosmetics, growth acknowledgment, weather selection, and app language now route through `MiscActionCoordinator`
+- focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, ui-state assembly behavior, action-ui coordination behavior, action-persistence coordination behavior, and misc-action coordination behavior
 
 Still open in this pass:
-- reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler`, `ActionUiCoordinator`, and `ActionPersistenceCoordinator` extractions
+- reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler`, `ActionUiCoordinator`, `ActionPersistenceCoordinator`, and `MiscActionCoordinator` extractions
 - expand externalized content beyond the first lesson asset and English reminder asset
 - review and tighten Home lesson-first hierarchy after device validation
 - keep extending tests around new seams where useful
-- define the next stabilization slice after lesson/care persistence coordination cleanup
+- define the next stabilization slice after misc-action coordination cleanup
 
 ## DONE
 

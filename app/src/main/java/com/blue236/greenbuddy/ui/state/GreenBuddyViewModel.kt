@@ -16,6 +16,7 @@ import com.blue236.greenbuddy.domain.CosmeticCoordinator
 import com.blue236.greenbuddy.domain.FeedbackCoordinator
 import com.blue236.greenbuddy.domain.GrowthEngine
 import com.blue236.greenbuddy.domain.LessonEngine
+import com.blue236.greenbuddy.domain.MiscActionCoordinator
 import com.blue236.greenbuddy.domain.MissionEngine
 import com.blue236.greenbuddy.domain.RealPlantCoordinator
 import com.blue236.greenbuddy.domain.RewardEngine
@@ -57,6 +58,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     private val feedbackCoordinator = FeedbackCoordinator()
     private val actionUiCoordinator = ActionUiCoordinator(rewardEngine, feedbackCoordinator, growthEngine)
     private val actionPersistenceCoordinator = ActionPersistenceCoordinator()
+    private val miscActionCoordinator = MiscActionCoordinator(rewardEngine)
     private val realPlantCoordinator = RealPlantCoordinator()
     private val uiStateAssembler = UiStateAssembler(
         missionEngine = missionEngine,
@@ -205,8 +207,10 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun setRealPlantModeEnabled(enabled: Boolean) {
-        analyticsLogger.log(AnalyticsEvent("real_plant_mode_toggled", mapOf("enabled" to enabled.toString())))
-        viewModelScope.launch { repository.saveRealPlantModeState(uiState.value.selectedStarterId, uiState.value.realPlantModeState.copy(enabled = enabled)) }
+        val state = uiState.value
+        val outcome = miscActionCoordinator.realPlantModeToggle(state.selectedStarterId, state.realPlantModeState, enabled)
+        analyticsLogger.log(outcome.analyticsEvent)
+        viewModelScope.launch { repository.saveRealPlantModeState(outcome.starterId, outcome.updatedState) }
     }
     fun submitCompanionChatMessage(message: String) {
         val state = uiState.value
@@ -216,8 +220,9 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             snapshot = state.companionStateSnapshot,
             languageTag = languageTag,
         )
-        analyticsLogger.log(AnalyticsEvent("companion_message_sent", mapOf("starter_id" to state.selectedStarterId)))
-        viewModelScope.launch { repository.saveCompanionConversationMemory(state.selectedStarterId, result.updatedMemory) }
+        val outcome = miscActionCoordinator.companionMessage(state.selectedStarterId, result.updatedMemory)
+        analyticsLogger.log(outcome.analyticsEvent)
+        viewModelScope.launch { repository.saveCompanionConversationMemory(outcome.starterId, outcome.updatedMemory) }
     }
     fun logRealPlantCare(action: RealPlantCareAction) {
         val state = uiState.value
@@ -229,34 +234,42 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             zoneId = ZoneId.systemDefault(),
         )
         if (!result.accepted) return
-        analyticsLogger.log(AnalyticsEvent("real_plant_action_logged", mapOf("action" to action.name, "starter_id" to state.selectedStarterId)))
-        viewModelScope.launch { repository.saveRealPlantModeAndPlantCareState(state.selectedStarterId, result.realPlantModeState, result.plantCareState) }
+        val outcome = miscActionCoordinator.realPlantLog(state.selectedStarterId, action.name, result.realPlantModeState, result.plantCareState)
+        analyticsLogger.log(outcome.analyticsEvent)
+        viewModelScope.launch { repository.saveRealPlantModeAndPlantCareState(outcome.starterId, outcome.realPlantModeState, outcome.plantCareState) }
     }
     fun purchaseCosmetic(item: CosmeticItem) {
         val s = uiState.value
         val result = cosmeticCoordinator.purchase(item, s.rewardState)
         if (!result.accepted) return
-        rewardFeedback.value = rewardEngine.cosmeticFeedback(item, s.appLanguage.languageTag ?: currentLanguageTag())
-        analyticsLogger.log(AnalyticsEvent("cosmetic_purchased", mapOf("item_id" to item.id)))
-        viewModelScope.launch { repository.saveRewardState(result.updatedRewardState) }
+        val outcome = miscActionCoordinator.cosmeticPurchase(item, s.appLanguage.languageTag ?: currentLanguageTag(), result.updatedRewardState)
+        rewardFeedback.value = outcome.rewardFeedback
+        analyticsLogger.log(outcome.analyticsEvent)
+        viewModelScope.launch { repository.saveRewardState(outcome.updatedRewardState) }
     }
     fun equipCosmetic(itemId: String) {
         val s = uiState.value
         val updated = cosmeticCoordinator.equip(itemId, s.rewardState)
-        if (updated != s.rewardState) viewModelScope.launch { repository.saveRewardState(updated) }
+        val outcome = miscActionCoordinator.cosmeticEquip(changed = updated != s.rewardState, updatedRewardState = updated)
+        outcome.analyticsEvent?.let(analyticsLogger::log)
+        if (updated != s.rewardState) viewModelScope.launch { repository.saveRewardState(outcome.updatedRewardState) }
     }
     fun acknowledgeGrowthStage() {
-        analyticsLogger.log(AnalyticsEvent("growth_acknowledged", mapOf("starter_id" to uiState.value.selectedStarterId)))
-        viewModelScope.launch { repository.saveSeenGrowthStageRank(uiState.value.selectedStarterId, uiState.value.growthStageState.currentStage.rank) }
+        val state = uiState.value
+        val outcome = miscActionCoordinator.growthAcknowledge(state.selectedStarterId, state.growthStageState.currentStage.rank)
+        analyticsLogger.log(outcome.analyticsEvent)
+        viewModelScope.launch { repository.saveSeenGrowthStageRank(outcome.starterId, outcome.seenGrowthStageRank) }
     }
     fun setSelectedWeatherCity(cityId: String) {
-        analyticsLogger.log(AnalyticsEvent("weather_city_selected", mapOf("city_id" to cityId)))
-        viewModelScope.launch { repository.saveSelectedWeatherCity(cityId) }
+        val outcome = miscActionCoordinator.weatherCity(cityId)
+        analyticsLogger.log(outcome.analyticsEvent)
+        viewModelScope.launch { repository.saveSelectedWeatherCity(outcome.cityId) }
     }
     fun setAppLanguage(appLanguage: AppLanguage) {
-        AppCompatDelegate.setApplicationLocales(appLanguage.asLocaleListCompat())
-        analyticsLogger.log(AnalyticsEvent("language_selected", mapOf("language" to appLanguage.name)))
-        viewModelScope.launch { repository.saveAppLanguage(appLanguage) }
+        val outcome = miscActionCoordinator.appLanguage(appLanguage)
+        AppCompatDelegate.setApplicationLocales(outcome.appLanguage.asLocaleListCompat())
+        analyticsLogger.log(outcome.analyticsEvent)
+        viewModelScope.launch { repository.saveAppLanguage(outcome.appLanguage) }
     }
 
     private fun currentLanguageTag(): String = getApplication<Application>().resources.configuration.locales[0]?.toLanguageTag().orEmpty().ifBlank { "en" }

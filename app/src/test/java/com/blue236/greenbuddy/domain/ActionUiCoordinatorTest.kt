@@ -81,5 +81,7 @@ class ActionUiCoordinatorTest {
 
         override fun careFeedback(action: CareAction, languageTag: String, wasHelpful: Boolean, missionOutcome: MissionRewardOutcome): String =
             "care:${action.name}:$wasHelpful"
+
+        override fun cosmeticFeedback(item: com.blue236.greenbuddy.model.CosmeticItem, languageTag: String): String = "unused"
     }
 }

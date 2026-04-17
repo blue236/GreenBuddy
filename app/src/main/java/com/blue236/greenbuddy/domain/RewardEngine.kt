@@ -59,7 +59,7 @@ class RewardEngine(
         )
     }
 
-    fun cosmeticFeedback(item: CosmeticItem, languageTag: String): String = context.getString(
+    override fun cosmeticFeedback(item: CosmeticItem, languageTag: String): String = context.getString(
         R.string.reward_feedback_cosmetic_unlocked,
         item.localizedName(languageTag),
         item.emoji,
