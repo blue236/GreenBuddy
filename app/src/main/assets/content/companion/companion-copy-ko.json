@@ -1,0 +1,23 @@
+{
+  "base_suggestion_chips": [
+    "지금 기분이 어때?",
+    "가장 필요한 게 뭐야?",
+    "오늘은 뭘 하면 돼?"
+  ],
+  "default_prompts": {
+    "STATUS_CHECK": "지금 기분이 어때?",
+    "CARE_ADVICE": "가장 필요한 게 뭐야?",
+    "MISSION_HELP": "오늘은 뭘 하면 돼?",
+    "GROWTH_QUESTION": "지금 어떻게 자라고 있어?",
+    "WEATHER_QUESTION": "지금 날씨가 너한테 어때?",
+    "CASUAL_CHAT": "잠깐 얘기해 볼래?"
+  },
+  "intent_suggestion_chips": {
+    "STATUS_CHECK": ["지금 기분이 어때?", "오늘은 뭘 하면 돼?"],
+    "CARE_ADVICE": ["날씨가 영향 있어?", "지금 상태 다시 알려 줘"],
+    "MISSION_HELP": ["연속 기록은 어때?", "돌봄이 성장에 도움 돼?"],
+    "GROWTH_QUESTION": ["뭐가 성장을 막고 있어?", "가장 도움 되는 돌봄은 뭐야?"],
+    "WEATHER_QUESTION": ["빛을 바꿔야 할까?", "오늘 가장 필요한 게 뭐야?"],
+    "CASUAL_CHAT": ["지금 기분이 어때?", "가장 필요한 게 뭐야?"]
+  }
+}

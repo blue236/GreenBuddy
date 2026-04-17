@@ -1,5 +1,6 @@
 package com.blue236.greenbuddy.model
 
+import com.blue236.greenbuddy.data.content.CompanionCopySet
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -168,19 +169,20 @@ object CompanionChatEngine {
         message: String,
         snapshot: CompanionStateSnapshot,
         languageTag: String = "en",
+        copy: CompanionCopySet = CompanionCopySet(),
     ): CompanionChatReply {
         val lang = normalizedLanguageTag(languageTag)
         val intent = detectIntent(message, snapshot.recentConversationMemory)
-        val normalizedMessage = message.trim().ifBlank { defaultPromptFor(intent, lang) }
+        val normalizedMessage = message.trim().ifBlank { defaultPromptFor(intent, lang, copy) }
         return CompanionChatReply(
             intent = intent,
             userMessage = normalizedMessage,
             reply = renderReply(intent, normalizedMessage, snapshot, lang),
-            suggestionChips = suggestionChipsFor(snapshot, intent, lang),
+            suggestionChips = suggestionChipsFor(snapshot, intent, lang, copy),
         )
     }
 
-    fun proactiveCheckIn(snapshot: CompanionStateSnapshot, languageTag: String = "en"): CompanionHomeCheckIn {
+    fun proactiveCheckIn(snapshot: CompanionStateSnapshot, languageTag: String = "en", copy: CompanionCopySet = CompanionCopySet()): CompanionHomeCheckIn {
         val lang = normalizedLanguageTag(languageTag)
         val bubble = renderProactiveBubble(snapshot, lang)
         val primaryIntent = when {
@@ -192,7 +194,7 @@ object CompanionChatEngine {
         }
         return CompanionHomeCheckIn(
             bubble = bubble,
-            suggestionChips = suggestionChipsFor(snapshot, primaryIntent, lang),
+            suggestionChips = suggestionChipsFor(snapshot, primaryIntent, lang, copy),
             emotion = snapshot.continuity.emotion,
             emotionLabel = localizedEmotionLabel(snapshot.continuity.emotion, lang),
             familiarityLabel = snapshot.relationship.summary,
@@ -480,10 +482,10 @@ object CompanionChatEngine {
         }
     }
 
-    fun suggestionChipsForIntent(snapshot: CompanionStateSnapshot, intent: CompanionChatIntent, languageTag: String): List<String> =
-        suggestionChipsFor(snapshot, intent, languageTag)
+    fun suggestionChipsForIntent(snapshot: CompanionStateSnapshot, intent: CompanionChatIntent, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): List<String> =
+        suggestionChipsFor(snapshot, intent, languageTag, copy)
 
-    private fun suggestionChipsFor(snapshot: CompanionStateSnapshot, intent: CompanionChatIntent, languageTag: String): List<String> {
+    private fun suggestionChipsFor(snapshot: CompanionStateSnapshot, intent: CompanionChatIntent, languageTag: String, copy: CompanionCopySet): List<String> {
         val dynamic = mutableListOf<String>()
         val lang = normalizedLanguageTag(languageTag)
         when (lang) {
@@ -498,7 +500,7 @@ object CompanionChatEngine {
                 snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += "Welche Mission zuerst?" }
                 if (snapshot.growthStageState.nextStage != null) dynamic += "Wie nah bist du an der nächsten Stufe?"
                 if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += "Verändert die Saison etwas für dich?"
-                dynamic += when (intent) {
+                dynamic += copy.intentSuggestionChips[intent] ?: when (intent) {
                     CompanionChatIntent.STATUS_CHECK -> listOf("Wie geht es dir?", "Was soll ich heute tun?")
                     CompanionChatIntent.CARE_ADVICE -> listOf("Hilft dir das Wetter gerade?", "Wie geht es dir jetzt?")
                     CompanionChatIntent.MISSION_HELP -> listOf("Wie läuft meine Serie?", "Hilft Pflege beim Wachstum?")
@@ -518,7 +520,7 @@ object CompanionChatEngine {
                 snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += "어떤 미션부터 할까?" }
                 if (snapshot.growthStageState.nextStage != null) dynamic += "다음 단계까지 얼마나 남았어?"
                 if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += "계절이 너한테 영향 있어?"
-                dynamic += when (intent) {
+                dynamic += copy.intentSuggestionChips[intent] ?: when (intent) {
                     CompanionChatIntent.STATUS_CHECK -> listOf("지금 기분이 어때?", "오늘은 뭘 하면 돼?")
                     CompanionChatIntent.CARE_ADVICE -> listOf("날씨가 영향 있어?", "지금 상태 다시 알려 줘")
                     CompanionChatIntent.MISSION_HELP -> listOf("연속 기록은 어때?", "돌봄이 성장에 도움 돼?")
@@ -538,7 +540,7 @@ object CompanionChatEngine {
                 snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += "Which mission first?" }
                 if (snapshot.growthStageState.nextStage != null) dynamic += "How close are you to the next stage?"
                 if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += "Does the season change anything for you?"
-                dynamic += when (intent) {
+                dynamic += copy.intentSuggestionChips[intent] ?: when (intent) {
                     CompanionChatIntent.STATUS_CHECK -> listOf("How are you feeling?", "What should I do today?")
                     CompanionChatIntent.CARE_ADVICE -> listOf("How does weather affect you?", "How are you feeling now?")
                     CompanionChatIntent.MISSION_HELP -> listOf("How is my streak?", "Will care help growth?")
@@ -581,13 +583,17 @@ object CompanionChatEngine {
         }
     }
 
-    fun baseSuggestionChips(languageTag: String = "en"): List<String> = when (normalizedLanguageTag(languageTag)) {
-        "de" -> listOf("Wie geht es dir?", "Was brauchst du am meisten?", "Was soll ich heute tun?")
-        "ko" -> listOf("지금 기분이 어때?", "가장 필요한 게 뭐야?", "오늘은 뭘 하면 돼?")
-        else -> listOf("How are you feeling?", "What do you need most?", "What should I do today?")
-    }
+    fun baseSuggestionChips(languageTag: String = "en", copy: CompanionCopySet = CompanionCopySet()): List<String> =
+        copy.baseSuggestionChips.ifEmpty {
+            when (normalizedLanguageTag(languageTag)) {
+                "de" -> listOf("Wie geht es dir?", "Was brauchst du am meisten?", "Was soll ich heute tun?")
+                "ko" -> listOf("지금 기분이 어때?", "가장 필요한 게 뭐야?", "오늘은 뭘 하면 돼?")
+                else -> listOf("How are you feeling?", "What do you need most?", "What should I do today?")
+            }
+        }
 
-    fun defaultPromptFor(intent: CompanionChatIntent, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+    fun defaultPromptFor(intent: CompanionChatIntent, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): String =
+        copy.defaultPrompts[intent] ?: when (normalizedLanguageTag(languageTag)) {
         "de" -> when (intent) {
             CompanionChatIntent.STATUS_CHECK -> "Wie geht es dir?"
             CompanionChatIntent.CARE_ADVICE -> "Was brauchst du am meisten?"

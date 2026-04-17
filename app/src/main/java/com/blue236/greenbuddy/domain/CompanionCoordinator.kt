@@ -1,5 +1,6 @@
 package com.blue236.greenbuddy.domain
 
+import com.blue236.greenbuddy.data.content.CompanionCopySet
 import com.blue236.greenbuddy.model.CompanionChatEngine
 import com.blue236.greenbuddy.model.CompanionConversationMemory
 import com.blue236.greenbuddy.model.CompanionHomeCheckIn
@@ -42,11 +43,11 @@ class CompanionCoordinator {
         languageTag = languageTag,
     )
 
-    fun homeCheckIn(snapshot: CompanionStateSnapshot, languageTag: String): CompanionHomeCheckIn =
-        CompanionChatEngine.proactiveCheckIn(snapshot, languageTag)
+    fun homeCheckIn(snapshot: CompanionStateSnapshot, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): CompanionHomeCheckIn =
+        CompanionChatEngine.proactiveCheckIn(snapshot, languageTag, copy)
 
-    fun handleMessage(message: String, snapshot: CompanionStateSnapshot, languageTag: String): CompanionMessageResult {
-        val reply = CompanionChatEngine.replyTo(message = message, snapshot = snapshot, languageTag = languageTag)
+    fun handleMessage(message: String, snapshot: CompanionStateSnapshot, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): CompanionMessageResult {
+        val reply = CompanionChatEngine.replyTo(message = message, snapshot = snapshot, languageTag = languageTag, copy = copy)
         return CompanionMessageResult(
             reply = reply,
             updatedMemory = CompanionChatEngine.updatedMemoryFor(reply, snapshot),

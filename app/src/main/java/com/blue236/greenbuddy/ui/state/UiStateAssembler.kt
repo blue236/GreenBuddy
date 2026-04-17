@@ -1,5 +1,6 @@
 package com.blue236.greenbuddy.ui.state
 
+import com.blue236.greenbuddy.data.content.CompanionCopySet
 import com.blue236.greenbuddy.domain.CompanionCoordinator
 import com.blue236.greenbuddy.domain.GrowthEngine
 import com.blue236.greenbuddy.domain.MissionEngine
@@ -29,6 +30,7 @@ class UiStateAssembler(
         rewardFeedback: String?,
         feedbackEvent: FeedbackEvent?,
         localeTag: String,
+        companionCopy: CompanionCopySet = CompanionCopySet(),
         today: LocalDate = LocalDate.now(),
     ): GreenBuddyUiState {
         val lessonsByStarterId = StarterPlants.options.associate { starter ->
@@ -84,7 +86,7 @@ class UiStateAssembler(
             weatherSnapshot = weatherSnapshot,
             weatherAdvice = weatherAdvice,
             companionStateSnapshot = companionSnapshot,
-            companionHomeCheckIn = companionCoordinator.homeCheckIn(companionSnapshot, localeTag),
+            companionHomeCheckIn = companionCoordinator.homeCheckIn(companionSnapshot, localeTag, companionCopy),
             appLanguage = preferences.appLanguage,
         )
     }

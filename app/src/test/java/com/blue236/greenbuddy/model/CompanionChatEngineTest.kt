@@ -1,5 +1,6 @@
 package com.blue236.greenbuddy.model
 
+import com.blue236.greenbuddy.data.content.CompanionCopySet
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -192,6 +193,54 @@ class CompanionChatEngineTest {
         assertTrue(proactive.bubble.isNotBlank())
         assertTrue(proactive.suggestionChips.isNotEmpty())
         assertTrue(proactive.suggestionChips.any { it.contains("water", ignoreCase = true) || it.contains("streak", ignoreCase = true) || it.contains("mission", ignoreCase = true) || it.contains("today", ignoreCase = true) })
+    }
+
+    @Test
+    fun replyTo_usesInjectedDefaultPromptWhenMessageBlank() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        val reply = CompanionChatEngine.replyTo(
+            message = "   ",
+            snapshot = snapshot,
+            copy = CompanionCopySet(
+                defaultPrompts = mapOf(CompanionChatIntent.STATUS_CHECK to "Custom status prompt")
+            ),
+        )
+
+        assertEquals("Custom status prompt", reply.userMessage)
+    }
+
+    @Test
+    fun suggestionChipsForIntent_usesInjectedStaticIntentCopy() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState.copy(hydration = 90, sunlight = 90, nutrition = 90),
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        val chips = CompanionChatEngine.suggestionChipsForIntent(
+            snapshot = snapshot,
+            intent = CompanionChatIntent.CASUAL_CHAT,
+            languageTag = "en",
+            copy = CompanionCopySet(
+                intentSuggestionChips = mapOf(CompanionChatIntent.CASUAL_CHAT to listOf("Custom chip one", "Custom chip two"))
+            ),
+        )
+
+        assertTrue(chips.contains("Custom chip one"))
+        assertTrue(chips.contains("Custom chip two"))
     }
 
     @Test

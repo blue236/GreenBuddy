@@ -1,0 +1,23 @@
+{
+  "base_suggestion_chips": [
+    "How are you feeling?",
+    "What do you need most?",
+    "What should I do today?"
+  ],
+  "default_prompts": {
+    "STATUS_CHECK": "How are you feeling?",
+    "CARE_ADVICE": "What do you need most?",
+    "MISSION_HELP": "What should I do today?",
+    "GROWTH_QUESTION": "How are you growing?",
+    "WEATHER_QUESTION": "How’s the weather for you?",
+    "CASUAL_CHAT": "Want to chat?"
+  },
+  "intent_suggestion_chips": {
+    "STATUS_CHECK": ["How are you feeling?", "What should I do today?"],
+    "CARE_ADVICE": ["How does weather affect you?", "How are you feeling now?"],
+    "MISSION_HELP": ["How is my streak?", "Will care help growth?"],
+    "GROWTH_QUESTION": ["What’s blocking progress?", "What care helps most?"],
+    "WEATHER_QUESTION": ["Should I change your light?", "What do you need most today?"],
+    "CASUAL_CHAT": ["How are you feeling?", "What do you need most?"]
+  }
+}
