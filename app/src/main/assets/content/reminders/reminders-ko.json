@@ -1,0 +1,14 @@
+{
+  "streak_warning": {
+    "title": "GreenBuddy 리듬을 이어 가요",
+    "message": "{starterName}가 기다리고 있어요. 오늘 잠깐만 들러도 흐름이 끊기지 않아요."
+  },
+  "care": {
+    "title": "{starterName} 상태를 가볍게 확인해 주세요"
+  },
+  "lesson_ready": {
+    "title": "새 GreenBuddy 레슨이 준비됐어요",
+    "message_with_lesson": "다음 레슨 '{lessonTitle}'이 준비되어 있어요. 잠깐 여유 날 때 시작해 보세요.",
+    "message_without_lesson": "다음 GreenBuddy 레슨이 준비되어 있어요. 잠깐 여유 날 때 시작해 보세요."
+  }
+}

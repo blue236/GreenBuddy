@@ -1,0 +1,14 @@
+{
+  "streak_warning": {
+    "title": "Halte deinen GreenBuddy-Rhythmus lebendig",
+    "message": "{starterName} wartet schon auf dich. Ein kurzer Besuch heute hält deine Routine warm."
+  },
+  "care": {
+    "title": "{starterName} braucht einen kurzen Pflege-Check"
+  },
+  "lesson_ready": {
+    "title": "Eine neue GreenBuddy-Lektion ist bereit",
+    "message_with_lesson": "Deine nächste Lektion '{lessonTitle}' wartet schon auf dich, sobald du einen Moment hast.",
+    "message_without_lesson": "Deine nächste GreenBuddy-Lektion ist bereit, sobald du einen Moment hast."
+  }
+}
