@@ -1,0 +1,105 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #f7faf7; }
+      .title { font: 700 34px Arial, sans-serif; fill: #17321f; }
+      .subtitle { font: 500 18px Arial, sans-serif; fill: #466053; }
+      .section { fill: #ffffff; stroke: #b8d3c0; stroke-width: 2; rx: 18; }
+      .sectionTitle { font: 700 22px Arial, sans-serif; fill: #20422b; }
+      .box { fill: #eef7f0; stroke: #7eb18a; stroke-width: 2; rx: 14; }
+      .box2 { fill: #f5f3ff; stroke: #9b8fe0; stroke-width: 2; rx: 14; }
+      .box3 { fill: #fff6e8; stroke: #d8ac5a; stroke-width: 2; rx: 14; }
+      .box4 { fill: #eef4ff; stroke: #7fa1dd; stroke-width: 2; rx: 14; }
+      .label { font: 600 18px Arial, sans-serif; fill: #183122; }
+      .small { font: 500 15px Arial, sans-serif; fill: #496255; }
+      .arrow { stroke: #537a5f; stroke-width: 3; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#537a5f" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1200"/>
+  <text class="title" x="70" y="70">GreenBuddy Architecture</text>
+  <text class="subtitle" x="70" y="105">Current stabilized MVP structure after engine/coordinator extractions</text>
+
+  <rect class="section" x="60" y="150" width="280" height="360" rx="18"/>
+  <text class="sectionTitle" x="90" y="190">UI Layer</text>
+  <rect class="box" x="90" y="220" width="220" height="70" rx="14"/>
+  <text class="label" x="120" y="262">GreenBuddyApp</text>
+  <rect class="box" x="90" y="315" width="220" height="170" rx="14"/>
+  <text class="label" x="118" y="350">Compose Screens</text>
+  <text class="small" x="118" y="382">Home</text>
+  <text class="small" x="118" y="410">Learn</text>
+  <text class="small" x="118" y="438">Dex</text>
+  <text class="small" x="118" y="466">Profile / Settings</text>
+
+  <rect class="section" x="390" y="150" width="320" height="360" rx="18"/>
+  <text class="sectionTitle" x="420" y="190">ViewModel Layer</text>
+  <rect class="box" x="425" y="220" width="250" height="100" rx="14"/>
+  <text class="label" x="468" y="260">GreenBuddyViewModel</text>
+  <text class="small" x="457" y="290">orchestrates flows + exposes uiState</text>
+  <rect class="box2" x="425" y="345" width="250" height="60" rx="14"/>
+  <text class="label" x="470" y="382">rewardFeedback</text>
+  <rect class="box2" x="425" y="425" width="250" height="60" rx="14"/>
+  <text class="label" x="485" y="462">feedbackEvent</text>
+
+  <rect class="section" x="760" y="150" width="350" height="430" rx="18"/>
+  <text class="sectionTitle" x="790" y="190">Assembly + Domain</text>
+  <rect class="box4" x="790" y="220" width="290" height="70" rx="14"/>
+  <text class="label" x="865" y="262">UiStateAssembler</text>
+
+  <rect class="box3" x="790" y="315" width="290" height="220" rx="14"/>
+  <text class="label" x="877" y="350">Engines / Coordinators</text>
+  <text class="small" x="820" y="382">LessonEngine, CareEngine, MissionEngine</text>
+  <text class="small" x="820" y="410">GrowthEngine, RewardEngine</text>
+  <text class="small" x="820" y="438">CompanionCoordinator, CosmeticCoordinator</text>
+  <text class="small" x="820" y="466">FeedbackCoordinator, ActionUiCoordinator</text>
+  <text class="small" x="820" y="494">ActionPersistenceCoordinator</text>
+  <text class="small" x="820" y="522">RealPlantCoordinator</text>
+
+  <rect class="section" x="1160" y="150" width="360" height="430" rx="18"/>
+  <text class="sectionTitle" x="1190" y="190">Data + Content</text>
+  <rect class="box" x="1190" y="220" width="300" height="80" rx="14"/>
+  <text class="label" x="1230" y="258">GreenBuddyPreferencesRepository</text>
+  <text class="small" x="1272" y="284">DataStore persistence</text>
+  <rect class="box4" x="1190" y="325" width="300" height="75" rx="14"/>
+  <text class="label" x="1260" y="366">LessonContentLoader</text>
+  <rect class="box4" x="1190" y="420" width="300" height="75" rx="14"/>
+  <text class="label" x="1255" y="462">ReminderCopyLoader</text>
+  <rect class="box2" x="1190" y="515" width="300" height="45" rx="14"/>
+  <text class="small" x="1240" y="543">assets/content/*.json</text>
+
+  <rect class="section" x="390" y="640" width="1130" height="320" rx="18"/>
+  <text class="sectionTitle" x="420" y="680">Supporting Systems</text>
+
+  <rect class="box3" x="430" y="715" width="270" height="120" rx="14"/>
+  <text class="label" x="495" y="755">Notifications</text>
+  <text class="small" x="460" y="785">ReminderScheduler</text>
+  <text class="small" x="460" y="813">ReminderWorker</text>
+  <text class="small" x="460" y="841">ReminderNotifier</text>
+
+  <rect class="box2" x="735" y="715" width="270" height="120" rx="14"/>
+  <text class="label" x="808" y="755">Analytics</text>
+  <text class="small" x="785" y="792">AndroidAnalyticsLogger</text>
+  <text class="small" x="776" y="820">local MVP event logging</text>
+
+  <rect class="box4" x="1040" y="715" width="440" height="180" rx="14"/>
+  <text class="label" x="1190" y="755">Model Layer</text>
+  <text class="small" x="1070" y="788">AppPreferences, GreenBuddyUiState</text>
+  <text class="small" x="1070" y="816">Lesson / Care / Mission / Reward models</text>
+  <text class="small" x="1070" y="844">Weather / Companion / Reminder models</text>
+  <text class="small" x="1070" y="872">helper logic + normalization</text>
+
+  <path class="arrow" d="M310 255 C355 255, 365 255, 425 255"/>
+  <path class="arrow" d="M675 255 C720 255, 730 255, 790 255"/>
+  <path class="arrow" d="M675 380 C720 380, 730 380, 790 380"/>
+  <path class="arrow" d="M1080 255 C1120 255, 1140 255, 1190 255"/>
+  <path class="arrow" d="M1080 360 C1120 360, 1140 360, 1190 360"/>
+  <path class="arrow" d="M1340 300 C1340 360, 1340 360, 1340 420"/>
+  <path class="arrow" d="M550 320 C550 470, 550 470, 550 715"/>
+  <path class="arrow" d="M550 320 C870 320, 870 320, 870 715"/>
+  <path class="arrow" d="M1330 560 C1330 620, 1330 620, 1260 715"/>
+
+  <text class="small" x="70" y="1080">Typical flow: UI event → ViewModel → engine/coordinator → UI outcome shaping → persistence shaping → repository / analytics → uiState recompute → Compose re-render</text>
+</svg>

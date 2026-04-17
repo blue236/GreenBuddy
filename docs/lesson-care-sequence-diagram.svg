@@ -1,0 +1,92 @@
+<svg width="1700" height="1120" viewBox="0 0 1700 1120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #f8fbf8; }
+      .title { font: 700 34px Arial, sans-serif; fill: #17321f; }
+      .subtitle { font: 500 18px Arial, sans-serif; fill: #4c6558; }
+      .actor { fill: #eef7f0; stroke: #7eb18a; stroke-width: 2; rx: 12; }
+      .actorText { font: 700 18px Arial, sans-serif; fill: #17321f; }
+      .life { stroke: #b7c9bd; stroke-width: 2; stroke-dasharray: 8 8; }
+      .msg { stroke: #496c54; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .ret { stroke: #8da498; stroke-width: 2; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrow2); }
+      .note { fill: #fff8e9; stroke: #d7b164; stroke-width: 2; rx: 12; }
+      .noteText { font: 500 16px Arial, sans-serif; fill: #4a4126; }
+      .label { font: 500 16px Arial, sans-serif; fill: #183122; }
+      .frame { fill: #ffffff; stroke: #c8d8cd; stroke-width: 2; rx: 16; }
+      .frameTitle { font: 700 20px Arial, sans-serif; fill: #20422b; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#496c54" />
+    </marker>
+    <marker id="arrow2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#8da498" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1700" height="1120"/>
+  <text class="title" x="70" y="70">GreenBuddy Sequence Diagram</text>
+  <text class="subtitle" x="70" y="104">Lesson completion and care action flow after recent coordinator extractions</text>
+
+  <g>
+    <rect class="actor" x="60" y="150" width="150" height="46" rx="12"/><text class="actorText" x="109" y="180">UI</text>
+    <line class="life" x1="135" y1="196" x2="135" y2="1010"/>
+
+    <rect class="actor" x="270" y="150" width="220" height="46" rx="12"/><text class="actorText" x="316" y="180">GreenBuddyViewModel</text>
+    <line class="life" x1="380" y1="196" x2="380" y2="1010"/>
+
+    <rect class="actor" x="560" y="150" width="170" height="46" rx="12"/><text class="actorText" x="589" y="180">Domain Engine</text>
+    <line class="life" x1="645" y1="196" x2="645" y2="1010"/>
+
+    <rect class="actor" x="790" y="150" width="170" height="46" rx="12"/><text class="actorText" x="814" y="180">ActionUiCoordinator</text>
+    <line class="life" x1="875" y1="196" x2="875" y2="1010"/>
+
+    <rect class="actor" x="1030" y="150" width="220" height="46" rx="12"/><text class="actorText" x="1054" y="180">ActionPersistenceCoordinator</text>
+    <line class="life" x1="1140" y1="196" x2="1140" y2="1010"/>
+
+    <rect class="actor" x="1320" y="150" width="120" height="46" rx="12"/><text class="actorText" x="1350" y="180">Repository</text>
+    <line class="life" x1="1380" y1="196" x2="1380" y2="1010"/>
+
+    <rect class="actor" x="1490" y="150" width="140" height="46" rx="12"/><text class="actorText" x="1521" y="180">Analytics</text>
+    <line class="life" x1="1560" y1="196" x2="1560" y2="1010"/>
+  </g>
+
+  <rect class="frame" x="40" y="230" width="1600" height="350" rx="16"/>
+  <text class="frameTitle" x="65" y="262">A. Lesson completion flow</text>
+
+  <path class="msg" d="M135 300 L380 300"/><text class="label" x="175" y="290">submitCurrentLessonAnswer()</text>
+  <path class="msg" d="M380 340 L645 340"/><text class="label" x="455" y="330">LessonEngine.submitAnswer()</text>
+  <path class="ret" d="M645 380 L380 380"/><text class="label" x="450" y="370">LessonActionResult</text>
+  <path class="msg" d="M380 420 L875 420"/><text class="label" x="560" y="410">lessonOutcome(...)</text>
+  <path class="ret" d="M875 460 L380 460"/><text class="label" x="580" y="450">rewardFeedback + feedbackEvent</text>
+  <path class="msg" d="M380 500 L1140 500"/><text class="label" x="680" y="490">lessonOutcome(...)</text>
+  <path class="ret" d="M1140 540 L380 540"/><text class="label" x="660" y="530">analyticsEvent + persistence payload</text>
+  <path class="msg" d="M380 570 L1560 570"/><text class="label" x="885" y="560">log(lesson_completed)</text>
+  <path class="msg" d="M380 600 L1380 600"/><text class="label" x="750" y="590">saveLessonAndMissionProgress()</text>
+  <path class="msg" d="M380 630 L1380 630"/><text class="label" x="860" y="620">saveRewardState()</text>
+  <path class="msg" d="M380 660 L1380 660"/><text class="label" x="860" y="650">recordLessonCompleted()</text>
+  <path class="msg" d="M380 690 L1380 690"/><text class="label" x="900" y="680">recordAppOpen()</text>
+  <path class="msg" d="M380 720 L1380 720"/><text class="label" x="900" y="710">unlockStarter()? </text>
+
+  <rect class="note" x="1180" y="285" width="400" height="95" rx="12"/>
+  <text class="noteText" x="1205" y="320">Lesson flow is now split into:</text>
+  <text class="noteText" x="1205" y="348">1) engine result</text>
+  <text class="noteText" x="1205" y="376">2) UI outcome shaping</text>
+  <text class="noteText" x="1205" y="404">3) persistence/event shaping</text>
+
+  <rect class="frame" x="40" y="620" width="1600" height="360" rx="16"/>
+  <text class="frameTitle" x="65" y="652">B. Care action flow</text>
+
+  <path class="msg" d="M135 710 L380 710"/><text class="label" x="185" y="700">performCareAction()</text>
+  <path class="msg" d="M380 750 L645 750"/><text class="label" x="472" y="740">CareEngine.performAction()</text>
+  <path class="ret" d="M645 790 L380 790"/><text class="label" x="462" y="780">CareActionResult</text>
+  <path class="msg" d="M380 830 L875 830"/><text class="label" x="570" y="820">careOutcome(...)</text>
+  <path class="ret" d="M875 870 L380 870"/><text class="label" x="596" y="860">rewardFeedback + optional event</text>
+  <path class="msg" d="M380 910 L1140 910"/><text class="label" x="702" y="900">careOutcome(...)</text>
+  <path class="ret" d="M1140 950 L380 950"/><text class="label" x="670" y="940">analyticsEvent + persistence payload</text>
+  <path class="msg" d="M380 980 L1560 980"/><text class="label" x="916" y="970">log(care_action)</text>
+  <path class="msg" d="M380 1010 L1380 1010"/><text class="label" x="730" y="1000">saveCareStateAndMissionProgress()</text>
+  <path class="msg" d="M380 1040 L1380 1040"/><text class="label" x="860" y="1030">saveRewardState() + recordCareAction() + recordAppOpen()</text>
+
+  <rect class="note" x="70" y="1025" width="530" height="60" rx="12"/>
+  <text class="noteText" x="95" y="1062">Net effect: GreenBuddyViewModel is increasingly becoming a thin orchestrator rather than a business-logic container.</text>
+</svg>
