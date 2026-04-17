@@ -10,6 +10,7 @@ interface RewardEngineContract {
     fun lessonFeedback(rewardXp: Int, missionOutcome: MissionRewardOutcome): String
     fun careFeedback(action: CareAction, languageTag: String, wasHelpful: Boolean, missionOutcome: MissionRewardOutcome): String
     fun greenhouseUnlockFeedback(baseFeedback: String, unlockedStarter: StarterPlantOption?, languageTag: String): String
+    fun cosmeticFeedback(item: com.blue236.greenbuddy.model.CosmeticItem, languageTag: String): String
 }
 
 interface GrowthUnlockContract {
