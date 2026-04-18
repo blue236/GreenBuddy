@@ -177,7 +177,7 @@ object CompanionChatEngine {
         return CompanionChatReply(
             intent = intent,
             userMessage = normalizedMessage,
-            reply = renderReply(intent, normalizedMessage, snapshot, lang),
+            reply = renderReply(intent, normalizedMessage, snapshot, lang, copy),
             suggestionChips = suggestionChipsFor(snapshot, intent, lang, copy),
         )
     }
@@ -239,7 +239,7 @@ object CompanionChatEngine {
         }
     }
 
-    private fun renderReply(intent: CompanionChatIntent, userMessage: String, snapshot: CompanionStateSnapshot, languageTag: String): String {
+    private fun renderReply(intent: CompanionChatIntent, userMessage: String, snapshot: CompanionStateSnapshot, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): String {
         val species = snapshot.starter.companion.species
         val name = snapshot.starter.companion.name
         val mood = snapshot.careState.localizedMood(languageTag).lowercase()
@@ -351,51 +351,66 @@ object CompanionChatEngine {
             }
             CompanionChatIntent.CARE_ADVICE -> {
                 val careTip = when (snapshot.careState.lowestNeed) {
-                    CareAction.WATER -> when (normalizedLanguageTag(languageTag)) {
-                        "de" -> "Gießen würde mir gerade am meisten helfen, weil meine Hydration mit ${snapshot.careState.hydration} am niedrigsten ist."
-                        "ko" -> "지금은 수분 수치가 ${snapshot.careState.hydration}로 가장 낮아서 물 주기가 가장 큰 도움이 돼요."
-                        else -> "A watering action would help most right now because hydration is my lowest stat at ${snapshot.careState.hydration}."
-                    }
-                    CareAction.MOVE_TO_SUNLIGHT -> when (normalizedLanguageTag(languageTag)) {
-                        "de" -> "Mehr Licht wäre jetzt der beste Schritt, weil mein Sonnenwert mit ${snapshot.careState.sunlight} hinterherhinkt."
-                        "ko" -> "지금은 햇빛 수치가 ${snapshot.careState.sunlight}로 뒤처져 있어서 빛을 더 받는 게 가장 좋아요."
-                        else -> "More light is the best move right now because sunlight is lagging at ${snapshot.careState.sunlight}."
-                    }
-                    CareAction.FERTILIZE -> when (normalizedLanguageTag(languageTag)) {
-                        "de" -> "Ein Nährstoff-Boost würde mir jetzt am meisten helfen, weil mein Nährwert bei ${snapshot.careState.nutrition} liegt."
-                        "ko" -> "지금은 영양 수치가 ${snapshot.careState.nutrition}라서 영양을 주는 게 가장 도움이 돼요."
-                        else -> "A nutrient boost would help most right now because nutrition is sitting at ${snapshot.careState.nutrition}."
-                    }
+                    CareAction.WATER -> copy.replyTemplates["CARE_WATER"]
+                        ?.replace("{hydration}", snapshot.careState.hydration.toString())
+                        ?: when (normalizedLanguageTag(languageTag)) {
+                            "de" -> "Gießen würde mir gerade am meisten helfen, weil meine Hydration mit ${snapshot.careState.hydration} am niedrigsten ist."
+                            "ko" -> "지금은 수분 수치가 ${snapshot.careState.hydration}로 가장 낮아서 물 주기가 가장 큰 도움이 돼요."
+                            else -> "A watering action would help most right now because hydration is my lowest stat at ${snapshot.careState.hydration}."
+                        }
+                    CareAction.MOVE_TO_SUNLIGHT -> copy.replyTemplates["CARE_LIGHT"]
+                        ?.replace("{sunlight}", snapshot.careState.sunlight.toString())
+                        ?: when (normalizedLanguageTag(languageTag)) {
+                            "de" -> "Mehr Licht wäre jetzt der beste Schritt, weil mein Sonnenwert mit ${snapshot.careState.sunlight} hinterherhinkt."
+                            "ko" -> "지금은 햇빛 수치가 ${snapshot.careState.sunlight}로 뒤처져 있어서 빛을 더 받는 게 가장 좋아요."
+                            else -> "More light is the best move right now because sunlight is lagging at ${snapshot.careState.sunlight}."
+                        }
+                    CareAction.FERTILIZE -> copy.replyTemplates["CARE_NUTRITION"]
+                        ?.replace("{nutrition}", snapshot.careState.nutrition.toString())
+                        ?: when (normalizedLanguageTag(languageTag)) {
+                            "de" -> "Ein Nährstoff-Boost würde mir jetzt am meisten helfen, weil mein Nährwert bei ${snapshot.careState.nutrition} liegt."
+                            "ko" -> "지금은 영양 수치가 ${snapshot.careState.nutrition}라서 영양을 주는 게 가장 도움이 돼요."
+                            else -> "A nutrient boost would help most right now because nutrition is sitting at ${snapshot.careState.nutrition}."
+                        }
                 }
                 joinSentences(continuityLead, emotionalLead, careTip, snapshot.weatherAdvice.starterAdvice, relationshipLead)
             }
             CompanionChatIntent.MISSION_HELP -> {
                 val missions = snapshot.dailyMissionSet?.missions.orEmpty()
                 val missionReply = if (missions.isEmpty()) {
-                    when (normalizedLanguageTag(languageTag)) {
+                    copy.replyTemplates["MISSION_EMPTY"] ?: when (normalizedLanguageTag(languageTag)) {
                         "de" -> "Ich sehe die heutige Missionskarte noch nicht, aber eine Lektion plus eine Pflegeaktion ist meistens ein guter Start."
                         "ko" -> "아직 오늘 미션 카드는 보이지 않지만, 보통은 레슨 하나와 돌봄 액션 하나로 시작하면 좋아요."
                         else -> "I can’t see today’s mission card yet, but a lesson plus one care action is usually a smart start."
                     }
                 } else {
                     val nextMission = missions.firstOrNull { !it.isCompleted } ?: missions.last()
-                    when (normalizedLanguageTag(languageTag)) {
-                        "de" -> "Bester Missionszug: ${nextMission.title}. ${nextMission.description} Aktuelle Serie: ${snapshot.dailyMissionSet?.currentStreak ?: 0}."
-                        "ko" -> "지금 가장 좋은 미션은 ${nextMission.title}예요. ${nextMission.description} 현재 연속 기록은 ${snapshot.dailyMissionSet?.currentStreak ?: 0}이에요."
-                        else -> "Best mission move: ${nextMission.title}. ${nextMission.description} Current streak: ${snapshot.dailyMissionSet?.currentStreak ?: 0}."
-                    }
+                    copy.replyTemplates["MISSION_NEXT"]
+                        ?.replace("{missionTitle}", nextMission.title)
+                        ?.replace("{missionDescription}", nextMission.description)
+                        ?.replace("{currentStreak}", (snapshot.dailyMissionSet?.currentStreak ?: 0).toString())
+                        ?: when (normalizedLanguageTag(languageTag)) {
+                            "de" -> "Bester Missionszug: ${nextMission.title}. ${nextMission.description} Aktuelle Serie: ${snapshot.dailyMissionSet?.currentStreak ?: 0}."
+                            "ko" -> "지금 가장 좋은 미션은 ${nextMission.title}예요. ${nextMission.description} 현재 연속 기록은 ${snapshot.dailyMissionSet?.currentStreak ?: 0}이에요."
+                            else -> "Best mission move: ${nextMission.title}. ${nextMission.description} Current streak: ${snapshot.dailyMissionSet?.currentStreak ?: 0}."
+                        }
                 }
                 joinSentences(continuityLead, emotionalLead, missionReply, relationshipLead)
             }
             CompanionChatIntent.GROWTH_QUESTION -> {
                 val growth = snapshot.growthStageState
                 val growthReply = growth.nextStage?.let {
-                    when (normalizedLanguageTag(languageTag)) {
-                        "de" -> "Ich bin gerade in der Phase ${growth.currentStage.localizedGrowthTitle(languageTag)}. Als Nächstes kommt ${it.localizedGrowthTitle(languageTag)}, und ich bin schon ${growth.readinessPercent}% auf dem Weg dorthin. ${growth.localizedUnlockHint(languageTag)}"
-                        "ko" -> "저는 지금 ${growth.currentStage.localizedGrowthTitle(languageTag)} 단계예요. 다음은 ${it.localizedGrowthTitle(languageTag)} 단계이고, 거기까지 ${growth.readinessPercent}% 왔어요. ${growth.localizedUnlockHint(languageTag)}"
-                        else -> "I’m in my ${growth.currentStage.title} stage. Next up is ${it.title}, and I’m ${growth.readinessPercent}% of the way there. ${growth.unlockHint}"
-                    }
-                } ?: when (normalizedLanguageTag(languageTag)) {
+                    copy.replyTemplates["GROWTH_NEXT"]
+                        ?.replace("{currentStage}", growth.currentStage.localizedGrowthTitle(languageTag))
+                        ?.replace("{nextStage}", it.localizedGrowthTitle(languageTag))
+                        ?.replace("{readinessPercent}", growth.readinessPercent.toString())
+                        ?.replace("{unlockHint}", growth.localizedUnlockHint(languageTag))
+                        ?: when (normalizedLanguageTag(languageTag)) {
+                            "de" -> "Ich bin gerade in der Phase ${growth.currentStage.localizedGrowthTitle(languageTag)}. Als Nächstes kommt ${it.localizedGrowthTitle(languageTag)}, und ich bin schon ${growth.readinessPercent}% auf dem Weg dorthin. ${growth.localizedUnlockHint(languageTag)}"
+                            "ko" -> "저는 지금 ${growth.currentStage.localizedGrowthTitle(languageTag)} 단계예요. 다음은 ${it.localizedGrowthTitle(languageTag)} 단계이고, 거기까지 ${growth.readinessPercent}% 왔어요. ${growth.localizedUnlockHint(languageTag)}"
+                            else -> "I’m in my ${growth.currentStage.title} stage. Next up is ${it.title}, and I’m ${growth.readinessPercent}% of the way there. ${growth.unlockHint}"
+                        }
+                } ?: copy.replyTemplates["GROWTH_FINAL"] ?: when (normalizedLanguageTag(languageTag)) {
                     "de" -> "Ich habe meine letzte Wachstumsstufe schon erreicht. Jetzt geht es darum, stabil und gesund zu bleiben."
                     "ko" -> "저는 이미 마지막 성장 단계에 도달했어요. 이제는 안정적으로 건강을 유지하는 게 목표예요."
                     else -> "I’ve already reached my final growth stage, so now the goal is staying steady and healthy."
@@ -405,11 +420,17 @@ object CompanionChatEngine {
             CompanionChatIntent.WEATHER_QUESTION -> joinSentences(
                 continuityLead,
                 emotionalLead,
-                when (normalizedLanguageTag(languageTag)) {
-                    "de" -> "In ${snapshot.weatherSnapshot.city.localizedName(languageTag)} ist gerade ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} mit eher ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} Bedingungen. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
-                    "ko" -> "${snapshot.weatherSnapshot.city.localizedName(languageTag)}은 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}이고, 전반적으로 ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} 환경이에요. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
-                    else -> "In ${snapshot.weatherSnapshot.city.defaultName}, it’s ${snapshot.weatherSnapshot.season.name.lowercase()} for my setup with ${snapshot.weatherSnapshot.condition.name.lowercase().replace('_', ' ')} conditions. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
-                },
+                copy.replyTemplates["WEATHER"]
+                    ?.replace("{cityName}", snapshot.weatherSnapshot.city.localizedName(languageTag))
+                    ?.replace("{seasonLabel}", localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag))
+                    ?.replace("{conditionLabel}", localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag))
+                    ?.replace("{weatherSummary}", snapshot.weatherAdvice.summary)
+                    ?.replace("{starterAdvice}", snapshot.weatherAdvice.starterAdvice)
+                    ?: when (normalizedLanguageTag(languageTag)) {
+                        "de" -> "In ${snapshot.weatherSnapshot.city.localizedName(languageTag)} ist gerade ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} mit eher ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} Bedingungen. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
+                        "ko" -> "${snapshot.weatherSnapshot.city.localizedName(languageTag)}은 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}이고, 전반적으로 ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} 환경이에요. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
+                        else -> "In ${snapshot.weatherSnapshot.city.defaultName}, it’s ${snapshot.weatherSnapshot.season.name.lowercase()} for my setup with ${snapshot.weatherSnapshot.condition.name.lowercase().replace('_', ' ')} conditions. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
+                    },
                 relationshipLead,
             )
             CompanionChatIntent.CASUAL_CHAT -> joinSentences(

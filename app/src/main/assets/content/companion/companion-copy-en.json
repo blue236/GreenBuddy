@@ -28,5 +28,15 @@
     "GROWTH_PROGRESS_NEAR": "I’m already {readinessPercent}% of the way to my next growth stage. I can almost feel it.",
     "GROWTH_PROGRESS_STEADY": "I can feel quiet progress. Not dramatic, just real and steady.",
     "WEATHER_SHIFT": "{starterName} can really feel the {seasonLabel} shift right now. I’m adjusting, but I want you to notice it too."
+  },
+  "reply_templates": {
+    "CARE_WATER": "A watering action would help most right now because hydration is my lowest stat at {hydration}.",
+    "CARE_LIGHT": "More light is the best move right now because sunlight is lagging at {sunlight}.",
+    "CARE_NUTRITION": "A nutrient boost would help most right now because nutrition is sitting at {nutrition}.",
+    "MISSION_EMPTY": "I can’t see today’s mission card yet, but a lesson plus one care action is usually a smart start.",
+    "MISSION_NEXT": "Best mission move: {missionTitle}. {missionDescription} Current streak: {currentStreak}.",
+    "GROWTH_NEXT": "I’m in my {currentStage}. Next up is {nextStage}, and I’m {readinessPercent}% of the way there. {unlockHint}",
+    "GROWTH_FINAL": "I’ve already reached my final growth stage, so now the goal is staying steady and healthy.",
+    "WEATHER": "In {cityName}, it’s {seasonLabel} for my setup with {conditionLabel} conditions. {weatherSummary} {starterAdvice}"
   }
 }
