@@ -250,104 +250,78 @@ object CompanionChatEngine {
         val continuityLead = continuityLead(snapshot.recentConversationMemory, intent, languageTag)
         val emotionalLead = snapshot.continuity.followUpLead
         val relationshipLead = relationshipLead(snapshot.relationship, languageTag)
+        fun replyTemplate(key: String): String? = copy.replyTemplates[key]
+            ?.replace("{name}", name)
+            ?.replace("{mood}", mood)
+            ?.replace("{health}", health)
+            ?.replace("{careLabel}", careLabel(snapshot.careState.lowestNeed, languageTag))
+            ?.replace("{stage}", stage)
+            ?.replace("{stageLower}", stage.lowercase())
         return when (intent) {
-            CompanionChatIntent.STATUS_CHECK -> when (normalizedLanguageTag(languageTag)) {
-                "de" -> when (species) {
-                    "Monstera" -> joinSentences(
-                        continuityLead,
-                        emotionalLead,
-                        "$name meldet sich: Ich fühle mich $mood und insgesamt $health.",
-                        "Mein dringendstes Bedürfnis ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
-                        "Ich bin gerade in der Phase $stage.",
-                        missionSummary,
-                        relationshipLead,
-                        realPlantSummary,
-                    )
-                    "Basil" -> joinSentences(
-                        continuityLead,
-                        emotionalLead,
-                        "$name checkt ein! Ich bin $mood und insgesamt $health.",
-                        "Der beste schnelle Schritt ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
-                        "Aktuell bin ich in der Phase $stage.",
-                        missionSummary,
-                        relationshipLead,
-                        realPlantSummary,
-                    )
-                    else -> joinSentences(
-                        continuityLead,
-                        emotionalLead,
-                        "$name berichtet: Stimmung $mood, Gesundheit $health.",
-                        "Priorität hat ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
-                        "Wachstumsphase: $stage.",
-                        missionSummary,
-                        relationshipLead,
-                        realPlantSummary,
-                    )
+            CompanionChatIntent.STATUS_CHECK -> {
+                val statusKeyPrefix = when (species) {
+                    "Monstera" -> "STATUS_MONSTERA"
+                    "Basil" -> "STATUS_BASIL"
+                    else -> "STATUS_DEFAULT"
                 }
-                "ko" -> when (species) {
-                    "Monstera" -> joinSentences(
-                        continuityLead,
-                        emotionalLead,
-                        "$name 보고할게요. 지금 기분은 $mood, 전체 상태는 ${health} 쪽이에요.",
-                        "가장 먼저 챙기면 좋은 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요.",
-                        "현재 단계는 ${stage}예요.",
-                        missionSummary,
-                        relationshipLead,
-                        realPlantSummary,
-                    )
-                    "Basil" -> joinSentences(
-                        continuityLead,
-                        emotionalLead,
-                        "$name 체크인이에요! 지금 저는 $mood 느낌이고 전체적으로는 ${health} 상태예요.",
-                        "가장 빠르게 도움 되는 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요.",
-                        "지금 단계는 ${stage}예요.",
-                        missionSummary,
-                        relationshipLead,
-                        realPlantSummary,
-                    )
-                    else -> joinSentences(
-                        continuityLead,
-                        emotionalLead,
-                        "$name 브리핑이에요. 기분은 $mood, 건강 상태는 ${health}예요.",
-                        "우선 액션은 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요.",
-                        "성장 단계는 ${stage}예요.",
-                        missionSummary,
-                        relationshipLead,
-                        realPlantSummary,
-                    )
-                }
-                else -> when (species) {
-                    "Monstera" -> joinSentences(
-                        continuityLead,
-                        emotionalLead,
-                        "$name report: I’m feeling $mood and $health.",
-                        "My lowest need is ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
-                        "I’m at the $stage stage.",
-                        missionSummary,
-                        relationshipLead,
-                        realPlantSummary,
-                    )
-                    "Basil" -> joinSentences(
-                        continuityLead,
-                        emotionalLead,
-                        "$name check-in! I’m $mood but overall $health.",
-                        "Best quick win: ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
-                        "I’m currently ${stage.lowercase()}.",
-                        missionSummary,
-                        relationshipLead,
-                        realPlantSummary,
-                    )
-                    else -> joinSentences(
-                        continuityLead,
-                        emotionalLead,
-                        "$name briefing: mood $mood, health $health.",
-                        "Priority action is ${careLabel(snapshot.careState.lowestNeed, languageTag)}.",
-                        "Growth stage: $stage.",
-                        missionSummary,
-                        relationshipLead,
-                        realPlantSummary,
-                    )
-                }
+                joinSentences(
+                    continuityLead,
+                    emotionalLead,
+                    replyTemplate("${statusKeyPrefix}_PRIMARY") ?: when (normalizedLanguageTag(languageTag)) {
+                        "de" -> when (species) {
+                            "Monstera" -> "$name meldet sich: Ich fühle mich $mood und insgesamt $health."
+                            "Basil" -> "$name checkt ein! Ich bin $mood und insgesamt $health."
+                            else -> "$name berichtet: Stimmung $mood, Gesundheit $health."
+                        }
+                        "ko" -> when (species) {
+                            "Monstera" -> "$name 보고할게요. 지금 기분은 $mood, 전체 상태는 ${health} 쪽이에요."
+                            "Basil" -> "$name 체크인이에요! 지금 저는 $mood 느낌이고 전체적으로는 ${health} 상태예요."
+                            else -> "$name 브리핑이에요. 기분은 $mood, 건강 상태는 ${health}예요."
+                        }
+                        else -> when (species) {
+                            "Monstera" -> "$name report: I’m feeling $mood and $health."
+                            "Basil" -> "$name check-in! I’m $mood but overall $health."
+                            else -> "$name briefing: mood $mood, health $health."
+                        }
+                    },
+                    replyTemplate("${statusKeyPrefix}_NEED") ?: when (normalizedLanguageTag(languageTag)) {
+                        "de" -> when (species) {
+                            "Monstera" -> "Mein dringendstes Bedürfnis ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
+                            "Basil" -> "Der beste schnelle Schritt ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
+                            else -> "Priorität hat ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
+                        }
+                        "ko" -> when (species) {
+                            "Monstera" -> "가장 먼저 챙기면 좋은 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요."
+                            "Basil" -> "가장 빠르게 도움 되는 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요."
+                            else -> "우선 액션은 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요."
+                        }
+                        else -> when (species) {
+                            "Monstera" -> "My lowest need is ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
+                            "Basil" -> "Best quick win: ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
+                            else -> "Priority action is ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
+                        }
+                    },
+                    replyTemplate("${statusKeyPrefix}_STAGE") ?: when (normalizedLanguageTag(languageTag)) {
+                        "de" -> when (species) {
+                            "Monstera" -> "Ich bin gerade in der Phase $stage."
+                            "Basil" -> "Aktuell bin ich in der Phase $stage."
+                            else -> "Wachstumsphase: $stage."
+                        }
+                        "ko" -> when (species) {
+                            "Monstera" -> "현재 단계는 ${stage}예요."
+                            "Basil" -> "지금 단계는 ${stage}예요."
+                            else -> "성장 단계는 ${stage}예요."
+                        }
+                        else -> when (species) {
+                            "Monstera" -> "I’m at the $stage stage."
+                            "Basil" -> "I’m currently ${stage.lowercase()}."
+                            else -> "Growth stage: $stage."
+                        }
+                    },
+                    missionSummary,
+                    relationshipLead,
+                    realPlantSummary,
+                )
             }
             CompanionChatIntent.CARE_ADVICE -> {
                 val careTip = when (snapshot.careState.lowestNeed) {
@@ -436,20 +410,28 @@ object CompanionChatEngine {
             CompanionChatIntent.CASUAL_CHAT -> joinSentences(
                 continuityLead,
                 emotionalLead,
-                when (normalizedLanguageTag(languageTag)) {
-                    "de" -> when (species) {
-                        "Monstera" -> "Ich wirke gern gelassen und ausgeglichen — das klappt am besten, wenn meine Pflegewerte im Gleichgewicht bleiben. Frag mich nach meinem Status, wenn du den ehrlichen Blattbericht willst."
-                        "Basil" -> if (userMessage.contains("thanks", ignoreCase = true) || userMessage.contains("danke", ignoreCase = true) || userMessage.contains("고마", ignoreCase = true)) "Sehr gern. Ich nehme Lob am liebsten in Form von Wasser, Licht oder sauberer Missionsarbeit." else "Ich stehe für gute Vibes und schnelles Vorankommen. Wenn du willst, helfe ich dir bei der heutigen Mission oder sage dir, welcher Pflegeschub mir am meisten bringen würde."
-                        else -> "Ich mag Gespräche mit ein bisschen Ehrgeiz. Frag mich nach Wachstum, Wetter oder dem heutigen Plan, dann bleibe ich praktisch."
+                when (species) {
+                    "Monstera" -> replyTemplate("CASUAL_MONSTERA") ?: when (normalizedLanguageTag(languageTag)) {
+                        "de" -> "Ich wirke gern gelassen und ausgeglichen — das klappt am besten, wenn meine Pflegewerte im Gleichgewicht bleiben. Frag mich nach meinem Status, wenn du den ehrlichen Blattbericht willst."
+                        "ko" -> "저는 차분하고 균형 잡혀 보이는 걸 좋아해요. 그러려면 돌봄 수치가 고르게 유지되는 게 가장 중요해요. 솔직한 잎사귀 리포트가 궁금하면 상태를 물어봐 주세요."
+                        else -> "I’m trying to look serene and well-adjusted, which is easier when my care stats stay balanced. Ask me about my status if you want the honest leaf report."
                     }
-                    "ko" -> when (species) {
-                        "Monstera" -> "저는 차분하고 균형 잡혀 보이는 걸 좋아해요. 그러려면 돌봄 수치가 고르게 유지되는 게 가장 중요해요. 솔직한 잎사귀 리포트가 궁금하면 상태를 물어봐 주세요."
-                        "Basil" -> if (userMessage.contains("thanks", ignoreCase = true) || userMessage.contains("고마", ignoreCase = true)) "언제든지요. 저는 물, 햇빛, 그리고 잘 이어지는 연속 기록으로 고마움을 받는 걸 좋아해요." else "저는 좋은 분위기와 빠른 성장 둘 다 좋아해요. 원하면 오늘 미션을 같이 보거나, 어떤 돌봄이 가장 효과적인지 바로 알려 드릴게요."
-                        else -> "저는 대화에 약간의 목표 의식이 있는 걸 좋아해요. 성장, 날씨, 오늘 계획을 물어보면 실용적으로 답할게요."
+                    "Basil" -> if (userMessage.contains("thanks", ignoreCase = true) || userMessage.contains("danke", ignoreCase = true) || userMessage.contains("고마", ignoreCase = true)) {
+                        replyTemplate("CASUAL_BASIL_THANKS") ?: when (normalizedLanguageTag(languageTag)) {
+                            "de" -> "Sehr gern. Ich nehme Lob am liebsten in Form von Wasser, Licht oder sauberer Missionsarbeit."
+                            "ko" -> "언제든지요. 저는 물, 햇빛, 그리고 잘 이어지는 연속 기록으로 고마움을 받는 걸 좋아해요."
+                            else -> "Any time. I accept gratitude in the form of water, sun, or a nicely maintained streak."
+                        }
+                    } else {
+                        replyTemplate("CASUAL_BASIL_DEFAULT") ?: when (normalizedLanguageTag(languageTag)) {
+                            "de" -> "Ich stehe für gute Vibes und schnelles Vorankommen. Wenn du willst, helfe ich dir bei der heutigen Mission oder sage dir, welcher Pflegeschub mir am meisten bringen würde."
+                            "ko" -> "저는 좋은 분위기와 빠른 성장 둘 다 좋아해요. 원하면 오늘 미션을 같이 보거나, 어떤 돌봄이 가장 효과적인지 바로 알려 드릴게요."
+                            else -> "I support two things: good vibes and fast progress. If you want, I can help with today’s mission or tell you what care boost would wake me up most."
+                        }
                     }
-                    else -> when (species) {
-                        "Monstera" -> "I’m trying to look serene and well-adjusted, which is easier when my care stats stay balanced. Ask me about my status if you want the honest leaf report."
-                        "Basil" -> if (userMessage.contains("thanks", ignoreCase = true)) "Any time. I accept gratitude in the form of water, sun, or a nicely maintained streak." else "I support two things: good vibes and fast progress. If you want, I can help with today’s mission or tell you what care boost would wake me up most."
+                    else -> replyTemplate("CASUAL_DEFAULT") ?: when (normalizedLanguageTag(languageTag)) {
+                        "de" -> "Ich mag Gespräche mit ein bisschen Ehrgeiz. Frag mich nach Wachstum, Wetter oder dem heutigen Plan, dann bleibe ich praktisch."
+                        "ko" -> "저는 대화에 약간의 목표 의식이 있는 걸 좋아해요. 성장, 날씨, 오늘 계획을 물어보면 실용적으로 답할게요."
                         else -> "I like a little ambition in my conversations. Ask me about growth, weather, or today’s plan and I’ll keep it practical."
                     }
                 },

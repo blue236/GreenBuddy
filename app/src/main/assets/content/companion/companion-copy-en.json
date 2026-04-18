@@ -37,6 +37,19 @@
     "MISSION_NEXT": "Best mission move: {missionTitle}. {missionDescription} Current streak: {currentStreak}.",
     "GROWTH_NEXT": "I’m in my {currentStage}. Next up is {nextStage}, and I’m {readinessPercent}% of the way there. {unlockHint}",
     "GROWTH_FINAL": "I’ve already reached my final growth stage, so now the goal is staying steady and healthy.",
-    "WEATHER": "In {cityName}, it’s {seasonLabel} for my setup with {conditionLabel} conditions. {weatherSummary} {starterAdvice}"
+    "WEATHER": "In {cityName}, it’s {seasonLabel} for my setup with {conditionLabel} conditions. {weatherSummary} {starterAdvice}",
+    "STATUS_MONSTERA_PRIMARY": "{name} report: I’m feeling {mood} and {health}.",
+    "STATUS_MONSTERA_NEED": "My lowest need is {careLabel}.",
+    "STATUS_MONSTERA_STAGE": "I’m at the {stage} stage.",
+    "STATUS_BASIL_PRIMARY": "{name} check-in! I’m {mood} but overall {health}.",
+    "STATUS_BASIL_NEED": "Best quick win: {careLabel}.",
+    "STATUS_BASIL_STAGE": "I’m currently {stageLower}.",
+    "STATUS_DEFAULT_PRIMARY": "{name} briefing: mood {mood}, health {health}.",
+    "STATUS_DEFAULT_NEED": "Priority action is {careLabel}.",
+    "STATUS_DEFAULT_STAGE": "Growth stage: {stage}.",
+    "CASUAL_MONSTERA": "I’m trying to look serene and well-adjusted, which is easier when my care stats stay balanced. Ask me about my status if you want the honest leaf report.",
+    "CASUAL_BASIL_THANKS": "Any time. I accept gratitude in the form of water, sun, or a nicely maintained streak.",
+    "CASUAL_BASIL_DEFAULT": "I support two things: good vibes and fast progress. If you want, I can help with today’s mission or tell you what care boost would wake me up most.",
+    "CASUAL_DEFAULT": "I like a little ambition in my conversations. Ask me about growth, weather, or today’s plan and I’ll keep it practical."
   }
 }
