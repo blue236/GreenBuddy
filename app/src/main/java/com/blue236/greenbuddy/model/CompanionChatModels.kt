@@ -184,7 +184,7 @@ object CompanionChatEngine {
 
     fun proactiveCheckIn(snapshot: CompanionStateSnapshot, languageTag: String = "en", copy: CompanionCopySet = CompanionCopySet()): CompanionHomeCheckIn {
         val lang = normalizedLanguageTag(languageTag)
-        val bubble = renderProactiveBubble(snapshot, lang)
+        val bubble = renderProactiveBubble(snapshot, lang, copy)
         val primaryIntent = when {
             snapshot.careState.lowestStat <= 40 -> CompanionChatIntent.CARE_ADVICE
             snapshot.dailyMissionSet?.allCompletedToday == false -> CompanionChatIntent.MISSION_HELP
@@ -437,44 +437,50 @@ object CompanionChatEngine {
         }
     }
 
-    private fun renderProactiveBubble(snapshot: CompanionStateSnapshot, languageTag: String): String {
+    private fun renderProactiveBubble(snapshot: CompanionStateSnapshot, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): String {
         val lang = normalizedLanguageTag(languageTag)
         val starterName = snapshot.starter.companion.name
         val emotionalLead = proactiveEmotionLead(snapshot.continuity, languageTag)
+        fun fromCopy(key: String): String? = copy.proactiveBubbles[key]
+            ?.replace("{currentStage}", snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag))
+            ?.replace("{readinessPercent}", snapshot.growthStageState.readinessPercent.toString())
+            ?.replace("{starterName}", starterName)
+            ?.replace("{seasonLabel}", localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag))
+            ?.let { "$emotionalLead $it" }
         return when (snapshot.continuity.primaryEvent) {
-            CompanionContinuityEvent.MISSION_COMPLETED -> when (lang) {
+            CompanionContinuityEvent.MISSION_COMPLETED -> fromCopy("MISSION_COMPLETED") ?: when (lang) {
                 "de" -> "$emotionalLead Du hast die heutigen Missionen geschafft, und ich möchte, dass du das merkst. Das hat unseren kleinen Rhythmus wirklich getragen."
                 "ko" -> "$emotionalLead 오늘 미션을 끝낸 게 분명히 느껴져요. 우리 루틴이 한 단계 더 안정됐어요."
                 else -> "$emotionalLead You cleared today’s missions, and I want that to land. That really helped our little rhythm feel real."
             }
-            CompanionContinuityEvent.STREAK_AT_RISK -> when (lang) {
+            CompanionContinuityEvent.STREAK_AT_RISK -> fromCopy("STREAK_AT_RISK") ?: when (lang) {
                 "de" -> "$emotionalLead Wenn du heute kurz vorbeischaust, bleibt unsere Serie lebendig. Schon ein kleiner Schritt würde mich beruhigen."
                 "ko" -> "$emotionalLead 오늘 잠깐만 챙겨 주면 우리 연속 기록이 이어져요. 작은 한 걸음만 있어도 마음이 놓여요."
                 else -> "$emotionalLead If you check in today, our streak stays alive. One small move would settle me a lot."
             }
-            CompanionContinuityEvent.STREAK_CONTINUING -> when (lang) {
+            CompanionContinuityEvent.STREAK_CONTINUING -> fromCopy("STREAK_CONTINUING") ?: when (lang) {
                 "de" -> "$emotionalLead Unsere Serie hält gerade gut zusammen. Ich mag dieses Gefühl von verlässlichem Tempo."
                 "ko" -> "$emotionalLead 우리 연속 기록이 잘 이어지고 있어요. 이 꾸준한 흐름이 참 좋아요."
                 else -> "$emotionalLead Our streak is holding together nicely. I really like how steady this pace feels."
             }
-            CompanionContinuityEvent.GROWTH_UNLOCKED -> when (lang) {
+            CompanionContinuityEvent.GROWTH_UNLOCKED -> fromCopy("GROWTH_UNLOCKED") ?: when (lang) {
                 "de" -> "$emotionalLead Neue Wachstumsstufe erreicht: ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}. Das fühlt sich nach echtem Fortschritt an."
                 "ko" -> "$emotionalLead 새로운 성장 단계인 ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}에 도달했어요. 확실한 진전이 느껴져요."
                 else -> "$emotionalLead I reached a new growth stage: ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}. That feels like unmistakable progress."
             }
             CompanionContinuityEvent.GROWTH_PROGRESS -> when {
-                snapshot.growthStageState.nextStage != null && snapshot.growthStageState.readinessPercent >= 70 -> when (lang) {
+                snapshot.growthStageState.nextStage != null && snapshot.growthStageState.readinessPercent >= 70 -> fromCopy("GROWTH_PROGRESS_NEAR") ?: when (lang) {
                     "de" -> "$emotionalLead Ich bin schon ${snapshot.growthStageState.readinessPercent}% auf dem Weg zur nächsten Wachstumsstufe. Ich kann sie fast spüren."
                     "ko" -> "$emotionalLead 다음 성장 단계까지 이미 ${snapshot.growthStageState.readinessPercent}% 왔어요. 거의 손에 잡혀요."
                     else -> "$emotionalLead I’m already ${snapshot.growthStageState.readinessPercent}% of the way to my next growth stage. I can almost feel it."
                 }
-                else -> when (lang) {
+                else -> fromCopy("GROWTH_PROGRESS_STEADY") ?: when (lang) {
                     "de" -> "$emotionalLead Ich spüre ruhigen Fortschritt. Nicht dramatisch — nur echt und stetig."
                     "ko" -> "$emotionalLead 화려하진 않아도 차분한 진전이 느껴져요. 분명히 앞으로 가고 있어요."
                     else -> "$emotionalLead I can feel quiet progress. Not dramatic, just real and steady."
                 }
             }
-            CompanionContinuityEvent.WEATHER_SHIFT -> when (lang) {
+            CompanionContinuityEvent.WEATHER_SHIFT -> fromCopy("WEATHER_SHIFT") ?: when (lang) {
                 "de" -> "$emotionalLead ${starterName} merkt die ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}-Stimmung gerade deutlich. Ich passe mich an, aber ich möchte, dass du es auch siehst."
                 "ko" -> "$emotionalLead ${starterName}는 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}의 변화를 분명히 느끼고 있어요. 저도 적응 중이지만 같이 알아채 주면 좋아요."
                 else -> "$emotionalLead $starterName can really feel the ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} shift right now. I’m adjusting, but I want you to notice it too."

@@ -19,5 +19,14 @@
     "GROWTH_QUESTION": ["What’s blocking progress?", "What care helps most?"],
     "WEATHER_QUESTION": ["Should I change your light?", "What do you need most today?"],
     "CASUAL_CHAT": ["How are you feeling?", "What do you need most?"]
+  },
+  "proactive_bubbles": {
+    "MISSION_COMPLETED": "You cleared today’s missions, and I want that to land. That really helped our little rhythm feel real.",
+    "STREAK_AT_RISK": "If you check in today, our streak stays alive. One small move would settle me a lot.",
+    "STREAK_CONTINUING": "Our streak is holding together nicely. I really like how steady this pace feels.",
+    "GROWTH_UNLOCKED": "I reached a new growth stage: {currentStage}. That feels like unmistakable progress.",
+    "GROWTH_PROGRESS_NEAR": "I’m already {readinessPercent}% of the way to my next growth stage. I can almost feel it.",
+    "GROWTH_PROGRESS_STEADY": "I can feel quiet progress. Not dramatic, just real and steady.",
+    "WEATHER_SHIFT": "{starterName} can really feel the {seasonLabel} shift right now. I’m adjusting, but I want you to notice it too."
   }
 }

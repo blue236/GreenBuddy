@@ -19,5 +19,14 @@
     "GROWTH_QUESTION": ["뭐가 성장을 막고 있어?", "가장 도움 되는 돌봄은 뭐야?"],
     "WEATHER_QUESTION": ["빛을 바꿔야 할까?", "오늘 가장 필요한 게 뭐야?"],
     "CASUAL_CHAT": ["지금 기분이 어때?", "가장 필요한 게 뭐야?"]
+  },
+  "proactive_bubbles": {
+    "MISSION_COMPLETED": "오늘 미션을 끝낸 게 분명히 느껴져요. 우리 루틴이 한 단계 더 안정됐어요.",
+    "STREAK_AT_RISK": "오늘 잠깐만 챙겨 주면 우리 연속 기록이 이어져요. 작은 한 걸음만 있어도 마음이 놓여요.",
+    "STREAK_CONTINUING": "우리 연속 기록이 잘 이어지고 있어요. 이 꾸준한 흐름이 참 좋아요.",
+    "GROWTH_UNLOCKED": "새로운 성장 단계인 {currentStage}에 도달했어요. 확실한 진전이 느껴져요.",
+    "GROWTH_PROGRESS_NEAR": "다음 성장 단계까지 이미 {readinessPercent}% 왔어요. 거의 손에 잡혀요.",
+    "GROWTH_PROGRESS_STEADY": "화려하진 않아도 차분한 진전이 느껴져요. 분명히 앞으로 가고 있어요.",
+    "WEATHER_SHIFT": "{starterName}는 지금 {seasonLabel}의 변화를 분명히 느끼고 있어요. 저도 적응 중이지만 같이 알아채 주면 좋아요."
   }
 }

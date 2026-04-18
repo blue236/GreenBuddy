@@ -89,11 +89,12 @@ Delivered so far on `main`:
 - reminder copy externalization now includes localized asset coverage for English, Korean, and German
 - lesson content externalization now includes localized Monstera lesson assets for Korean and German, while other species continue to use English fallback
 - companion copy externalization starter now loads localized base suggestion chips, blank default prompts, and static intent suggestion chips from asset files with language fallback
+- proactive companion bubble copy now also routes through localized companion assets with placeholder replacement for stage, season, readiness percent, and starter name
 - focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, ui-state assembly behavior, action-ui coordination behavior, action-persistence coordination behavior, misc-action coordination behavior, reminder-copy loader behavior, lesson-content loader localization/fallback behavior, and companion-chat copy override behavior
 
 Still open in this pass:
 - reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler`, `ActionUiCoordinator`, `ActionPersistenceCoordinator`, and `MiscActionCoordinator` extractions
-- expand externalized content beyond the first localized lesson slice, initial reminder locale set, and companion copy starter slice
+- expand externalized content beyond the first localized lesson slice, initial reminder locale set, companion copy starter slice, and proactive bubble externalization
 - review and tighten Home lesson-first hierarchy after device validation
 - keep extending tests around new seams where useful
 - define the next stabilization slice after misc-action coordination cleanup
