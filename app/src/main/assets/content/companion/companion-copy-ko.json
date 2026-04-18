@@ -37,6 +37,19 @@
     "MISSION_NEXT": "지금 가장 좋은 미션은 {missionTitle}예요. {missionDescription} 현재 연속 기록은 {currentStreak}이에요.",
     "GROWTH_NEXT": "저는 지금 {currentStage} 단계예요. 다음은 {nextStage} 단계이고, 거기까지 {readinessPercent}% 왔어요. {unlockHint}",
     "GROWTH_FINAL": "저는 이미 마지막 성장 단계에 도달했어요. 이제는 안정적으로 건강을 유지하는 게 목표예요.",
-    "WEATHER": "{cityName}은 지금 {seasonLabel}이고, 전반적으로 {conditionLabel} 환경이에요. {weatherSummary} {starterAdvice}"
+    "WEATHER": "{cityName}은 지금 {seasonLabel}이고, 전반적으로 {conditionLabel} 환경이에요. {weatherSummary} {starterAdvice}",
+    "STATUS_MONSTERA_PRIMARY": "{name} 보고할게요. 지금 기분은 {mood}, 전체 상태는 {health} 쪽이에요.",
+    "STATUS_MONSTERA_NEED": "가장 먼저 챙기면 좋은 건 {careLabel}예요.",
+    "STATUS_MONSTERA_STAGE": "현재 단계는 {stage}예요.",
+    "STATUS_BASIL_PRIMARY": "{name} 체크인이에요! 지금 저는 {mood} 느낌이고 전체적으로는 {health} 상태예요.",
+    "STATUS_BASIL_NEED": "가장 빠르게 도움 되는 건 {careLabel}예요.",
+    "STATUS_BASIL_STAGE": "지금 단계는 {stage}예요.",
+    "STATUS_DEFAULT_PRIMARY": "{name} 브리핑이에요. 기분은 {mood}, 건강 상태는 {health}예요.",
+    "STATUS_DEFAULT_NEED": "우선 액션은 {careLabel}예요.",
+    "STATUS_DEFAULT_STAGE": "성장 단계는 {stage}예요.",
+    "CASUAL_MONSTERA": "저는 차분하고 균형 잡혀 보이는 걸 좋아해요. 그러려면 돌봄 수치가 고르게 유지되는 게 가장 중요해요. 솔직한 잎사귀 리포트가 궁금하면 상태를 물어봐 주세요.",
+    "CASUAL_BASIL_THANKS": "언제든지요. 저는 물, 햇빛, 그리고 잘 이어지는 연속 기록으로 고마움을 받는 걸 좋아해요.",
+    "CASUAL_BASIL_DEFAULT": "저는 좋은 분위기와 빠른 성장 둘 다 좋아해요. 원하면 오늘 미션을 같이 보거나, 어떤 돌봄이 가장 효과적인지 바로 알려 드릴게요.",
+    "CASUAL_DEFAULT": "저는 대화에 약간의 목표 의식이 있는 걸 좋아해요. 성장, 날씨, 오늘 계획을 물어보면 실용적으로 답할게요."
   }
 }

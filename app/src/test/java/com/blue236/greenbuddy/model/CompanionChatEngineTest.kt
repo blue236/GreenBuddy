@@ -237,6 +237,56 @@ class CompanionChatEngineTest {
     }
 
     @Test
+    fun replyTo_usesInjectedStatusReplyTemplates() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(enabled = false),
+        )
+
+        val reply = CompanionChatEngine.replyTo(
+            "How are you feeling?",
+            snapshot,
+            copy = CompanionCopySet(
+                replyTemplates = mapOf(
+                    "STATUS_BASIL_PRIMARY" to "Custom status {name} {mood} {health}.",
+                    "STATUS_BASIL_NEED" to "Custom need {careLabel}.",
+                    "STATUS_BASIL_STAGE" to "Custom stage {stageLower}."
+                )
+            ),
+        )
+
+        assertTrue(reply.reply.contains("Custom status"))
+        assertTrue(reply.reply.contains("Custom need watering."))
+        assertTrue(reply.reply.contains("Custom stage"))
+    }
+
+    @Test
+    fun replyTo_usesInjectedCasualReplyTemplates() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        val reply = CompanionChatEngine.replyTo(
+            "thanks",
+            snapshot,
+            copy = CompanionCopySet(replyTemplates = mapOf("CASUAL_BASIL_THANKS" to "Custom thanks line")),
+        )
+
+        assertTrue(reply.reply.contains("Custom thanks line"))
+    }
+
+    @Test
     fun updatedMemoryFor_keepsRecentExchangesBounded() {
         var snapshot = CompanionChatEngine.createSnapshot(
             starter = starter,

@@ -37,6 +37,19 @@
     "MISSION_NEXT": "Bester Missionszug: {missionTitle}. {missionDescription} Aktuelle Serie: {currentStreak}.",
     "GROWTH_NEXT": "Ich bin gerade in der Phase {currentStage}. Als Nächstes kommt {nextStage}, und ich bin schon {readinessPercent}% auf dem Weg dorthin. {unlockHint}",
     "GROWTH_FINAL": "Ich habe meine letzte Wachstumsstufe schon erreicht. Jetzt geht es darum, stabil und gesund zu bleiben.",
-    "WEATHER": "In {cityName} ist gerade {seasonLabel} mit eher {conditionLabel} Bedingungen. {weatherSummary} {starterAdvice}"
+    "WEATHER": "In {cityName} ist gerade {seasonLabel} mit eher {conditionLabel} Bedingungen. {weatherSummary} {starterAdvice}",
+    "STATUS_MONSTERA_PRIMARY": "{name} meldet sich: Ich fühle mich {mood} und insgesamt {health}.",
+    "STATUS_MONSTERA_NEED": "Mein dringendstes Bedürfnis ist {careLabel}.",
+    "STATUS_MONSTERA_STAGE": "Ich bin gerade in der Phase {stage}.",
+    "STATUS_BASIL_PRIMARY": "{name} checkt ein! Ich bin {mood} und insgesamt {health}.",
+    "STATUS_BASIL_NEED": "Der beste schnelle Schritt ist {careLabel}.",
+    "STATUS_BASIL_STAGE": "Aktuell bin ich in der Phase {stage}.",
+    "STATUS_DEFAULT_PRIMARY": "{name} berichtet: Stimmung {mood}, Gesundheit {health}.",
+    "STATUS_DEFAULT_NEED": "Priorität hat {careLabel}.",
+    "STATUS_DEFAULT_STAGE": "Wachstumsphase: {stage}.",
+    "CASUAL_MONSTERA": "Ich wirke gern gelassen und ausgeglichen, das klappt am besten, wenn meine Pflegewerte im Gleichgewicht bleiben. Frag mich nach meinem Status, wenn du den ehrlichen Blattbericht willst.",
+    "CASUAL_BASIL_THANKS": "Sehr gern. Ich nehme Lob am liebsten in Form von Wasser, Licht oder sauberer Missionsarbeit.",
+    "CASUAL_BASIL_DEFAULT": "Ich stehe für gute Vibes und schnelles Vorankommen. Wenn du willst, helfe ich dir bei der heutigen Mission oder sage dir, welcher Pflegeschub mir am meisten bringen würde.",
+    "CASUAL_DEFAULT": "Ich mag Gespräche mit ein bisschen Ehrgeiz. Frag mich nach Wachstum, Wetter oder dem heutigen Plan, dann bleibe ich praktisch."
   }
 }
