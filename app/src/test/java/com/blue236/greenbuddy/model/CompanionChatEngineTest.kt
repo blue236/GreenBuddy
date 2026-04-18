@@ -196,6 +196,39 @@ class CompanionChatEngineTest {
     }
 
     @Test
+    fun proactiveCheckIn_usesInjectedProactiveBubbleCopy() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+        val key = when (snapshot.continuity.primaryEvent) {
+            CompanionContinuityEvent.MISSION_COMPLETED -> "MISSION_COMPLETED"
+            CompanionContinuityEvent.STREAK_AT_RISK -> "STREAK_AT_RISK"
+            CompanionContinuityEvent.STREAK_CONTINUING -> "STREAK_CONTINUING"
+            CompanionContinuityEvent.GROWTH_UNLOCKED -> "GROWTH_UNLOCKED"
+            CompanionContinuityEvent.GROWTH_PROGRESS -> if (snapshot.growthStageState.nextStage != null && snapshot.growthStageState.readinessPercent >= 70) "GROWTH_PROGRESS_NEAR" else "GROWTH_PROGRESS_STEADY"
+            CompanionContinuityEvent.WEATHER_SHIFT -> "WEATHER_SHIFT"
+        }
+
+        val proactive = CompanionChatEngine.proactiveCheckIn(
+            snapshot,
+            copy = CompanionCopySet(
+                proactiveBubbles = mapOf(
+                    key to "Custom proactive line for {starterName} in {seasonLabel} at {currentStage} ({readinessPercent}%)."
+                )
+            ),
+        )
+
+        assertTrue(proactive.bubble.contains("Custom proactive line"))
+        assertTrue(proactive.bubble.contains(snapshot.starter.companion.name))
+    }
+
+    @Test
     fun replyTo_usesInjectedDefaultPromptWhenMessageBlank() {
         val snapshot = CompanionChatEngine.createSnapshot(
             starter = starter,

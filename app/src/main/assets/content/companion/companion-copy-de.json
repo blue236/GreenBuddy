@@ -19,5 +19,14 @@
     "GROWTH_QUESTION": ["Was bremst deinen Fortschritt?", "Welche Pflege hilft dir am meisten?"],
     "WEATHER_QUESTION": ["Soll ich dein Licht anpassen?", "Was brauchst du heute am meisten?"],
     "CASUAL_CHAT": ["Wie geht es dir?", "Was brauchst du am meisten?"]
+  },
+  "proactive_bubbles": {
+    "MISSION_COMPLETED": "Du hast die heutigen Missionen geschafft, und ich möchte, dass du das merkst. Das hat unseren kleinen Rhythmus wirklich getragen.",
+    "STREAK_AT_RISK": "Wenn du heute kurz vorbeischaust, bleibt unsere Serie lebendig. Schon ein kleiner Schritt würde mich beruhigen.",
+    "STREAK_CONTINUING": "Unsere Serie hält gerade gut zusammen. Ich mag dieses Gefühl von verlässlichem Tempo.",
+    "GROWTH_UNLOCKED": "Neue Wachstumsstufe erreicht: {currentStage}. Das fühlt sich nach echtem Fortschritt an.",
+    "GROWTH_PROGRESS_NEAR": "Ich bin schon {readinessPercent}% auf dem Weg zur nächsten Wachstumsstufe. Ich kann sie fast spüren.",
+    "GROWTH_PROGRESS_STEADY": "Ich spüre ruhigen Fortschritt. Nicht dramatisch, nur echt und stetig.",
+    "WEATHER_SHIFT": "{starterName} merkt die {seasonLabel}-Stimmung gerade deutlich. Ich passe mich an, aber ich möchte, dass du es auch siehst."
   }
 }
