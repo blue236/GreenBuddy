@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
+import com.blue236.greenbuddy.data.content.CompanionCopyLoader
 import com.blue236.greenbuddy.data.content.LessonContentLoader
 import com.blue236.greenbuddy.domain.AnalyticsEvent
 import com.blue236.greenbuddy.domain.ActionPersistenceCoordinator
@@ -47,6 +48,7 @@ import kotlinx.coroutines.launch
 class GreenBuddyViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = GreenBuddyPreferencesRepository(application)
     private val lessonContentLoader = LessonContentLoader(application)
+    private val companionCopyLoader = CompanionCopyLoader(application)
     private val analyticsLogger = AndroidAnalyticsLogger()
     private val missionEngine = MissionEngine()
     private val growthEngine = GrowthEngine()
@@ -86,12 +88,14 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     val uiState: StateFlow<GreenBuddyUiState> = combine(repository.preferences, selectedTab, rewardFeedback, feedbackEvent) { preferences, tab, feedback, pendingFeedback ->
+        val localeTag = preferences.appLanguage.languageTag ?: currentLanguageTag()
         uiStateAssembler.assemble(
             preferences = preferences,
             selectedTab = tab,
             rewardFeedback = feedback,
             feedbackEvent = pendingFeedback,
-            localeTag = preferences.appLanguage.languageTag ?: currentLanguageTag(),
+            localeTag = localeTag,
+            companionCopy = companionCopyLoader.copyFor(localeTag),
             today = LocalDate.now(),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GreenBuddyUiState())
@@ -219,6 +223,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             message = message,
             snapshot = state.companionStateSnapshot,
             languageTag = languageTag,
+            copy = companionCopyLoader.copyFor(languageTag),
         )
         val outcome = miscActionCoordinator.companionMessage(state.selectedStarterId, result.updatedMemory)
         analyticsLogger.log(outcome.analyticsEvent)

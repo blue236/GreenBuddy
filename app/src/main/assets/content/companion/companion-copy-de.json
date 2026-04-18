@@ -1,0 +1,23 @@
+{
+  "base_suggestion_chips": [
+    "Wie geht es dir?",
+    "Was brauchst du am meisten?",
+    "Was soll ich heute tun?"
+  ],
+  "default_prompts": {
+    "STATUS_CHECK": "Wie geht es dir?",
+    "CARE_ADVICE": "Was brauchst du am meisten?",
+    "MISSION_HELP": "Was soll ich heute tun?",
+    "GROWTH_QUESTION": "Wie wächst du gerade?",
+    "WEATHER_QUESTION": "Wie ist das Wetter für dich?",
+    "CASUAL_CHAT": "Wollen wir kurz reden?"
+  },
+  "intent_suggestion_chips": {
+    "STATUS_CHECK": ["Wie geht es dir?", "Was soll ich heute tun?"],
+    "CARE_ADVICE": ["Hilft dir das Wetter gerade?", "Wie geht es dir jetzt?"],
+    "MISSION_HELP": ["Wie läuft meine Serie?", "Hilft Pflege beim Wachstum?"],
+    "GROWTH_QUESTION": ["Was bremst deinen Fortschritt?", "Welche Pflege hilft dir am meisten?"],
+    "WEATHER_QUESTION": ["Soll ich dein Licht anpassen?", "Was brauchst du heute am meisten?"],
+    "CASUAL_CHAT": ["Wie geht es dir?", "Was brauchst du am meisten?"]
+  }
+}
