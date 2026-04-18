@@ -287,6 +287,64 @@ class CompanionChatEngineTest {
     }
 
     @Test
+    fun replyTo_usesInjectedContinuityAndRelationshipTemplates() {
+        val memory = CompanionConversationMemory()
+            .withExchange("How are you?", CompanionChatIntent.STATUS_CHECK, "Doing okay.")
+            .withExchange("How are you growing?", CompanionChatIntent.GROWTH_QUESTION, "Steadily.")
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet.copy(currentStreak = 3),
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+            recentConversationMemory = memory,
+        )
+
+        val reply = CompanionChatEngine.replyTo(
+            "What mission should I do today?",
+            snapshot,
+            copy = CompanionCopySet(
+                replyTemplates = mapOf(
+                    "CONTINUITY_RECENT_EXCHANGE" to "Custom continuity lead.",
+                    "RELATIONSHIP_WARM" to "Custom relationship lead.",
+                    "RELATIONSHIP_CLOSE" to "Custom relationship lead."
+                )
+            ),
+        )
+
+        assertTrue(reply.reply.contains("Custom continuity lead."))
+        assertTrue(reply.reply.contains("Custom relationship lead."))
+    }
+
+    @Test
+    fun replyTo_usesInjectedRealPlantSummaryTemplate() {
+        val realPlantMode = RealPlantModeState(enabled = true).logAction(
+            action = RealPlantCareAction.WATERED,
+            loggedAtEpochMillis = System.currentTimeMillis(),
+            zoneId = ZoneId.systemDefault(),
+        )
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = realPlantMode,
+        )
+
+        val reply = CompanionChatEngine.replyTo(
+            "How are you feeling?",
+            snapshot,
+            copy = CompanionCopySet(replyTemplates = mapOf("REAL_PLANT_DONE" to "Custom real plant {count}.")),
+        )
+
+        assertTrue(reply.reply.contains("Custom real plant 1."))
+    }
+
+    @Test
     fun updatedMemoryFor_keepsRecentExchangesBounded() {
         var snapshot = CompanionChatEngine.createSnapshot(
             starter = starter,
