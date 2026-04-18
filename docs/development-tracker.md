@@ -93,11 +93,12 @@ Delivered so far on `main`:
 - companion reply-body externalization now also covers species-agnostic care, mission, growth, and weather reply templates with asset-backed placeholders and in-code fallback
 - companion status and casual reply copy now also routes through localized reply templates for species-specific voice lines, still preserving in-code fallback
 - remaining inline companion support strings for continuity lead, relationship lead, real-plant summary, and emotion follow-up now also route through localized reply templates with fallback preserved
+- dynamic companion suggestion-chip prompts for care, mission completion, streak risk, next mission, next growth stage, and weather shift now also route through localized companion assets with fallback preserved
 - focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, ui-state assembly behavior, action-ui coordination behavior, action-persistence coordination behavior, misc-action coordination behavior, reminder-copy loader behavior, lesson-content loader localization/fallback behavior, and companion-chat copy override behavior
 
 Still open in this pass:
 - reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler`, `ActionUiCoordinator`, `ActionPersistenceCoordinator`, and `MiscActionCoordinator` extractions
-- expand externalized content beyond the first localized lesson slice, initial reminder locale set, companion copy starter slice, proactive bubble externalization, the first reply-body template slice, status/casual companion template coverage, and the remaining support-string cleanup slice
+- expand externalized content beyond the first localized lesson slice, initial reminder locale set, companion copy starter slice, proactive bubble externalization, the first reply-body template slice, status/casual companion template coverage, the remaining support-string cleanup slice, and dynamic suggestion-chip prompt coverage
 - review and tighten Home lesson-first hierarchy after device validation
 - keep extending tests around new seams where useful
 - define the next stabilization slice after misc-action coordination cleanup

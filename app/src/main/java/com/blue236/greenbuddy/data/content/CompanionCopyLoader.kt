@@ -9,6 +9,7 @@ data class CompanionCopySet(
     val baseSuggestionChips: List<String> = emptyList(),
     val defaultPrompts: Map<CompanionChatIntent, String> = emptyMap(),
     val intentSuggestionChips: Map<CompanionChatIntent, List<String>> = emptyMap(),
+    val dynamicSuggestionChips: Map<String, String> = emptyMap(),
     val proactiveBubbles: Map<String, String> = emptyMap(),
     val replyTemplates: Map<String, String> = emptyMap(),
 )
@@ -50,12 +51,14 @@ class CompanionCopyLoader(
         val intentSuggestionChips = root.getJSONObject("intent_suggestion_chips").toListMap()
             .mapKeys { CompanionChatIntent.valueOf(it.key) }
         val baseSuggestionChips = root.getJSONArray("base_suggestion_chips").toStringList()
+        val dynamicSuggestionChips = root.optJSONObject("dynamic_suggestion_chips")?.toStringMap().orEmpty()
         val proactiveBubbles = root.optJSONObject("proactive_bubbles")?.toStringMap().orEmpty()
         val replyTemplates = root.optJSONObject("reply_templates")?.toStringMap().orEmpty()
         return CompanionCopySet(
             baseSuggestionChips = baseSuggestionChips,
             defaultPrompts = defaultPrompts,
             intentSuggestionChips = intentSuggestionChips,
+            dynamicSuggestionChips = dynamicSuggestionChips,
             proactiveBubbles = proactiveBubbles,
             replyTemplates = replyTemplates,
         )

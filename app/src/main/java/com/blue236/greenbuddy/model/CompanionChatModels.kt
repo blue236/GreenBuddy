@@ -497,18 +497,19 @@ object CompanionChatEngine {
     private fun suggestionChipsFor(snapshot: CompanionStateSnapshot, intent: CompanionChatIntent, languageTag: String, copy: CompanionCopySet): List<String> {
         val dynamic = mutableListOf<String>()
         val lang = normalizedLanguageTag(languageTag)
+        fun dynamicChip(key: String, fallback: String): String = copy.dynamicSuggestionChips[key] ?: fallback
         when (lang) {
             "de" -> {
                 if (snapshot.careState.lowestStat <= 55) dynamic += when (snapshot.careState.lowestNeed) {
-                    CareAction.WATER -> "Soll ich dich gießen?"
-                    CareAction.MOVE_TO_SUNLIGHT -> "Brauchst du mehr Licht?"
-                    CareAction.FERTILIZE -> "Fehlt dir Nährstoff-Schub?"
+                    CareAction.WATER -> dynamicChip("CARE_WATER", "Soll ich dich gießen?")
+                    CareAction.MOVE_TO_SUNLIGHT -> dynamicChip("CARE_LIGHT", "Brauchst du mehr Licht?")
+                    CareAction.FERTILIZE -> dynamicChip("CARE_NUTRITION", "Fehlt dir Nährstoff-Schub?")
                 }
-                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.MISSION_COMPLETED) dynamic += "Worauf bist du stolz?"
-                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.STREAK_AT_RISK) dynamic += "Wie rette ich die Serie?"
-                snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += "Welche Mission zuerst?" }
-                if (snapshot.growthStageState.nextStage != null) dynamic += "Wie nah bist du an der nächsten Stufe?"
-                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += "Verändert die Saison etwas für dich?"
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.MISSION_COMPLETED) dynamic += dynamicChip("MISSION_COMPLETED", "Worauf bist du stolz?")
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.STREAK_AT_RISK) dynamic += dynamicChip("STREAK_AT_RISK", "Wie rette ich die Serie?")
+                snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += dynamicChip("NEXT_MISSION", "Welche Mission zuerst?") }
+                if (snapshot.growthStageState.nextStage != null) dynamic += dynamicChip("NEXT_STAGE", "Wie nah bist du an der nächsten Stufe?")
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += dynamicChip("WEATHER_SHIFT", "Verändert die Saison etwas für dich?")
                 dynamic += copy.intentSuggestionChips[intent] ?: when (intent) {
                     CompanionChatIntent.STATUS_CHECK -> listOf("Wie geht es dir?", "Was soll ich heute tun?")
                     CompanionChatIntent.CARE_ADVICE -> listOf("Hilft dir das Wetter gerade?", "Wie geht es dir jetzt?")
@@ -520,15 +521,15 @@ object CompanionChatEngine {
             }
             "ko" -> {
                 if (snapshot.careState.lowestStat <= 55) dynamic += when (snapshot.careState.lowestNeed) {
-                    CareAction.WATER -> "물 줘야 해?"
-                    CareAction.MOVE_TO_SUNLIGHT -> "햇빛이 더 필요해?"
-                    CareAction.FERTILIZE -> "영양이 더 필요해?"
+                    CareAction.WATER -> dynamicChip("CARE_WATER", "물 줘야 해?")
+                    CareAction.MOVE_TO_SUNLIGHT -> dynamicChip("CARE_LIGHT", "햇빛이 더 필요해?")
+                    CareAction.FERTILIZE -> dynamicChip("CARE_NUTRITION", "영양이 더 필요해?")
                 }
-                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.MISSION_COMPLETED) dynamic += "뭐가 가장 뿌듯해?"
-                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.STREAK_AT_RISK) dynamic += "연속 기록은 어떻게 지켜?"
-                snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += "어떤 미션부터 할까?" }
-                if (snapshot.growthStageState.nextStage != null) dynamic += "다음 단계까지 얼마나 남았어?"
-                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += "계절이 너한테 영향 있어?"
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.MISSION_COMPLETED) dynamic += dynamicChip("MISSION_COMPLETED", "뭐가 가장 뿌듯해?")
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.STREAK_AT_RISK) dynamic += dynamicChip("STREAK_AT_RISK", "연속 기록은 어떻게 지켜?")
+                snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += dynamicChip("NEXT_MISSION", "어떤 미션부터 할까?") }
+                if (snapshot.growthStageState.nextStage != null) dynamic += dynamicChip("NEXT_STAGE", "다음 단계까지 얼마나 남았어?")
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += dynamicChip("WEATHER_SHIFT", "계절이 너한테 영향 있어?")
                 dynamic += copy.intentSuggestionChips[intent] ?: when (intent) {
                     CompanionChatIntent.STATUS_CHECK -> listOf("지금 기분이 어때?", "오늘은 뭘 하면 돼?")
                     CompanionChatIntent.CARE_ADVICE -> listOf("날씨가 영향 있어?", "지금 상태 다시 알려 줘")
@@ -540,15 +541,15 @@ object CompanionChatEngine {
             }
             else -> {
                 if (snapshot.careState.lowestStat <= 55) dynamic += when (snapshot.careState.lowestNeed) {
-                    CareAction.WATER -> "Should I water you?"
-                    CareAction.MOVE_TO_SUNLIGHT -> "Do you need more light?"
-                    CareAction.FERTILIZE -> "Need a nutrient boost?"
+                    CareAction.WATER -> dynamicChip("CARE_WATER", "Should I water you?")
+                    CareAction.MOVE_TO_SUNLIGHT -> dynamicChip("CARE_LIGHT", "Do you need more light?")
+                    CareAction.FERTILIZE -> dynamicChip("CARE_NUTRITION", "Need a nutrient boost?")
                 }
-                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.MISSION_COMPLETED) dynamic += "What are you proud of?"
-                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.STREAK_AT_RISK) dynamic += "How do I save the streak?"
-                snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += "Which mission first?" }
-                if (snapshot.growthStageState.nextStage != null) dynamic += "How close are you to the next stage?"
-                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += "Does the season change anything for you?"
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.MISSION_COMPLETED) dynamic += dynamicChip("MISSION_COMPLETED", "What are you proud of?")
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.STREAK_AT_RISK) dynamic += dynamicChip("STREAK_AT_RISK", "How do I save the streak?")
+                snapshot.dailyMissionSet?.missions?.firstOrNull { !it.isCompleted }?.let { dynamic += dynamicChip("NEXT_MISSION", "Which mission first?") }
+                if (snapshot.growthStageState.nextStage != null) dynamic += dynamicChip("NEXT_STAGE", "How close are you to the next stage?")
+                if (snapshot.continuity.primaryEvent == CompanionContinuityEvent.WEATHER_SHIFT) dynamic += dynamicChip("WEATHER_SHIFT", "Does the season change anything for you?")
                 dynamic += copy.intentSuggestionChips[intent] ?: when (intent) {
                     CompanionChatIntent.STATUS_CHECK -> listOf("How are you feeling?", "What should I do today?")
                     CompanionChatIntent.CARE_ADVICE -> listOf("How does weather affect you?", "How are you feeling now?")

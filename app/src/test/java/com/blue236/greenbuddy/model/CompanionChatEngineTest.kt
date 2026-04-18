@@ -776,6 +776,43 @@ class CompanionChatEngineTest {
     }
 
     @Test
+    fun suggestionChipsForIntent_usesInjectedDynamicChipTemplates() {
+        val denseMissionSet = DailyMissionProgress(
+            missionDate = LocalDate.now().toString(),
+            completedCareActionsToday = 0,
+            completedLessonsToday = 0,
+            currentStreak = 2,
+            longestStreak = 2,
+            lastCompletedDate = LocalDate.now().minusDays(1).toString(),
+        ).resolveForToday(LocalDate.now(), LessonProgress(totalXp = 18), careState)
+
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState.copy(hydration = 35),
+            growthStageState = growthState,
+            dailyMissionSet = denseMissionSet,
+            weatherSnapshot = SeasonalWeatherProvider.snapshotFor("berlin", LocalDate.of(2026, 10, 10)),
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        val chips = CompanionChatEngine.suggestionChipsForIntent(
+            snapshot,
+            CompanionChatIntent.STATUS_CHECK,
+            "en",
+            copy = CompanionCopySet(
+                dynamicSuggestionChips = mapOf(
+                    "CARE_WATER" to "Custom water chip",
+                    "STREAK_AT_RISK" to "Custom streak chip"
+                )
+            ),
+        )
+
+        assertTrue(chips.contains("Custom water chip"))
+        assertTrue(chips.contains("Custom streak chip"))
+    }
+
+    @Test
     fun createSnapshot_familiarityThresholdsStayDeterministicAtBoundaries() {
         val newSnapshot = CompanionChatEngine.createSnapshot(
             starter = starter,
