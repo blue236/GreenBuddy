@@ -50,6 +50,18 @@
     "CASUAL_MONSTERA": "I’m trying to look serene and well-adjusted, which is easier when my care stats stay balanced. Ask me about my status if you want the honest leaf report.",
     "CASUAL_BASIL_THANKS": "Any time. I accept gratitude in the form of water, sun, or a nicely maintained streak.",
     "CASUAL_BASIL_DEFAULT": "I support two things: good vibes and fast progress. If you want, I can help with today’s mission or tell you what care boost would wake me up most.",
-    "CASUAL_DEFAULT": "I like a little ambition in my conversations. Ask me about growth, weather, or today’s plan and I’ll keep it practical."
+    "CASUAL_DEFAULT": "I like a little ambition in my conversations. Ask me about growth, weather, or today’s plan and I’ll keep it practical.",
+    "CONTINUITY_SAME_INTENT": "Let’s keep following that thread.",
+    "CONTINUITY_RECENT_EXCHANGE": "I’m still holding onto our last exchange.",
+    "CONTINUITY_BUILDING": "I’m building on what I just told you.",
+    "RELATIONSHIP_WARM": "Our check-ins are starting to feel comfortably familiar.",
+    "RELATIONSHIP_CLOSE": "Our rhythm is starting to feel pretty steady.",
+    "REAL_PLANT_EMPTY": "Real-plant mode is on if you want to mirror today’s real care too.",
+    "REAL_PLANT_DONE": "Real-plant mode is on, and you’ve already mirrored {count} real-world care actions today.",
+    "EMOTION_FOLLOWUP_PROUD": "I’m still carrying that good momentum from a moment ago.",
+    "EMOTION_FOLLOWUP_WORRIED": "I want to stay with this because it still feels important.",
+    "EMOTION_FOLLOWUP_CURIOUS": "I want to keep pulling on that thought a little further.",
+    "EMOTION_FOLLOWUP_CALM": "I’m answering from the same steady rhythm we just had.",
+    "EMOTION_FOLLOWUP_EXCITED": "I’m still lit up by the progress we were just talking about."
   }
 }

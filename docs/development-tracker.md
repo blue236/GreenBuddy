@@ -92,11 +92,12 @@ Delivered so far on `main`:
 - proactive companion bubble copy now also routes through localized companion assets with placeholder replacement for stage, season, readiness percent, and starter name
 - companion reply-body externalization now also covers species-agnostic care, mission, growth, and weather reply templates with asset-backed placeholders and in-code fallback
 - companion status and casual reply copy now also routes through localized reply templates for species-specific voice lines, still preserving in-code fallback
+- remaining inline companion support strings for continuity lead, relationship lead, real-plant summary, and emotion follow-up now also route through localized reply templates with fallback preserved
 - focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, ui-state assembly behavior, action-ui coordination behavior, action-persistence coordination behavior, misc-action coordination behavior, reminder-copy loader behavior, lesson-content loader localization/fallback behavior, and companion-chat copy override behavior
 
 Still open in this pass:
 - reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler`, `ActionUiCoordinator`, `ActionPersistenceCoordinator`, and `MiscActionCoordinator` extractions
-- expand externalized content beyond the first localized lesson slice, initial reminder locale set, companion copy starter slice, proactive bubble externalization, the first reply-body template slice, and status/casual companion template coverage
+- expand externalized content beyond the first localized lesson slice, initial reminder locale set, companion copy starter slice, proactive bubble externalization, the first reply-body template slice, status/casual companion template coverage, and the remaining support-string cleanup slice
 - review and tighten Home lesson-first hierarchy after device validation
 - keep extending tests around new seams where useful
 - define the next stabilization slice after misc-action coordination cleanup

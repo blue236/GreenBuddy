@@ -50,6 +50,18 @@
     "CASUAL_MONSTERA": "Ich wirke gern gelassen und ausgeglichen, das klappt am besten, wenn meine Pflegewerte im Gleichgewicht bleiben. Frag mich nach meinem Status, wenn du den ehrlichen Blattbericht willst.",
     "CASUAL_BASIL_THANKS": "Sehr gern. Ich nehme Lob am liebsten in Form von Wasser, Licht oder sauberer Missionsarbeit.",
     "CASUAL_BASIL_DEFAULT": "Ich stehe für gute Vibes und schnelles Vorankommen. Wenn du willst, helfe ich dir bei der heutigen Mission oder sage dir, welcher Pflegeschub mir am meisten bringen würde.",
-    "CASUAL_DEFAULT": "Ich mag Gespräche mit ein bisschen Ehrgeiz. Frag mich nach Wachstum, Wetter oder dem heutigen Plan, dann bleibe ich praktisch."
+    "CASUAL_DEFAULT": "Ich mag Gespräche mit ein bisschen Ehrgeiz. Frag mich nach Wachstum, Wetter oder dem heutigen Plan, dann bleibe ich praktisch.",
+    "CONTINUITY_SAME_INTENT": "Wir bleiben bei dem Faden.",
+    "CONTINUITY_RECENT_EXCHANGE": "Ich behalte unser letztes Hin und Her im Kopf.",
+    "CONTINUITY_BUILDING": "Ich baue auf meiner letzten Antwort auf.",
+    "RELATIONSHIP_WARM": "Unsere Check-ins wirken inzwischen angenehm vertraut.",
+    "RELATIONSHIP_CLOSE": "Unser Rhythmus fühlt sich inzwischen ziemlich verlässlich an.",
+    "REAL_PLANT_EMPTY": "Der Echte-Pflanze-Modus ist an, falls du heute noch echte Pflege spiegeln willst.",
+    "REAL_PLANT_DONE": "Der Echte-Pflanze-Modus ist an, und du hast heute schon {count} echte Pflegeaktionen gespiegelt.",
+    "EMOTION_FOLLOWUP_PROUD": "Ich trage das letzte gute Momentum noch mit mir.",
+    "EMOTION_FOLLOWUP_WORRIED": "Ich bleibe bei dem Thema, weil es sich gerade noch wichtig anfühlt.",
+    "EMOTION_FOLLOWUP_CURIOUS": "Ich möchte den letzten Gedanken noch ein Stück weiterziehen.",
+    "EMOTION_FOLLOWUP_CALM": "Ich antworte dir aus demselben ruhigen Takt wie eben.",
+    "EMOTION_FOLLOWUP_EXCITED": "Ich bin noch ganz bei dem Fortschritt, über den wir eben gesprochen haben."
   }
 }

@@ -50,6 +50,18 @@
     "CASUAL_MONSTERA": "저는 차분하고 균형 잡혀 보이는 걸 좋아해요. 그러려면 돌봄 수치가 고르게 유지되는 게 가장 중요해요. 솔직한 잎사귀 리포트가 궁금하면 상태를 물어봐 주세요.",
     "CASUAL_BASIL_THANKS": "언제든지요. 저는 물, 햇빛, 그리고 잘 이어지는 연속 기록으로 고마움을 받는 걸 좋아해요.",
     "CASUAL_BASIL_DEFAULT": "저는 좋은 분위기와 빠른 성장 둘 다 좋아해요. 원하면 오늘 미션을 같이 보거나, 어떤 돌봄이 가장 효과적인지 바로 알려 드릴게요.",
-    "CASUAL_DEFAULT": "저는 대화에 약간의 목표 의식이 있는 걸 좋아해요. 성장, 날씨, 오늘 계획을 물어보면 실용적으로 답할게요."
+    "CASUAL_DEFAULT": "저는 대화에 약간의 목표 의식이 있는 걸 좋아해요. 성장, 날씨, 오늘 계획을 물어보면 실용적으로 답할게요.",
+    "CONTINUITY_SAME_INTENT": "좋아요, 방금 흐름에서 그대로 이어 갈게요.",
+    "CONTINUITY_RECENT_EXCHANGE": "방금 나눈 흐름은 기억하고 있어요.",
+    "CONTINUITY_BUILDING": "제가 방금 말한 내용 위에서 이어 볼게요.",
+    "RELATIONSHIP_WARM": "이제 우리 체크인이 제법 자연스러워졌어요.",
+    "RELATIONSHIP_CLOSE": "이제 우리 리듬이 꽤 안정적으로 느껴져요.",
+    "REAL_PLANT_EMPTY": "오늘 실제 돌봄도 함께 반영하고 싶다면 실제 식물 모드를 사용할 수 있어요.",
+    "REAL_PLANT_DONE": "실제 식물 모드가 켜져 있고, 오늘은 실제 돌봄 {count}개를 이미 반영했어요.",
+    "EMOTION_FOLLOWUP_PROUD": "방금의 좋은 흐름이 아직 남아 있어요.",
+    "EMOTION_FOLLOWUP_WORRIED": "지금은 그 얘기를 조금 더 이어 가는 게 중요해 보여요.",
+    "EMOTION_FOLLOWUP_CURIOUS": "방금 얘기한 생각을 조금 더 따라가 보고 싶어요.",
+    "EMOTION_FOLLOWUP_CALM": "조금 전과 같은 차분한 흐름으로 답할게요.",
+    "EMOTION_FOLLOWUP_EXCITED": "아까 이야기한 진전이 아직도 선명해요."
   }
 }

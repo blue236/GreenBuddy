@@ -246,10 +246,10 @@ object CompanionChatEngine {
         val health = snapshot.careState.localizedHealth(languageTag).lowercase()
         val stage = snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)
         val missionSummary = missionSummary(snapshot.dailyMissionSet, languageTag)
-        val realPlantSummary = localizedRealPlantSummary(snapshot.realPlantModeState, languageTag)
-        val continuityLead = continuityLead(snapshot.recentConversationMemory, intent, languageTag)
-        val emotionalLead = snapshot.continuity.followUpLead
-        val relationshipLead = relationshipLead(snapshot.relationship, languageTag)
+        val realPlantSummary = localizedRealPlantSummary(snapshot.realPlantModeState, languageTag, copy)
+        val continuityLead = continuityLead(snapshot.recentConversationMemory, intent, languageTag, copy)
+        val emotionalLead = snapshot.continuity.followUpLead ?: localizedEmotionFollowUp(snapshot.continuity.emotion, snapshot.recentConversationMemory.lastIntent, languageTag, copy)
+        val relationshipLead = relationshipLead(snapshot.relationship, languageTag, copy)
         fun replyTemplate(key: String): String? = copy.replyTemplates[key]
             ?.replace("{name}", name)
             ?.replace("{mood}", mood)
@@ -629,22 +629,22 @@ object CompanionChatEngine {
         }
     }
 
-    private fun continuityLead(memory: CompanionConversationMemory, intent: CompanionChatIntent, languageTag: String): String? {
+    private fun continuityLead(memory: CompanionConversationMemory, intent: CompanionChatIntent, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): String? {
         if (memory.messages.isEmpty()) return null
         val sameIntent = memory.lastIntent == intent
         val lastCompanionMessage = memory.messages.lastOrNull { it.role == CompanionMessageRole.COMPANION }?.text ?: return null
         return when {
-            sameIntent -> when (normalizedLanguageTag(languageTag)) {
+            sameIntent -> copy.replyTemplates["CONTINUITY_SAME_INTENT"] ?: when (normalizedLanguageTag(languageTag)) {
                 "de" -> "Wir bleiben bei dem Faden."
                 "ko" -> "좋아요, 방금 흐름에서 그대로 이어 갈게요."
                 else -> "Let’s keep following that thread."
             }
-            memory.exchangeCount >= 2 -> when (normalizedLanguageTag(languageTag)) {
+            memory.exchangeCount >= 2 -> copy.replyTemplates["CONTINUITY_RECENT_EXCHANGE"] ?: when (normalizedLanguageTag(languageTag)) {
                 "de" -> "Ich behalte unser letztes Hin und Her im Kopf."
                 "ko" -> "방금 나눈 흐름은 기억하고 있어요."
                 else -> "I’m still holding onto our last exchange."
             }
-            lastCompanionMessage.length > 90 -> when (normalizedLanguageTag(languageTag)) {
+            lastCompanionMessage.length > 90 -> copy.replyTemplates["CONTINUITY_BUILDING"] ?: when (normalizedLanguageTag(languageTag)) {
                 "de" -> "Ich baue auf meiner letzten Antwort auf."
                 "ko" -> "제가 방금 말한 내용 위에서 이어 볼게요."
                 else -> "I’m building on what I just told you."
@@ -666,17 +666,17 @@ object CompanionChatEngine {
         else -> "Today’s missions are still loading in my little leaf brain."
     }
 
-    private fun localizedRealPlantSummary(state: RealPlantModeState, languageTag: String): String? {
+    private fun localizedRealPlantSummary(state: RealPlantModeState, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): String? {
         if (!state.enabled) return null
         val completedToday = state.completedActionsOn(LocalDate.now(ZoneId.systemDefault()), ZoneId.systemDefault())
         return if (completedToday.isEmpty()) {
-            when (normalizedLanguageTag(languageTag)) {
+            copy.replyTemplates["REAL_PLANT_EMPTY"] ?: when (normalizedLanguageTag(languageTag)) {
                 "de" -> "Der Echte-Pflanze-Modus ist an, falls du heute noch echte Pflege spiegeln willst."
                 "ko" -> "오늘 실제 돌봄도 함께 반영하고 싶다면 실제 식물 모드를 사용할 수 있어요."
                 else -> companionRealPlantSummary(state)
             }
         } else {
-            when (normalizedLanguageTag(languageTag)) {
+            copy.replyTemplates["REAL_PLANT_DONE"]?.replace("{count}", completedToday.size.toString()) ?: when (normalizedLanguageTag(languageTag)) {
                 "de" -> "Der Echte-Pflanze-Modus ist an, und du hast heute schon ${completedToday.size} echte Pflegeaktion${if (completedToday.size == 1) "" else "en"} gespiegelt."
                 "ko" -> "실제 식물 모드가 켜져 있고, 오늘은 실제 돌봄 ${completedToday.size}개를 이미 반영했어요."
                 else -> companionRealPlantSummary(state)
@@ -760,14 +760,14 @@ object CompanionChatEngine {
         )
     }
 
-    private fun relationshipLead(relationship: CompanionRelationshipSnapshot, languageTag: String): String? = when (relationship.familiarity) {
+    private fun relationshipLead(relationship: CompanionRelationshipSnapshot, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): String? = when (relationship.familiarity) {
         CompanionFamiliarity.NEW -> null
-        CompanionFamiliarity.WARM -> when (normalizedLanguageTag(languageTag)) {
+        CompanionFamiliarity.WARM -> copy.replyTemplates["RELATIONSHIP_WARM"] ?: when (normalizedLanguageTag(languageTag)) {
             "de" -> "Unsere Check-ins wirken inzwischen angenehm vertraut."
             "ko" -> "이제 우리 체크인이 제법 자연스러워졌어요."
             else -> "Our check-ins are starting to feel comfortably familiar."
         }
-        CompanionFamiliarity.CLOSE -> when (normalizedLanguageTag(languageTag)) {
+        CompanionFamiliarity.CLOSE -> copy.replyTemplates["RELATIONSHIP_CLOSE"] ?: when (normalizedLanguageTag(languageTag)) {
             "de" -> "Unser Rhythmus fühlt sich inzwischen ziemlich verlässlich an."
             "ko" -> "이제 우리 리듬이 꽤 안정적으로 느껴져요."
             else -> "Our rhythm is starting to feel pretty steady."
@@ -804,24 +804,24 @@ object CompanionChatEngine {
         }
     }
 
-    private fun localizedEmotionFollowUp(emotion: CompanionEmotion, lastIntent: CompanionChatIntent?, languageTag: String): String? {
+    private fun localizedEmotionFollowUp(emotion: CompanionEmotion, lastIntent: CompanionChatIntent?, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): String? {
         if (lastIntent == null) return null
         return when (normalizedLanguageTag(languageTag)) {
-            "de" -> when (emotion) {
+            "de" -> copy.replyTemplates["EMOTION_FOLLOWUP_${emotion.name}"] ?: when (emotion) {
                 CompanionEmotion.PROUD -> "Ich trage das letzte gute Momentum noch mit mir."
                 CompanionEmotion.WORRIED -> "Ich bleibe bei dem Thema, weil es sich gerade noch wichtig anfühlt."
                 CompanionEmotion.CURIOUS -> "Ich möchte den letzten Gedanken noch ein Stück weiterziehen."
                 CompanionEmotion.CALM -> "Ich antworte dir aus demselben ruhigen Takt wie eben."
                 CompanionEmotion.EXCITED -> "Ich bin noch ganz bei dem Fortschritt, über den wir eben gesprochen haben."
             }
-            "ko" -> when (emotion) {
+            "ko" -> copy.replyTemplates["EMOTION_FOLLOWUP_${emotion.name}"] ?: when (emotion) {
                 CompanionEmotion.PROUD -> "방금의 좋은 흐름이 아직 남아 있어요."
                 CompanionEmotion.WORRIED -> "지금은 그 얘기를 조금 더 이어 가는 게 중요해 보여요."
                 CompanionEmotion.CURIOUS -> "방금 얘기한 생각을 조금 더 따라가 보고 싶어요."
                 CompanionEmotion.CALM -> "조금 전과 같은 차분한 흐름으로 답할게요."
                 CompanionEmotion.EXCITED -> "아까 이야기한 진전이 아직도 선명해요."
             }
-            else -> when (emotion) {
+            else -> copy.replyTemplates["EMOTION_FOLLOWUP_${emotion.name}"] ?: when (emotion) {
                 CompanionEmotion.PROUD -> "I’m still carrying that good momentum from a moment ago."
                 CompanionEmotion.WORRIED -> "I want to stay with this because it still feels important."
                 CompanionEmotion.CURIOUS -> "I want to keep pulling on that thought a little further."
