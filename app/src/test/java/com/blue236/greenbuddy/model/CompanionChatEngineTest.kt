@@ -114,6 +114,90 @@ class CompanionChatEngineTest {
     }
 
     @Test
+    fun replyTo_usesInjectedCareReplyTemplate() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(enabled = false),
+        )
+
+        val reply = CompanionChatEngine.replyTo(
+            "Should I water you?",
+            snapshot,
+            copy = CompanionCopySet(replyTemplates = mapOf("CARE_WATER" to "Custom water template {hydration}.")),
+        )
+
+        assertTrue(reply.reply.contains("Custom water template 30."))
+    }
+
+    @Test
+    fun replyTo_usesInjectedMissionReplyTemplate() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        val reply = CompanionChatEngine.replyTo(
+            "What mission should I do today?",
+            snapshot,
+            copy = CompanionCopySet(replyTemplates = mapOf("MISSION_NEXT" to "Custom mission {missionTitle} / {currentStreak}.")),
+        )
+
+        assertTrue(reply.reply.contains("Custom mission"))
+    }
+
+    @Test
+    fun replyTo_usesInjectedGrowthReplyTemplate() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        val reply = CompanionChatEngine.replyTo(
+            "How are you growing?",
+            snapshot,
+            copy = CompanionCopySet(replyTemplates = mapOf("GROWTH_NEXT" to "Custom growth {currentStage} -> {nextStage} at {readinessPercent}%. {unlockHint}")),
+        )
+
+        assertTrue(reply.reply.contains("Custom growth"))
+    }
+
+    @Test
+    fun replyTo_usesInjectedWeatherReplyTemplate() {
+        val snapshot = CompanionChatEngine.createSnapshot(
+            starter = starter,
+            careState = careState,
+            growthStageState = growthState,
+            dailyMissionSet = missionSet,
+            weatherSnapshot = weatherSnapshot,
+            weatherAdvice = weatherAdvice,
+            realPlantModeState = RealPlantModeState(),
+        )
+
+        val reply = CompanionChatEngine.replyTo(
+            "How is the weather for you?",
+            snapshot,
+            copy = CompanionCopySet(replyTemplates = mapOf("WEATHER" to "Custom weather {cityName} / {seasonLabel} / {conditionLabel}. {weatherSummary} {starterAdvice}")),
+        )
+
+        assertTrue(reply.reply.contains("Custom weather"))
+    }
+
+    @Test
     fun replyTo_reportsGrowthProgress() {
         val snapshot = CompanionChatEngine.createSnapshot(
             starter = starter,

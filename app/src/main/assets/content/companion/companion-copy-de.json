@@ -28,5 +28,15 @@
     "GROWTH_PROGRESS_NEAR": "Ich bin schon {readinessPercent}% auf dem Weg zur nächsten Wachstumsstufe. Ich kann sie fast spüren.",
     "GROWTH_PROGRESS_STEADY": "Ich spüre ruhigen Fortschritt. Nicht dramatisch, nur echt und stetig.",
     "WEATHER_SHIFT": "{starterName} merkt die {seasonLabel}-Stimmung gerade deutlich. Ich passe mich an, aber ich möchte, dass du es auch siehst."
+  },
+  "reply_templates": {
+    "CARE_WATER": "Gießen würde mir gerade am meisten helfen, weil meine Hydration mit {hydration} am niedrigsten ist.",
+    "CARE_LIGHT": "Mehr Licht wäre jetzt der beste Schritt, weil mein Sonnenwert mit {sunlight} hinterherhinkt.",
+    "CARE_NUTRITION": "Ein Nährstoff-Boost würde mir jetzt am meisten helfen, weil mein Nährwert bei {nutrition} liegt.",
+    "MISSION_EMPTY": "Ich sehe die heutige Missionskarte noch nicht, aber eine Lektion plus eine Pflegeaktion ist meistens ein guter Start.",
+    "MISSION_NEXT": "Bester Missionszug: {missionTitle}. {missionDescription} Aktuelle Serie: {currentStreak}.",
+    "GROWTH_NEXT": "Ich bin gerade in der Phase {currentStage}. Als Nächstes kommt {nextStage}, und ich bin schon {readinessPercent}% auf dem Weg dorthin. {unlockHint}",
+    "GROWTH_FINAL": "Ich habe meine letzte Wachstumsstufe schon erreicht. Jetzt geht es darum, stabil und gesund zu bleiben.",
+    "WEATHER": "In {cityName} ist gerade {seasonLabel} mit eher {conditionLabel} Bedingungen. {weatherSummary} {starterAdvice}"
   }
 }

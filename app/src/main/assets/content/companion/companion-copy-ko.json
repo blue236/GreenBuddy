@@ -28,5 +28,15 @@
     "GROWTH_PROGRESS_NEAR": "다음 성장 단계까지 이미 {readinessPercent}% 왔어요. 거의 손에 잡혀요.",
     "GROWTH_PROGRESS_STEADY": "화려하진 않아도 차분한 진전이 느껴져요. 분명히 앞으로 가고 있어요.",
     "WEATHER_SHIFT": "{starterName}는 지금 {seasonLabel}의 변화를 분명히 느끼고 있어요. 저도 적응 중이지만 같이 알아채 주면 좋아요."
+  },
+  "reply_templates": {
+    "CARE_WATER": "지금은 수분 수치가 {hydration}로 가장 낮아서 물 주기가 가장 큰 도움이 돼요.",
+    "CARE_LIGHT": "지금은 햇빛 수치가 {sunlight}로 뒤처져 있어서 빛을 더 받는 게 가장 좋아요.",
+    "CARE_NUTRITION": "지금은 영양 수치가 {nutrition}라서 영양을 주는 게 가장 도움이 돼요.",
+    "MISSION_EMPTY": "아직 오늘 미션 카드는 보이지 않지만, 보통은 레슨 하나와 돌봄 액션 하나로 시작하면 좋아요.",
+    "MISSION_NEXT": "지금 가장 좋은 미션은 {missionTitle}예요. {missionDescription} 현재 연속 기록은 {currentStreak}이에요.",
+    "GROWTH_NEXT": "저는 지금 {currentStage} 단계예요. 다음은 {nextStage} 단계이고, 거기까지 {readinessPercent}% 왔어요. {unlockHint}",
+    "GROWTH_FINAL": "저는 이미 마지막 성장 단계에 도달했어요. 이제는 안정적으로 건강을 유지하는 게 목표예요.",
+    "WEATHER": "{cityName}은 지금 {seasonLabel}이고, 전반적으로 {conditionLabel} 환경이에요. {weatherSummary} {starterAdvice}"
   }
 }
