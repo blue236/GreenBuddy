@@ -267,57 +267,9 @@ object CompanionChatEngine {
                 joinSentences(
                     continuityLead,
                     emotionalLead,
-                    replyTemplate("${statusKeyPrefix}_PRIMARY") ?: when (normalizedLanguageTag(languageTag)) {
-                        "de" -> when (species) {
-                            "Monstera" -> "$name meldet sich: Ich fühle mich $mood und insgesamt $health."
-                            "Basil" -> "$name checkt ein! Ich bin $mood und insgesamt $health."
-                            else -> "$name berichtet: Stimmung $mood, Gesundheit $health."
-                        }
-                        "ko" -> when (species) {
-                            "Monstera" -> "$name 보고할게요. 지금 기분은 $mood, 전체 상태는 ${health} 쪽이에요."
-                            "Basil" -> "$name 체크인이에요! 지금 저는 $mood 느낌이고 전체적으로는 ${health} 상태예요."
-                            else -> "$name 브리핑이에요. 기분은 $mood, 건강 상태는 ${health}예요."
-                        }
-                        else -> when (species) {
-                            "Monstera" -> "$name report: I’m feeling $mood and $health."
-                            "Basil" -> "$name check-in! I’m $mood but overall $health."
-                            else -> "$name briefing: mood $mood, health $health."
-                        }
-                    },
-                    replyTemplate("${statusKeyPrefix}_NEED") ?: when (normalizedLanguageTag(languageTag)) {
-                        "de" -> when (species) {
-                            "Monstera" -> "Mein dringendstes Bedürfnis ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
-                            "Basil" -> "Der beste schnelle Schritt ist ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
-                            else -> "Priorität hat ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
-                        }
-                        "ko" -> when (species) {
-                            "Monstera" -> "가장 먼저 챙기면 좋은 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요."
-                            "Basil" -> "가장 빠르게 도움 되는 건 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요."
-                            else -> "우선 액션은 ${careLabel(snapshot.careState.lowestNeed, languageTag)}예요."
-                        }
-                        else -> when (species) {
-                            "Monstera" -> "My lowest need is ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
-                            "Basil" -> "Best quick win: ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
-                            else -> "Priority action is ${careLabel(snapshot.careState.lowestNeed, languageTag)}."
-                        }
-                    },
-                    replyTemplate("${statusKeyPrefix}_STAGE") ?: when (normalizedLanguageTag(languageTag)) {
-                        "de" -> when (species) {
-                            "Monstera" -> "Ich bin gerade in der Phase $stage."
-                            "Basil" -> "Aktuell bin ich in der Phase $stage."
-                            else -> "Wachstumsphase: $stage."
-                        }
-                        "ko" -> when (species) {
-                            "Monstera" -> "현재 단계는 ${stage}예요."
-                            "Basil" -> "지금 단계는 ${stage}예요."
-                            else -> "성장 단계는 ${stage}예요."
-                        }
-                        else -> when (species) {
-                            "Monstera" -> "I’m at the $stage stage."
-                            "Basil" -> "I’m currently ${stage.lowercase()}."
-                            else -> "Growth stage: $stage."
-                        }
-                    },
+                    replyTemplate("${statusKeyPrefix}_PRIMARY") ?: fallbackStatusPrimary(species, name, mood, health, languageTag),
+                    replyTemplate("${statusKeyPrefix}_NEED") ?: fallbackStatusNeed(species, snapshot.careState.lowestNeed, languageTag),
+                    replyTemplate("${statusKeyPrefix}_STAGE") ?: fallbackStatusStage(species, stage, languageTag),
                     missionSummary,
                     relationshipLead,
                     realPlantSummary,
@@ -594,6 +546,63 @@ object CompanionChatEngine {
             CompanionChatIntent.GROWTH_QUESTION -> listOf("What’s blocking progress?", "What care helps most?")
             CompanionChatIntent.WEATHER_QUESTION -> listOf("Should I change your light?", "What do you need most today?")
             CompanionChatIntent.CASUAL_CHAT -> listOf("How are you feeling?", "What do you need most?")
+        }
+    }
+
+    private fun fallbackStatusPrimary(species: String, name: String, mood: String, health: String, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> when (species) {
+            "Monstera" -> "$name meldet sich: Ich fühle mich $mood und insgesamt $health."
+            "Basil" -> "$name checkt ein! Ich bin $mood und insgesamt $health."
+            else -> "$name berichtet: Stimmung $mood, Gesundheit $health."
+        }
+        "ko" -> when (species) {
+            "Monstera" -> "$name 보고할게요. 지금 기분은 $mood, 전체 상태는 ${health} 쪽이에요."
+            "Basil" -> "$name 체크인이에요! 지금 저는 $mood 느낌이고 전체적으로는 ${health} 상태예요."
+            else -> "$name 브리핑이에요. 기분은 $mood, 건강 상태는 ${health}예요."
+        }
+        else -> when (species) {
+            "Monstera" -> "$name report: I’m feeling $mood and $health."
+            "Basil" -> "$name check-in! I’m $mood but overall $health."
+            else -> "$name briefing: mood $mood, health $health."
+        }
+    }
+
+    private fun fallbackStatusNeed(species: String, lowestNeed: CareAction, languageTag: String): String {
+        val label = careLabel(lowestNeed, languageTag)
+        return when (normalizedLanguageTag(languageTag)) {
+            "de" -> when (species) {
+                "Monstera" -> "Mein dringendstes Bedürfnis ist $label."
+                "Basil" -> "Der beste schnelle Schritt ist $label."
+                else -> "Priorität hat $label."
+            }
+            "ko" -> when (species) {
+                "Monstera" -> "가장 먼저 챙기면 좋은 건 ${label}예요."
+                "Basil" -> "가장 빠르게 도움 되는 건 ${label}예요."
+                else -> "우선 액션은 ${label}예요."
+            }
+            else -> when (species) {
+                "Monstera" -> "My lowest need is $label."
+                "Basil" -> "Best quick win: $label."
+                else -> "Priority action is $label."
+            }
+        }
+    }
+
+    private fun fallbackStatusStage(species: String, stage: String, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> when (species) {
+            "Monstera" -> "Ich bin gerade in der Phase $stage."
+            "Basil" -> "Aktuell bin ich in der Phase $stage."
+            else -> "Wachstumsphase: $stage."
+        }
+        "ko" -> when (species) {
+            "Monstera" -> "현재 단계는 ${stage}예요."
+            "Basil" -> "지금 단계는 ${stage}예요."
+            else -> "성장 단계는 ${stage}예요."
+        }
+        else -> when (species) {
+            "Monstera" -> "I’m at the $stage stage."
+            "Basil" -> "I’m currently ${stage.lowercase()}."
+            else -> "Growth stage: $stage."
         }
     }
 
