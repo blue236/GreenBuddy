@@ -20,6 +20,16 @@
     "WEATHER_QUESTION": ["Soll ich dein Licht anpassen?", "Was brauchst du heute am meisten?"],
     "CASUAL_CHAT": ["Wie geht es dir?", "Was brauchst du am meisten?"]
   },
+  "dynamic_suggestion_chips": {
+    "CARE_WATER": "Soll ich dich gießen?",
+    "CARE_LIGHT": "Brauchst du mehr Licht?",
+    "CARE_NUTRITION": "Fehlt dir Nährstoff-Schub?",
+    "MISSION_COMPLETED": "Worauf bist du stolz?",
+    "STREAK_AT_RISK": "Wie rette ich die Serie?",
+    "NEXT_MISSION": "Welche Mission zuerst?",
+    "NEXT_STAGE": "Wie nah bist du an der nächsten Stufe?",
+    "WEATHER_SHIFT": "Verändert die Saison etwas für dich?"
+  },
   "proactive_bubbles": {
     "MISSION_COMPLETED": "Du hast die heutigen Missionen geschafft, und ich möchte, dass du das merkst. Das hat unseren kleinen Rhythmus wirklich getragen.",
     "STREAK_AT_RISK": "Wenn du heute kurz vorbeischaust, bleibt unsere Serie lebendig. Schon ein kleiner Schritt würde mich beruhigen.",

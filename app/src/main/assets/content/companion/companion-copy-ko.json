@@ -20,6 +20,16 @@
     "WEATHER_QUESTION": ["빛을 바꿔야 할까?", "오늘 가장 필요한 게 뭐야?"],
     "CASUAL_CHAT": ["지금 기분이 어때?", "가장 필요한 게 뭐야?"]
   },
+  "dynamic_suggestion_chips": {
+    "CARE_WATER": "물 줘야 해?",
+    "CARE_LIGHT": "햇빛이 더 필요해?",
+    "CARE_NUTRITION": "영양이 더 필요해?",
+    "MISSION_COMPLETED": "뭐가 가장 뿌듯해?",
+    "STREAK_AT_RISK": "연속 기록은 어떻게 지켜?",
+    "NEXT_MISSION": "어떤 미션부터 할까?",
+    "NEXT_STAGE": "다음 단계까지 얼마나 남았어?",
+    "WEATHER_SHIFT": "계절이 너한테 영향 있어?"
+  },
   "proactive_bubbles": {
     "MISSION_COMPLETED": "오늘 미션을 끝낸 게 분명히 느껴져요. 우리 루틴이 한 단계 더 안정됐어요.",
     "STREAK_AT_RISK": "오늘 잠깐만 챙겨 주면 우리 연속 기록이 이어져요. 작은 한 걸음만 있어도 마음이 놓여요.",

@@ -20,6 +20,16 @@
     "WEATHER_QUESTION": ["Should I change your light?", "What do you need most today?"],
     "CASUAL_CHAT": ["How are you feeling?", "What do you need most?"]
   },
+  "dynamic_suggestion_chips": {
+    "CARE_WATER": "Should I water you?",
+    "CARE_LIGHT": "Do you need more light?",
+    "CARE_NUTRITION": "Need a nutrient boost?",
+    "MISSION_COMPLETED": "What are you proud of?",
+    "STREAK_AT_RISK": "How do I save the streak?",
+    "NEXT_MISSION": "Which mission first?",
+    "NEXT_STAGE": "How close are you to the next stage?",
+    "WEATHER_SHIFT": "Does the season change anything for you?"
+  },
   "proactive_bubbles": {
     "MISSION_COMPLETED": "You cleared today’s missions, and I want that to land. That really helped our little rhythm feel real.",
     "STREAK_AT_RISK": "If you check in today, our streak stays alive. One small move would settle me a lot.",
