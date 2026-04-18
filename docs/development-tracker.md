@@ -94,11 +94,12 @@ Delivered so far on `main`:
 - companion status and casual reply copy now also routes through localized reply templates for species-specific voice lines, still preserving in-code fallback
 - remaining inline companion support strings for continuity lead, relationship lead, real-plant summary, and emotion follow-up now also route through localized reply templates with fallback preserved
 - dynamic companion suggestion-chip prompts for care, mission completion, streak risk, next mission, next growth stage, and weather shift now also route through localized companion assets with fallback preserved
+- companion suggestion-chip fallback assembly was consolidated to reduce duplicated language branching in `CompanionChatModels.kt` without changing behavior
 - focused tests added for cosmetic coordinator behavior, feedback coordinator behavior, ui-state assembly behavior, action-ui coordination behavior, action-persistence coordination behavior, misc-action coordination behavior, reminder-copy loader behavior, lesson-content loader localization/fallback behavior, and companion-chat copy override behavior
 
 Still open in this pass:
 - reduce `GreenBuddyViewModel` responsibility further after the new `UiStateAssembler`, `ActionUiCoordinator`, `ActionPersistenceCoordinator`, and `MiscActionCoordinator` extractions
-- expand externalized content beyond the first localized lesson slice, initial reminder locale set, companion copy starter slice, proactive bubble externalization, the first reply-body template slice, status/casual companion template coverage, the remaining support-string cleanup slice, and dynamic suggestion-chip prompt coverage
+- expand externalized content beyond the first localized lesson slice, initial reminder locale set, companion copy starter slice, proactive bubble externalization, the first reply-body template slice, status/casual companion template coverage, the remaining support-string cleanup slice, dynamic suggestion-chip prompt coverage, and the first companion fallback consolidation pass
 - review and tighten Home lesson-first hierarchy after device validation
 - keep extending tests around new seams where useful
 - define the next stabilization slice after misc-action coordination cleanup
