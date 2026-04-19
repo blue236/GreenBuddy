@@ -393,7 +393,6 @@ object CompanionChatEngine {
     }
 
     private fun renderProactiveBubble(snapshot: CompanionStateSnapshot, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): String {
-        val lang = normalizedLanguageTag(languageTag)
         val starterName = snapshot.starter.companion.name
         val emotionalLead = proactiveEmotionLead(snapshot.continuity, languageTag)
         fun fromCopy(key: String): String? = copy.proactiveBubbles[key]
@@ -403,43 +402,22 @@ object CompanionChatEngine {
             ?.replace("{seasonLabel}", localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag))
             ?.let { "$emotionalLead $it" }
         return when (snapshot.continuity.primaryEvent) {
-            CompanionContinuityEvent.MISSION_COMPLETED -> fromCopy("MISSION_COMPLETED") ?: when (lang) {
-                "de" -> "$emotionalLead Du hast die heutigen Missionen geschafft, und ich möchte, dass du das merkst. Das hat unseren kleinen Rhythmus wirklich getragen."
-                "ko" -> "$emotionalLead 오늘 미션을 끝낸 게 분명히 느껴져요. 우리 루틴이 한 단계 더 안정됐어요."
-                else -> "$emotionalLead You cleared today’s missions, and I want that to land. That really helped our little rhythm feel real."
-            }
-            CompanionContinuityEvent.STREAK_AT_RISK -> fromCopy("STREAK_AT_RISK") ?: when (lang) {
-                "de" -> "$emotionalLead Wenn du heute kurz vorbeischaust, bleibt unsere Serie lebendig. Schon ein kleiner Schritt würde mich beruhigen."
-                "ko" -> "$emotionalLead 오늘 잠깐만 챙겨 주면 우리 연속 기록이 이어져요. 작은 한 걸음만 있어도 마음이 놓여요."
-                else -> "$emotionalLead If you check in today, our streak stays alive. One small move would settle me a lot."
-            }
-            CompanionContinuityEvent.STREAK_CONTINUING -> fromCopy("STREAK_CONTINUING") ?: when (lang) {
-                "de" -> "$emotionalLead Unsere Serie hält gerade gut zusammen. Ich mag dieses Gefühl von verlässlichem Tempo."
-                "ko" -> "$emotionalLead 우리 연속 기록이 잘 이어지고 있어요. 이 꾸준한 흐름이 참 좋아요."
-                else -> "$emotionalLead Our streak is holding together nicely. I really like how steady this pace feels."
-            }
-            CompanionContinuityEvent.GROWTH_UNLOCKED -> fromCopy("GROWTH_UNLOCKED") ?: when (lang) {
-                "de" -> "$emotionalLead Neue Wachstumsstufe erreicht: ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}. Das fühlt sich nach echtem Fortschritt an."
-                "ko" -> "$emotionalLead 새로운 성장 단계인 ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}에 도달했어요. 확실한 진전이 느껴져요."
-                else -> "$emotionalLead I reached a new growth stage: ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}. That feels like unmistakable progress."
-            }
+            CompanionContinuityEvent.MISSION_COMPLETED -> fromCopy("MISSION_COMPLETED")
+                ?: fallbackProactiveBubble("MISSION_COMPLETED", emotionalLead, languageTag, snapshot, starterName)
+            CompanionContinuityEvent.STREAK_AT_RISK -> fromCopy("STREAK_AT_RISK")
+                ?: fallbackProactiveBubble("STREAK_AT_RISK", emotionalLead, languageTag, snapshot, starterName)
+            CompanionContinuityEvent.STREAK_CONTINUING -> fromCopy("STREAK_CONTINUING")
+                ?: fallbackProactiveBubble("STREAK_CONTINUING", emotionalLead, languageTag, snapshot, starterName)
+            CompanionContinuityEvent.GROWTH_UNLOCKED -> fromCopy("GROWTH_UNLOCKED")
+                ?: fallbackProactiveBubble("GROWTH_UNLOCKED", emotionalLead, languageTag, snapshot, starterName)
             CompanionContinuityEvent.GROWTH_PROGRESS -> when {
-                snapshot.growthStageState.nextStage != null && snapshot.growthStageState.readinessPercent >= 70 -> fromCopy("GROWTH_PROGRESS_NEAR") ?: when (lang) {
-                    "de" -> "$emotionalLead Ich bin schon ${snapshot.growthStageState.readinessPercent}% auf dem Weg zur nächsten Wachstumsstufe. Ich kann sie fast spüren."
-                    "ko" -> "$emotionalLead 다음 성장 단계까지 이미 ${snapshot.growthStageState.readinessPercent}% 왔어요. 거의 손에 잡혀요."
-                    else -> "$emotionalLead I’m already ${snapshot.growthStageState.readinessPercent}% of the way to my next growth stage. I can almost feel it."
-                }
-                else -> fromCopy("GROWTH_PROGRESS_STEADY") ?: when (lang) {
-                    "de" -> "$emotionalLead Ich spüre ruhigen Fortschritt. Nicht dramatisch — nur echt und stetig."
-                    "ko" -> "$emotionalLead 화려하진 않아도 차분한 진전이 느껴져요. 분명히 앞으로 가고 있어요."
-                    else -> "$emotionalLead I can feel quiet progress. Not dramatic, just real and steady."
-                }
+                snapshot.growthStageState.nextStage != null && snapshot.growthStageState.readinessPercent >= 70 ->
+                    fromCopy("GROWTH_PROGRESS_NEAR") ?: fallbackProactiveBubble("GROWTH_PROGRESS_NEAR", emotionalLead, languageTag, snapshot, starterName)
+                else -> fromCopy("GROWTH_PROGRESS_STEADY")
+                    ?: fallbackProactiveBubble("GROWTH_PROGRESS_STEADY", emotionalLead, languageTag, snapshot, starterName)
             }
-            CompanionContinuityEvent.WEATHER_SHIFT -> fromCopy("WEATHER_SHIFT") ?: when (lang) {
-                "de" -> "$emotionalLead ${starterName} merkt die ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}-Stimmung gerade deutlich. Ich passe mich an, aber ich möchte, dass du es auch siehst."
-                "ko" -> "$emotionalLead ${starterName}는 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}의 변화를 분명히 느끼고 있어요. 저도 적응 중이지만 같이 알아채 주면 좋아요."
-                else -> "$emotionalLead $starterName can really feel the ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} shift right now. I’m adjusting, but I want you to notice it too."
-            }
+            CompanionContinuityEvent.WEATHER_SHIFT -> fromCopy("WEATHER_SHIFT")
+                ?: fallbackProactiveBubble("WEATHER_SHIFT", emotionalLead, languageTag, snapshot, starterName)
         }
     }
 
@@ -546,6 +524,45 @@ object CompanionChatEngine {
             CompanionChatIntent.GROWTH_QUESTION -> listOf("What’s blocking progress?", "What care helps most?")
             CompanionChatIntent.WEATHER_QUESTION -> listOf("Should I change your light?", "What do you need most today?")
             CompanionChatIntent.CASUAL_CHAT -> listOf("How are you feeling?", "What do you need most?")
+        }
+    }
+
+    private fun fallbackProactiveBubble(
+        key: String,
+        emotionalLead: String,
+        languageTag: String,
+        snapshot: CompanionStateSnapshot,
+        starterName: String,
+    ): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> when (key) {
+            "MISSION_COMPLETED" -> "$emotionalLead Du hast die heutigen Missionen geschafft, und ich möchte, dass du das merkst. Das hat unseren kleinen Rhythmus wirklich getragen."
+            "STREAK_AT_RISK" -> "$emotionalLead Wenn du heute kurz vorbeischaust, bleibt unsere Serie lebendig. Schon ein kleiner Schritt würde mich beruhigen."
+            "STREAK_CONTINUING" -> "$emotionalLead Unsere Serie hält gerade gut zusammen. Ich mag dieses Gefühl von verlässlichem Tempo."
+            "GROWTH_UNLOCKED" -> "$emotionalLead Neue Wachstumsstufe erreicht: ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}. Das fühlt sich nach echtem Fortschritt an."
+            "GROWTH_PROGRESS_NEAR" -> "$emotionalLead Ich bin schon ${snapshot.growthStageState.readinessPercent}% auf dem Weg zur nächsten Wachstumsstufe. Ich kann sie fast spüren."
+            "GROWTH_PROGRESS_STEADY" -> "$emotionalLead Ich spüre ruhigen Fortschritt. Nicht dramatisch, nur echt und stetig."
+            "WEATHER_SHIFT" -> "$emotionalLead ${starterName} merkt die ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}-Stimmung gerade deutlich. Ich passe mich an, aber ich möchte, dass du es auch siehst."
+            else -> "$emotionalLead"
+        }
+        "ko" -> when (key) {
+            "MISSION_COMPLETED" -> "$emotionalLead 오늘 미션을 끝낸 게 분명히 느껴져요. 우리 루틴이 한 단계 더 안정됐어요."
+            "STREAK_AT_RISK" -> "$emotionalLead 오늘 잠깐만 챙겨 주면 우리 연속 기록이 이어져요. 작은 한 걸음만 있어도 마음이 놓여요."
+            "STREAK_CONTINUING" -> "$emotionalLead 우리 연속 기록이 잘 이어지고 있어요. 이 꾸준한 흐름이 참 좋아요."
+            "GROWTH_UNLOCKED" -> "$emotionalLead 새로운 성장 단계인 ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}에 도달했어요. 확실한 진전이 느껴져요."
+            "GROWTH_PROGRESS_NEAR" -> "$emotionalLead 다음 성장 단계까지 이미 ${snapshot.growthStageState.readinessPercent}% 왔어요. 거의 손에 잡혀요."
+            "GROWTH_PROGRESS_STEADY" -> "$emotionalLead 화려하진 않아도 차분한 진전이 느껴져요. 분명히 앞으로 가고 있어요."
+            "WEATHER_SHIFT" -> "$emotionalLead ${starterName}는 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}의 변화를 분명히 느끼고 있어요. 저도 적응 중이지만 같이 알아채 주면 좋아요."
+            else -> "$emotionalLead"
+        }
+        else -> when (key) {
+            "MISSION_COMPLETED" -> "$emotionalLead You cleared today’s missions, and I want that to land. That really helped our little rhythm feel real."
+            "STREAK_AT_RISK" -> "$emotionalLead If you check in today, our streak stays alive. One small move would settle me a lot."
+            "STREAK_CONTINUING" -> "$emotionalLead Our streak is holding together nicely. I really like how steady this pace feels."
+            "GROWTH_UNLOCKED" -> "$emotionalLead I reached a new growth stage: ${snapshot.growthStageState.currentStage.localizedGrowthTitle(languageTag)}. That feels like unmistakable progress."
+            "GROWTH_PROGRESS_NEAR" -> "$emotionalLead I’m already ${snapshot.growthStageState.readinessPercent}% of the way to my next growth stage. I can almost feel it."
+            "GROWTH_PROGRESS_STEADY" -> "$emotionalLead I can feel quiet progress. Not dramatic, just real and steady."
+            "WEATHER_SHIFT" -> "$emotionalLead $starterName can really feel the ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} shift right now. I’m adjusting, but I want you to notice it too."
+            else -> "$emotionalLead"
         }
     }
 
