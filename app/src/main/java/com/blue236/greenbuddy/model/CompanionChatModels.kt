@@ -560,6 +560,24 @@ object CompanionChatEngine {
         else -> companionRealPlantSummary(state)
     }
 
+    private fun fallbackRelationshipLead(key: String, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> when (key) {
+            "RELATIONSHIP_WARM" -> "Unsere Check-ins wirken inzwischen angenehm vertraut."
+            "RELATIONSHIP_CLOSE" -> "Unser Rhythmus fühlt sich inzwischen ziemlich verlässlich an."
+            else -> ""
+        }
+        "ko" -> when (key) {
+            "RELATIONSHIP_WARM" -> "이제 우리 체크인이 제법 자연스러워졌어요."
+            "RELATIONSHIP_CLOSE" -> "이제 우리 리듬이 꽤 안정적으로 느껴져요."
+            else -> ""
+        }
+        else -> when (key) {
+            "RELATIONSHIP_WARM" -> "Our check-ins are starting to feel comfortably familiar."
+            "RELATIONSHIP_CLOSE" -> "Our rhythm is starting to feel pretty steady."
+            else -> ""
+        }
+    }
+
     private fun fallbackProactiveBubble(
         key: String,
         emotionalLead: String,
@@ -837,16 +855,8 @@ object CompanionChatEngine {
 
     private fun relationshipLead(relationship: CompanionRelationshipSnapshot, languageTag: String, copy: CompanionCopySet = CompanionCopySet()): String? = when (relationship.familiarity) {
         CompanionFamiliarity.NEW -> null
-        CompanionFamiliarity.WARM -> copy.replyTemplates["RELATIONSHIP_WARM"] ?: when (normalizedLanguageTag(languageTag)) {
-            "de" -> "Unsere Check-ins wirken inzwischen angenehm vertraut."
-            "ko" -> "이제 우리 체크인이 제법 자연스러워졌어요."
-            else -> "Our check-ins are starting to feel comfortably familiar."
-        }
-        CompanionFamiliarity.CLOSE -> copy.replyTemplates["RELATIONSHIP_CLOSE"] ?: when (normalizedLanguageTag(languageTag)) {
-            "de" -> "Unser Rhythmus fühlt sich inzwischen ziemlich verlässlich an."
-            "ko" -> "이제 우리 리듬이 꽤 안정적으로 느껴져요."
-            else -> "Our rhythm is starting to feel pretty steady."
-        }
+        CompanionFamiliarity.WARM -> copy.replyTemplates["RELATIONSHIP_WARM"] ?: fallbackRelationshipLead("RELATIONSHIP_WARM", languageTag)
+        CompanionFamiliarity.CLOSE -> copy.replyTemplates["RELATIONSHIP_CLOSE"] ?: fallbackRelationshipLead("RELATIONSHIP_CLOSE", languageTag)
     }
 
     private fun proactiveEmotionLead(continuity: CompanionContinuitySnapshot, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
