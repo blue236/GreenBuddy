@@ -59,7 +59,7 @@ Recent stabilization progress already merged on `main` includes:
 ## Build
 
 ```bash
-cd /home/blue236/.openclaw/workspace/GreenBuddy
+cd /path/to/GreenBuddy
 ./gradlew assembleDebug
 ```
 
