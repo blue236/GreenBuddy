@@ -527,6 +527,39 @@ object CompanionChatEngine {
         }
     }
 
+    private fun fallbackContinuityLead(key: String, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> when (key) {
+            "CONTINUITY_SAME_INTENT" -> "Wir bleiben bei dem Faden."
+            "CONTINUITY_RECENT_EXCHANGE" -> "Ich behalte unser letztes Hin und Her im Kopf."
+            "CONTINUITY_BUILDING" -> "Ich baue auf meiner letzten Antwort auf."
+            else -> ""
+        }
+        "ko" -> when (key) {
+            "CONTINUITY_SAME_INTENT" -> "좋아요, 방금 흐름에서 그대로 이어 갈게요."
+            "CONTINUITY_RECENT_EXCHANGE" -> "방금 나눈 흐름은 기억하고 있어요."
+            "CONTINUITY_BUILDING" -> "제가 방금 말한 내용 위에서 이어 볼게요."
+            else -> ""
+        }
+        else -> when (key) {
+            "CONTINUITY_SAME_INTENT" -> "Let’s keep following that thread."
+            "CONTINUITY_RECENT_EXCHANGE" -> "I’m still holding onto our last exchange."
+            "CONTINUITY_BUILDING" -> "I’m building on what I just told you."
+            else -> ""
+        }
+    }
+
+    private fun fallbackRealPlantSummaryEmpty(state: RealPlantModeState, languageTag: String): String? = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Der Echte-Pflanze-Modus ist an, falls du heute noch echte Pflege spiegeln willst."
+        "ko" -> "오늘 실제 돌봄도 함께 반영하고 싶다면 실제 식물 모드를 사용할 수 있어요."
+        else -> companionRealPlantSummary(state)
+    }
+
+    private fun fallbackRealPlantSummaryDone(state: RealPlantModeState, count: Int, languageTag: String): String? = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Der Echte-Pflanze-Modus ist an, und du hast heute schon ${count} echte Pflegeaktion${if (count == 1) "" else "en"} gespiegelt."
+        "ko" -> "실제 식물 모드가 켜져 있고, 오늘은 실제 돌봄 ${count}개를 이미 반영했어요."
+        else -> companionRealPlantSummary(state)
+    }
+
     private fun fallbackProactiveBubble(
         key: String,
         emotionalLead: String,
@@ -695,21 +728,9 @@ object CompanionChatEngine {
         val sameIntent = memory.lastIntent == intent
         val lastCompanionMessage = memory.messages.lastOrNull { it.role == CompanionMessageRole.COMPANION }?.text ?: return null
         return when {
-            sameIntent -> copy.replyTemplates["CONTINUITY_SAME_INTENT"] ?: when (normalizedLanguageTag(languageTag)) {
-                "de" -> "Wir bleiben bei dem Faden."
-                "ko" -> "좋아요, 방금 흐름에서 그대로 이어 갈게요."
-                else -> "Let’s keep following that thread."
-            }
-            memory.exchangeCount >= 2 -> copy.replyTemplates["CONTINUITY_RECENT_EXCHANGE"] ?: when (normalizedLanguageTag(languageTag)) {
-                "de" -> "Ich behalte unser letztes Hin und Her im Kopf."
-                "ko" -> "방금 나눈 흐름은 기억하고 있어요."
-                else -> "I’m still holding onto our last exchange."
-            }
-            lastCompanionMessage.length > 90 -> copy.replyTemplates["CONTINUITY_BUILDING"] ?: when (normalizedLanguageTag(languageTag)) {
-                "de" -> "Ich baue auf meiner letzten Antwort auf."
-                "ko" -> "제가 방금 말한 내용 위에서 이어 볼게요."
-                else -> "I’m building on what I just told you."
-            }
+            sameIntent -> copy.replyTemplates["CONTINUITY_SAME_INTENT"] ?: fallbackContinuityLead("CONTINUITY_SAME_INTENT", languageTag)
+            memory.exchangeCount >= 2 -> copy.replyTemplates["CONTINUITY_RECENT_EXCHANGE"] ?: fallbackContinuityLead("CONTINUITY_RECENT_EXCHANGE", languageTag)
+            lastCompanionMessage.length > 90 -> copy.replyTemplates["CONTINUITY_BUILDING"] ?: fallbackContinuityLead("CONTINUITY_BUILDING", languageTag)
             else -> null
         }
     }
@@ -731,17 +752,10 @@ object CompanionChatEngine {
         if (!state.enabled) return null
         val completedToday = state.completedActionsOn(LocalDate.now(ZoneId.systemDefault()), ZoneId.systemDefault())
         return if (completedToday.isEmpty()) {
-            copy.replyTemplates["REAL_PLANT_EMPTY"] ?: when (normalizedLanguageTag(languageTag)) {
-                "de" -> "Der Echte-Pflanze-Modus ist an, falls du heute noch echte Pflege spiegeln willst."
-                "ko" -> "오늘 실제 돌봄도 함께 반영하고 싶다면 실제 식물 모드를 사용할 수 있어요."
-                else -> companionRealPlantSummary(state)
-            }
+            copy.replyTemplates["REAL_PLANT_EMPTY"] ?: fallbackRealPlantSummaryEmpty(state, languageTag)
         } else {
-            copy.replyTemplates["REAL_PLANT_DONE"]?.replace("{count}", completedToday.size.toString()) ?: when (normalizedLanguageTag(languageTag)) {
-                "de" -> "Der Echte-Pflanze-Modus ist an, und du hast heute schon ${completedToday.size} echte Pflegeaktion${if (completedToday.size == 1) "" else "en"} gespiegelt."
-                "ko" -> "실제 식물 모드가 켜져 있고, 오늘은 실제 돌봄 ${completedToday.size}개를 이미 반영했어요."
-                else -> companionRealPlantSummary(state)
-            }
+            copy.replyTemplates["REAL_PLANT_DONE"]?.replace("{count}", completedToday.size.toString())
+                ?: fallbackRealPlantSummaryDone(state, completedToday.size, languageTag)
         }
     }
 
