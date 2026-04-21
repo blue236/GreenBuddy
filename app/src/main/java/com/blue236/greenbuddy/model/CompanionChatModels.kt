@@ -303,44 +303,29 @@ object CompanionChatEngine {
             }
             CompanionChatIntent.MISSION_HELP -> {
                 val missions = snapshot.dailyMissionSet?.missions.orEmpty()
+                val currentStreak = snapshot.dailyMissionSet?.currentStreak ?: 0
                 val missionReply = if (missions.isEmpty()) {
-                    copy.replyTemplates["MISSION_EMPTY"] ?: when (normalizedLanguageTag(languageTag)) {
-                        "de" -> "Ich sehe die heutige Missionskarte noch nicht, aber eine Lektion plus eine Pflegeaktion ist meistens ein guter Start."
-                        "ko" -> "아직 오늘 미션 카드는 보이지 않지만, 보통은 레슨 하나와 돌봄 액션 하나로 시작하면 좋아요."
-                        else -> "I can’t see today’s mission card yet, but a lesson plus one care action is usually a smart start."
-                    }
+                    copy.replyTemplates["MISSION_EMPTY"] ?: fallbackMissionReplyEmpty(languageTag)
                 } else {
                     val nextMission = missions.firstOrNull { !it.isCompleted } ?: missions.last()
                     copy.replyTemplates["MISSION_NEXT"]
                         ?.replace("{missionTitle}", nextMission.title)
                         ?.replace("{missionDescription}", nextMission.description)
-                        ?.replace("{currentStreak}", (snapshot.dailyMissionSet?.currentStreak ?: 0).toString())
-                        ?: when (normalizedLanguageTag(languageTag)) {
-                            "de" -> "Bester Missionszug: ${nextMission.title}. ${nextMission.description} Aktuelle Serie: ${snapshot.dailyMissionSet?.currentStreak ?: 0}."
-                            "ko" -> "지금 가장 좋은 미션은 ${nextMission.title}예요. ${nextMission.description} 현재 연속 기록은 ${snapshot.dailyMissionSet?.currentStreak ?: 0}이에요."
-                            else -> "Best mission move: ${nextMission.title}. ${nextMission.description} Current streak: ${snapshot.dailyMissionSet?.currentStreak ?: 0}."
-                        }
+                        ?.replace("{currentStreak}", currentStreak.toString())
+                        ?: fallbackMissionReplyNext(nextMission, currentStreak, languageTag)
                 }
                 joinSentences(continuityLead, emotionalLead, missionReply, relationshipLead)
             }
             CompanionChatIntent.GROWTH_QUESTION -> {
                 val growth = snapshot.growthStageState
-                val growthReply = growth.nextStage?.let {
+                val growthReply = growth.nextStage?.let { nextStage ->
                     copy.replyTemplates["GROWTH_NEXT"]
                         ?.replace("{currentStage}", growth.currentStage.localizedGrowthTitle(languageTag))
-                        ?.replace("{nextStage}", it.localizedGrowthTitle(languageTag))
+                        ?.replace("{nextStage}", nextStage.localizedGrowthTitle(languageTag))
                         ?.replace("{readinessPercent}", growth.readinessPercent.toString())
                         ?.replace("{unlockHint}", growth.localizedUnlockHint(languageTag))
-                        ?: when (normalizedLanguageTag(languageTag)) {
-                            "de" -> "Ich bin gerade in der Phase ${growth.currentStage.localizedGrowthTitle(languageTag)}. Als Nächstes kommt ${it.localizedGrowthTitle(languageTag)}, und ich bin schon ${growth.readinessPercent}% auf dem Weg dorthin. ${growth.localizedUnlockHint(languageTag)}"
-                            "ko" -> "저는 지금 ${growth.currentStage.localizedGrowthTitle(languageTag)} 단계예요. 다음은 ${it.localizedGrowthTitle(languageTag)} 단계이고, 거기까지 ${growth.readinessPercent}% 왔어요. ${growth.localizedUnlockHint(languageTag)}"
-                            else -> "I’m in my ${growth.currentStage.title} stage. Next up is ${it.title}, and I’m ${growth.readinessPercent}% of the way there. ${growth.unlockHint}"
-                        }
-                } ?: copy.replyTemplates["GROWTH_FINAL"] ?: when (normalizedLanguageTag(languageTag)) {
-                    "de" -> "Ich habe meine letzte Wachstumsstufe schon erreicht. Jetzt geht es darum, stabil und gesund zu bleiben."
-                    "ko" -> "저는 이미 마지막 성장 단계에 도달했어요. 이제는 안정적으로 건강을 유지하는 게 목표예요."
-                    else -> "I’ve already reached my final growth stage, so now the goal is staying steady and healthy."
-                }
+                        ?: fallbackGrowthReplyNext(growth, nextStage, languageTag)
+                } ?: copy.replyTemplates["GROWTH_FINAL"] ?: fallbackGrowthReplyFinal(languageTag)
                 joinSentences(continuityLead, emotionalLead, growthReply, relationshipLead)
             }
             CompanionChatIntent.WEATHER_QUESTION -> joinSentences(
@@ -352,11 +337,7 @@ object CompanionChatEngine {
                     ?.replace("{conditionLabel}", localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag))
                     ?.replace("{weatherSummary}", snapshot.weatherAdvice.summary)
                     ?.replace("{starterAdvice}", snapshot.weatherAdvice.starterAdvice)
-                    ?: when (normalizedLanguageTag(languageTag)) {
-                        "de" -> "In ${snapshot.weatherSnapshot.city.localizedName(languageTag)} ist gerade ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} mit eher ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} Bedingungen. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
-                        "ko" -> "${snapshot.weatherSnapshot.city.localizedName(languageTag)}은 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}이고, 전반적으로 ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} 환경이에요. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
-                        else -> "In ${snapshot.weatherSnapshot.city.defaultName}, it’s ${snapshot.weatherSnapshot.season.name.lowercase()} for my setup with ${snapshot.weatherSnapshot.condition.name.lowercase().replace('_', ' ')} conditions. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
-                    },
+                    ?: fallbackWeatherReply(snapshot, languageTag),
                 relationshipLead,
             )
             CompanionChatIntent.CASUAL_CHAT -> joinSentences(
@@ -576,6 +557,36 @@ object CompanionChatEngine {
             "RELATIONSHIP_CLOSE" -> "Our rhythm is starting to feel pretty steady."
             else -> ""
         }
+    }
+
+    private fun fallbackMissionReplyEmpty(languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Ich sehe die heutige Missionskarte noch nicht, aber eine Lektion plus eine Pflegeaktion ist meistens ein guter Start."
+        "ko" -> "아직 오늘 미션 카드는 보이지 않지만, 보통은 레슨 하나와 돌봄 액션 하나로 시작하면 좋아요."
+        else -> "I can’t see today’s mission card yet, but a lesson plus one care action is usually a smart start."
+    }
+
+    private fun fallbackMissionReplyNext(nextMission: DailyMission, currentStreak: Int, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Bester Missionszug: ${nextMission.title}. ${nextMission.description} Aktuelle Serie: $currentStreak."
+        "ko" -> "지금 가장 좋은 미션은 ${nextMission.title}예요. ${nextMission.description} 현재 연속 기록은 ${currentStreak}이에요."
+        else -> "Best mission move: ${nextMission.title}. ${nextMission.description} Current streak: $currentStreak."
+    }
+
+    private fun fallbackGrowthReplyNext(growth: GrowthStageState, nextStage: GrowthStageRule, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Ich bin gerade in der Phase ${growth.currentStage.localizedGrowthTitle(languageTag)}. Als Nächstes kommt ${nextStage.localizedGrowthTitle(languageTag)}, und ich bin schon ${growth.readinessPercent}% auf dem Weg dorthin. ${growth.localizedUnlockHint(languageTag)}"
+        "ko" -> "저는 지금 ${growth.currentStage.localizedGrowthTitle(languageTag)} 단계예요. 다음은 ${nextStage.localizedGrowthTitle(languageTag)} 단계이고, 거기까지 ${growth.readinessPercent}% 왔어요. ${growth.localizedUnlockHint(languageTag)}"
+        else -> "I’m in my ${growth.currentStage.title} stage. Next up is ${nextStage.title}, and I’m ${growth.readinessPercent}% of the way there. ${growth.unlockHint}"
+    }
+
+    private fun fallbackGrowthReplyFinal(languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Ich habe meine letzte Wachstumsstufe schon erreicht. Jetzt geht es darum, stabil und gesund zu bleiben."
+        "ko" -> "저는 이미 마지막 성장 단계에 도달했어요. 이제는 안정적으로 건강을 유지하는 게 목표예요."
+        else -> "I’ve already reached my final growth stage, so now the goal is staying steady and healthy."
+    }
+
+    private fun fallbackWeatherReply(snapshot: CompanionStateSnapshot, languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "In ${snapshot.weatherSnapshot.city.localizedName(languageTag)} ist gerade ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} mit eher ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} Bedingungen. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
+        "ko" -> "${snapshot.weatherSnapshot.city.localizedName(languageTag)}은 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}이고, 전반적으로 ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} 환경이에요. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
+        else -> "In ${snapshot.weatherSnapshot.city.defaultName}, it’s ${snapshot.weatherSnapshot.season.name.lowercase()} for my setup with ${snapshot.weatherSnapshot.condition.name.lowercase().replace('_', ' ')} conditions. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
     }
 
     private fun fallbackProactiveBubble(
