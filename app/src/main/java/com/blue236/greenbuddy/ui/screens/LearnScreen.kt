@@ -45,6 +45,10 @@ import com.blue236.greenbuddy.model.StarterPlantOption
 import com.blue236.greenbuddy.model.currentLessonOrNull
 import com.blue236.greenbuddy.model.isComplete
 import com.blue236.greenbuddy.model.localizedTitle
+import com.blue236.greenbuddy.ui.components.GreenBuddyHeroCard
+import com.blue236.greenbuddy.ui.components.LessonPathNode
+import com.blue236.greenbuddy.ui.components.QuizOptionState
+import com.blue236.greenbuddy.ui.components.QuizOptionTile
 
 private enum class LearnUiState {
     IDLE,
@@ -220,28 +224,24 @@ private fun LearnHeroCard(
     lessonCount: Int,
     supportLine: String,
 ) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Text(
-                stringResource(R.string.current_companion, "${starter.companion.name} · ${starter.localizedTitle(localeTag)}"),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Text(
-                lessonTitle,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Text(
-                stringResource(R.string.completed_count, lessonIndex.coerceAtLeast(1), lessonCount),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(supportLine, color = MaterialTheme.colorScheme.onPrimaryContainer)
-        }
+    GreenBuddyHeroCard {
+        Text(
+            stringResource(R.string.current_companion, "${starter.companion.name} · ${starter.localizedTitle(localeTag)}"),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Text(
+            lessonTitle,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            stringResource(R.string.completed_count, lessonIndex.coerceAtLeast(1), lessonCount),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(supportLine, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -251,51 +251,21 @@ private fun LearnPathCard(
     currentLessonId: String?,
     completedLessonIds: Set<String>,
 ) {
-    Card {
+    Card(shape = MaterialTheme.shapes.medium) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text(stringResource(R.string.learn_path_title), fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.learn_path_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             lessons.take(5).forEachIndexed { index, lesson ->
                 val isCompleted = lesson.id in completedLessonIds
                 val isCurrent = lesson.id == currentLessonId
-                val circleColor = when {
-                    isCurrent -> MaterialTheme.colorScheme.primary
-                    isCompleted -> MaterialTheme.colorScheme.secondary
-                    else -> MaterialTheme.colorScheme.surfaceVariant
-                }
-                val stateLabel = when {
-                    isCurrent -> stringResource(R.string.learn_path_current)
-                    isCompleted -> stringResource(R.string.learn_path_done)
-                    else -> stringResource(R.string.learn_path_up_next)
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .background(circleColor, CircleShape)
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                    ) {
-                        Text(
-                            if (isCompleted) "✓" else "${index + 1}",
-                            color = if (isCompleted || isCurrent) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(lesson.title, fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Medium)
-                        Text(
-                            stateLabel,
-                            color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    }
-                }
+                LessonPathNode(
+                    index = index + 1,
+                    title = lesson.title,
+                    isCurrent = isCurrent,
+                    isCompleted = isCompleted,
+                )
             }
         }
     }
@@ -349,43 +319,18 @@ private fun QuizChallengeCard(
             Text(prompt, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             options.forEachIndexed { index, option ->
                 val isSelected = selectedAnswerIndex == index
-                val backgroundColor = when {
-                    evaluatedState == LearnUiState.EVALUATED_CORRECT && isSelected -> MaterialTheme.colorScheme.primaryContainer
-                    evaluatedState == LearnUiState.EVALUATED_INCORRECT && isSelected -> MaterialTheme.colorScheme.errorContainer
-                    isSelected -> MaterialTheme.colorScheme.secondaryContainer
-                    else -> MaterialTheme.colorScheme.surfaceVariant
+                val quizState = when {
+                    evaluatedState == LearnUiState.EVALUATED_CORRECT && isSelected -> QuizOptionState.Correct
+                    evaluatedState == LearnUiState.EVALUATED_INCORRECT && isSelected -> QuizOptionState.Incorrect
+                    isSelected -> QuizOptionState.Selected
+                    else -> QuizOptionState.Idle
                 }
-                val contentColor = when {
-                    evaluatedState == LearnUiState.EVALUATED_INCORRECT && isSelected -> MaterialTheme.colorScheme.onErrorContainer
-                    evaluatedState == LearnUiState.EVALUATED_CORRECT && isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
-                    isSelected -> MaterialTheme.colorScheme.onSecondaryContainer
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
+                QuizOptionTile(
+                    letterLabel = ('A' + index).toString(),
+                    text = option,
+                    state = quizState,
                     onClick = { onSelectAnswer(index) },
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = backgroundColor),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .background(contentColor.copy(alpha = 0.18f), CircleShape)
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
-                        ) {
-                            Text(
-                                text = ('A' + index).toString(),
-                                color = contentColor,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-                        Text(option, color = contentColor, modifier = Modifier.weight(1f))
-                    }
-                }
+                )
             }
         }
     }
@@ -447,7 +392,7 @@ private fun LearnBottomBar(
         LearnUiState.IDLE -> stringResource(R.string.learn_status_ready)
     }
     Card(
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Column(

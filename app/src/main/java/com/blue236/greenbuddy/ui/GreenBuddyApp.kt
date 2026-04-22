@@ -5,8 +5,16 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.LocalFlorist
+import androidx.compose.material.icons.outlined.MenuBook
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -119,13 +127,25 @@ fun GreenBuddyAppContent(
     }
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                 bottomNavigationTabs.forEach { tab ->
                     NavigationBarItem(
                         selected = uiState.selectedTab == tab,
                         onClick = { onSelectTab(tab) },
-                        icon = { Text(if (uiState.selectedTab == tab) "●" else "○") },
-                        label = { Text(stringResource(tab.labelRes)) },
+                        icon = {
+                            Icon(
+                                imageVector = tab.icon,
+                                contentDescription = stringResource(tab.labelRes),
+                            )
+                        },
+                        label = { Text(stringResource(tab.labelRes), style = MaterialTheme.typography.labelMedium) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
                     )
                 }
             }
@@ -199,4 +219,13 @@ private val Tab.labelRes: Int
         Tab.DEX -> R.string.tab_dex
         Tab.PROFILE -> R.string.tab_profile
         Tab.SETTINGS -> R.string.tab_settings
+    }
+
+private val Tab.icon
+    get() = when (this) {
+        Tab.HOME -> Icons.Outlined.Home
+        Tab.LEARN -> Icons.Outlined.MenuBook
+        Tab.DEX -> Icons.Outlined.LocalFlorist
+        Tab.PROFILE -> Icons.Outlined.Person
+        Tab.SETTINGS -> Icons.Outlined.Person
     }
