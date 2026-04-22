@@ -344,29 +344,13 @@ object CompanionChatEngine {
                 continuityLead,
                 emotionalLead,
                 when (species) {
-                    "Monstera" -> replyTemplate("CASUAL_MONSTERA") ?: when (normalizedLanguageTag(languageTag)) {
-                        "de" -> "Ich wirke gern gelassen und ausgeglichen — das klappt am besten, wenn meine Pflegewerte im Gleichgewicht bleiben. Frag mich nach meinem Status, wenn du den ehrlichen Blattbericht willst."
-                        "ko" -> "저는 차분하고 균형 잡혀 보이는 걸 좋아해요. 그러려면 돌봄 수치가 고르게 유지되는 게 가장 중요해요. 솔직한 잎사귀 리포트가 궁금하면 상태를 물어봐 주세요."
-                        else -> "I’m trying to look serene and well-adjusted, which is easier when my care stats stay balanced. Ask me about my status if you want the honest leaf report."
-                    }
+                    "Monstera" -> replyTemplate("CASUAL_MONSTERA") ?: fallbackCasualMonstera(languageTag)
                     "Basil" -> if (userMessage.contains("thanks", ignoreCase = true) || userMessage.contains("danke", ignoreCase = true) || userMessage.contains("고마", ignoreCase = true)) {
-                        replyTemplate("CASUAL_BASIL_THANKS") ?: when (normalizedLanguageTag(languageTag)) {
-                            "de" -> "Sehr gern. Ich nehme Lob am liebsten in Form von Wasser, Licht oder sauberer Missionsarbeit."
-                            "ko" -> "언제든지요. 저는 물, 햇빛, 그리고 잘 이어지는 연속 기록으로 고마움을 받는 걸 좋아해요."
-                            else -> "Any time. I accept gratitude in the form of water, sun, or a nicely maintained streak."
-                        }
+                        replyTemplate("CASUAL_BASIL_THANKS") ?: fallbackCasualBasilThanks(languageTag)
                     } else {
-                        replyTemplate("CASUAL_BASIL_DEFAULT") ?: when (normalizedLanguageTag(languageTag)) {
-                            "de" -> "Ich stehe für gute Vibes und schnelles Vorankommen. Wenn du willst, helfe ich dir bei der heutigen Mission oder sage dir, welcher Pflegeschub mir am meisten bringen würde."
-                            "ko" -> "저는 좋은 분위기와 빠른 성장 둘 다 좋아해요. 원하면 오늘 미션을 같이 보거나, 어떤 돌봄이 가장 효과적인지 바로 알려 드릴게요."
-                            else -> "I support two things: good vibes and fast progress. If you want, I can help with today’s mission or tell you what care boost would wake me up most."
-                        }
+                        replyTemplate("CASUAL_BASIL_DEFAULT") ?: fallbackCasualBasilDefault(languageTag)
                     }
-                    else -> replyTemplate("CASUAL_DEFAULT") ?: when (normalizedLanguageTag(languageTag)) {
-                        "de" -> "Ich mag Gespräche mit ein bisschen Ehrgeiz. Frag mich nach Wachstum, Wetter oder dem heutigen Plan, dann bleibe ich praktisch."
-                        "ko" -> "저는 대화에 약간의 목표 의식이 있는 걸 좋아해요. 성장, 날씨, 오늘 계획을 물어보면 실용적으로 답할게요."
-                        else -> "I like a little ambition in my conversations. Ask me about growth, weather, or today’s plan and I’ll keep it practical."
-                    }
+                    else -> replyTemplate("CASUAL_DEFAULT") ?: fallbackCasualDefault(languageTag)
                 },
                 relationshipLead,
             )
@@ -587,6 +571,30 @@ object CompanionChatEngine {
         "de" -> "In ${snapshot.weatherSnapshot.city.localizedName(languageTag)} ist gerade ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)} mit eher ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} Bedingungen. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
         "ko" -> "${snapshot.weatherSnapshot.city.localizedName(languageTag)}은 지금 ${localizedSeasonLabel(snapshot.weatherSnapshot.season, languageTag)}이고, 전반적으로 ${localizedWeatherConditionLabel(snapshot.weatherSnapshot.condition, languageTag)} 환경이에요. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
         else -> "In ${snapshot.weatherSnapshot.city.defaultName}, it’s ${snapshot.weatherSnapshot.season.name.lowercase()} for my setup with ${snapshot.weatherSnapshot.condition.name.lowercase().replace('_', ' ')} conditions. ${snapshot.weatherAdvice.summary} ${snapshot.weatherAdvice.starterAdvice}"
+    }
+
+    private fun fallbackCasualMonstera(languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Ich wirke gern gelassen und ausgeglichen, das klappt am besten, wenn meine Pflegewerte im Gleichgewicht bleiben. Frag mich nach meinem Status, wenn du den ehrlichen Blattbericht willst."
+        "ko" -> "저는 차분하고 균형 잡혀 보이는 걸 좋아해요. 그러려면 돌봄 수치가 고르게 유지되는 게 가장 중요해요. 솔직한 잎사귀 리포트가 궁금하면 상태를 물어봐 주세요."
+        else -> "I’m trying to look serene and well-adjusted, which is easier when my care stats stay balanced. Ask me about my status if you want the honest leaf report."
+    }
+
+    private fun fallbackCasualBasilThanks(languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Sehr gern. Ich nehme Lob am liebsten in Form von Wasser, Licht oder sauberer Missionsarbeit."
+        "ko" -> "언제든지요. 저는 물, 햇빛, 그리고 잘 이어지는 연속 기록으로 고마움을 받는 걸 좋아해요."
+        else -> "Any time. I accept gratitude in the form of water, sun, or a nicely maintained streak."
+    }
+
+    private fun fallbackCasualBasilDefault(languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Ich stehe für gute Vibes und schnelles Vorankommen. Wenn du willst, helfe ich dir bei der heutigen Mission oder sage dir, welcher Pflegeschub mir am meisten bringen würde."
+        "ko" -> "저는 좋은 분위기와 빠른 성장 둘 다 좋아해요. 원하면 오늘 미션을 같이 보거나, 어떤 돌봄이 가장 효과적인지 바로 알려 드릴게요."
+        else -> "I support two things: good vibes and fast progress. If you want, I can help with today’s mission or tell you what care boost would wake me up most."
+    }
+
+    private fun fallbackCasualDefault(languageTag: String): String = when (normalizedLanguageTag(languageTag)) {
+        "de" -> "Ich mag Gespräche mit ein bisschen Ehrgeiz. Frag mich nach Wachstum, Wetter oder dem heutigen Plan, dann bleibe ich praktisch."
+        "ko" -> "저는 대화에 약간의 목표 의식이 있는 걸 좋아해요. 성장, 날씨, 오늘 계획을 물어보면 실용적으로 답할게요."
+        else -> "I like a little ambition in my conversations. Ask me about growth, weather, or today’s plan and I’ll keep it practical."
     }
 
     private fun fallbackProactiveBubble(
