@@ -392,7 +392,7 @@ private fun LearnBottomBar(
         LearnUiState.IDLE -> stringResource(R.string.learn_status_ready)
     }
     Card(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Column(

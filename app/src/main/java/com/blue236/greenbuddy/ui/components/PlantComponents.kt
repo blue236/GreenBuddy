@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -78,7 +79,7 @@ fun PlantInventoryCard(
                     Text(
                         option.previewEmoji,
                         style = MaterialTheme.typography.headlineMedium,
-                        color = if (entry.isOwned) Color.Unspecified else Color.Unspecified.copy(alpha = 0.4f),
+                        modifier = Modifier.alpha(if (entry.isOwned) 1f else 0.4f),
                     )
                 }
                 if (!entry.isOwned) {

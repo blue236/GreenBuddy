@@ -6,9 +6,6 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -75,17 +72,6 @@ private val GreenBuddyLightColors = lightColorScheme(
     surfaceContainerHighest = Color(0xFFC8E6C9),
 )
 
-@Immutable
-data class GreenBuddyExtraColors(
-    val stem: Color = Color(0xFF2E5D3A),
-    val leafGold: Color = Color(0xFFF5A623),
-    val streakFlame: Color = Color(0xFFFF6B35),
-    val companionBubble: Color = Color(0xFFF0FBF0),
-    val userBubble: Color = Color(0xFFE8F5E8),
-)
-
-val LocalGreenBuddyColors = staticCompositionLocalOf { GreenBuddyExtraColors() }
-
 object GreenBuddyColors {
     val stem = Color(0xFF2E5D3A)
     val leafGold = Color(0xFFF5A623)
@@ -96,12 +82,10 @@ object GreenBuddyColors {
 
 @Composable
 fun GreenBuddyTheme(content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalGreenBuddyColors provides GreenBuddyExtraColors()) {
-        MaterialTheme(
-            colorScheme = GreenBuddyLightColors,
-            typography = GreenBuddyTypography,
-            shapes = GreenBuddyShapes,
-            content = content,
-        )
-    }
+    MaterialTheme(
+        colorScheme = GreenBuddyLightColors,
+        typography = GreenBuddyTypography,
+        shapes = GreenBuddyShapes,
+        content = content,
+    )
 }
