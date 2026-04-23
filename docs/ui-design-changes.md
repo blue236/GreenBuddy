@@ -1,6 +1,7 @@
 # GreenBuddy UI/UX 재설계 — 디자인 변경사항 문서
 
-> **브랜치:** `claude/design-greenbuddy-ui-Qlei2`
+> **1차 재설계:** `claude/design-greenbuddy-ui-Qlei2` → main (PR #42)
+> **2차 업데이트:** `claude/home-screen-icon-layout` (PR #43)
 > **목표:** 귀엽고 친근한(cute & friendly) 비주얼 아이덴티티 구축
 
 ---
@@ -138,29 +139,65 @@ icon = { Icon(imageVector = tab.icon, ...) }
 
 ### 3.2 홈 화면 (`HomeScreen.kt`)
 
-**카드 순서 완전 재배치:**
+> **PR #43에서 전면 재설계** — 텍스트 위주 단일 스크롤 → 스탯 카드 + 아이콘 섹션 내비게이션
 
-| 기존 순서 | 새로운 순서 |
-|-----------|-------------|
-| 1. 텍스트 제목 | 1. 상단 스트립 (제목 + 🍃 토큰) |
-| 2. 부제목 | 2. **동반자 히어로 카드** ← 9번째에서 이동 |
-| 3. 오늘의 레슨 | 3. 케어 액션 타일 3개 |
-| 4. 성장 카드 | 4. 일일 미션 + 🔥 스트릭 뱃지 |
-| 5. 미션 카드 | 5. 오늘의 레슨 넛지 |
-| 6-8. 보상 스트립 | 6. 접기/펼치기 토글 |
-| **9. 동반자 히어로** | 7. (접힘) 성장/보상/날씨/실물 모드 |
-| 10. 케어 AssistChip |  |
+**최종 레이아웃 구조:**
 
-**케어 액션 개선:**
-- `FlowRow { AssistChip × 3 }` → `Row { CareActionButton × 3 (weight(1f))}`
-- 각 타일: 48dp 이모지 원형 + 라벨, tappable 카드
+```
+┌──────────────────────────────────┐
+│ GreenBuddy              🍃 토큰  │  상단 스트립
+├──────────────────────────────────┤
+│ [🌟 avatar] "Rainforest check-in"│  컴팩트 히어로 카드
+│ ● Proud  ● Familiar routine      │  (아바타 + 제목 + 감정 배너만)
+├──────────────────────────────────┤
+│ [💧 73%] [☀️ 96%] [🌿 94%]     │  식물 스탯 3종 카드 슬롯
+│   Water     Sun      Feed        │  색상 코딩: 초록/노랑/빨강
+│ 🌿 Climbing · 100% ready ━━━━━  │  성장 단계 스트립
+├──────────────────────────────────┤
+│  💧    ☑    📖    💬    🌿      │  섹션 아이콘 바
+│ Care Mission Lesson Chat Plant   │  Chat · Plant = 비활성(disabled)
+│ (선택 시 Primary 원형 하이라이트) │
+├──────────────────────────────────┤
+│ [선택한 섹션 카드 — 애니메이션]   │  탭하면 expandVertically
+│  Care: 케어 버튼 3개 + 안내 텍스트│  다시 탭하면 shrinkVertically
+│  Mission: 미션 목록 + 스트릭     │
+│  Lesson: 오늘의 레슨 카드         │
+└──────────────────────────────────┘
+```
 
-**HomeHeroCard 내부 개선:**
-- `StatCard` → `GreenBuddyHeroCard` (그라디언트 배경)
-- 이모지 텍스트 → `CompanionAvatarBubble` (부유 애니메이션 + 감정 링)
-- 감정/친밀도 AssistChip → `EmotionBanner` (Pill 배너)
-- 베스트 액션 버튼 → `GreenBuddyButton`
-- 채팅 토글 → `GreenBuddyButton` Secondary 변형
+**스탯 카드 색상 규칙 (`PlantStatMiniCard`):**
+
+| 수치 | 카드 배경 | 바 색상 |
+|------|-----------|---------|
+| ≥ 65 | PrimaryContainer 50% | Primary (초록) |
+| 35–64 | TertiaryContainer 60% | leafGold (노랑) |
+| < 35 | ErrorContainer 50% | Error (빨강) |
+
+**섹션 아이콘 바 (`HomeSectionIconBar`):**
+
+| 아이콘 | 라벨 | Material Icon | 상태 |
+|--------|------|---------------|------|
+| 💧 | Care | `Icons.Outlined.WaterDrop` | 활성 |
+| ☑ | Mission | `Icons.Outlined.TaskAlt` | 활성 (미션 없으면 비활성) |
+| 📖 | Lesson | `Icons.Outlined.MenuBook` | 활성 |
+| 💬 | Chat | `Icons.Outlined.Chat` | **비활성 (disabled)** |
+| 🌿 | Plant | `Icons.Outlined.Spa` | **비활성 (disabled)** |
+
+- 선택 시: PrimaryContainer 원형 배경 + Primary 색상 (200ms tween)
+- 비활성: alpha 38%, 클릭 불가
+
+**히어로 카드 변경 (PR #42 → PR #43):**
+
+| PR #42 | PR #43 |
+|--------|--------|
+| `CompanionAvatarBubble` + 제목 + 베스트 액션 박스 + 채팅 토글 | `CompanionAvatarBubble` + 제목 + 감정 배너만 |
+| 채팅 섹션 인라인 내장 | 채팅 아이콘으로 분리 (현재 disabled) |
+| 접기/펼치기 extras 토글 | 제거 (성장/날씨/보상 섹션 정리) |
+
+**제거된 항목:**
+- "Show supporting details" 접기/펼치기 토글
+- 인라인 채팅 카드 (`CompanionChatCard`)
+- 날씨 카드, 보상 스트립 (홈 화면에서 제거)
 
 ---
 
@@ -217,6 +254,8 @@ icon = { Icon(imageVector = tab.icon, ...) }
 | 동반자 이모지 | Y축 0 ↔ -4dp, 1.1초 주기 반복 | `infiniteTransition + animateFloat` |
 | 동반자 감정 링 | 감정 변경 시 색상 전환 600ms | `animateColorAsState(tween(600))` |
 | 케어 버튼 | 탭 영역 ripple (Material 기본) | `clickable` |
+| **섹션 아이콘 선택** | **배경/텍스트 색상 200ms tween** | **`animateColorAsState(tween(200))`** |
+| **섹션 패널 펼침/접힘** | **수직 expand/collapse** | **`expandVertically + shrinkVertically`** |
 | 퀴즈 선택 | 배경색 전환 200ms + scale 1.02x spring | `animateColorAsState + animateFloatAsState(spring)` |
 | 퀴즈 정답/오답 | PrimaryContainer/ErrorContainer 색상 전환 | `animateColorAsState(tween(200))` |
 | 잎 토큰 | `LeafTokenDisplay` 금색 강조 | `GreenBuddyColors.leafGold` |
@@ -235,28 +274,32 @@ implementation("androidx.compose.material:material-icons-extended")
 
 ## 6. 파일 변경 목록
 
-| 파일 | 상태 | 설명 |
-|------|------|------|
-| `ui/theme/Theme.kt` | **수정** | 전면 재작성 — 커스텀 컬러/타입/쉐이프 |
-| `ui/components/AppComponents.kt` | **수정** | 기존 유지 + 신규 6개 컴포넌트 추가 |
-| `ui/components/CompanionComponents.kt` | **신규** | 동반자 관련 컴포넌트 |
-| `ui/components/MissionComponents.kt` | **신규** | 미션/스트릭 컴포넌트 |
-| `ui/components/RewardComponents.kt` | **신규** | 보상/코스메틱 컴포넌트 |
-| `ui/components/PlantComponents.kt` | **신규** | 식물/퀴즈/레슨 경로 컴포넌트 |
-| `ui/GreenBuddyApp.kt` | **수정** | 네비게이션 바 아이콘 교체 |
-| `ui/screens/HomeScreen.kt` | **수정** | 카드 재배치, CareActionButton, 히어로 개선 |
-| `ui/screens/LearnScreen.kt` | **수정** | QuizOptionTile, LessonPathNode, 바텀 바 |
-| `ui/screens/DexScreen.kt` | **수정** | PlantInventoryCard, 테마 토큰, 히어로 카드 |
-| `ui/screens/ProfileScreen.kt` | **수정** | 히어로 카드, CosmeticShopCard |
-| `ui/screens/OnboardingScreen.kt` | **수정** | GreenBuddyHeroCard, GreenBuddyButton |
-| `app/build.gradle.kts` | **수정** | material-icons-extended 추가 |
+| 파일 | PR | 상태 | 설명 |
+|------|----|------|------|
+| `ui/theme/Theme.kt` | #42 | **수정** | 전면 재작성 — 커스텀 컬러/타입/쉐이프 |
+| `ui/components/AppComponents.kt` | #42 #43 | **수정** | 신규 6개 컴포넌트 + `StatCard` trailing 슬롯 추가 |
+| `ui/components/CompanionComponents.kt` | #42 | **신규** | 동반자 관련 컴포넌트 |
+| `ui/components/MissionComponents.kt` | #42 | **신규** | 미션/스트릭 컴포넌트 |
+| `ui/components/RewardComponents.kt` | #42 | **신규** | 보상/코스메틱 컴포넌트 |
+| `ui/components/PlantComponents.kt` | #42 | **신규** | 식물/퀴즈/레슨 경로 컴포넌트 |
+| `ui/GreenBuddyApp.kt` | #42 | **수정** | 네비게이션 바 아이콘 교체 |
+| `ui/screens/HomeScreen.kt` | #42 #43 | **수정** | **PR #43: 스탯 카드 + 아이콘 섹션 내비 전면 재설계** |
+| `ui/screens/LearnScreen.kt` | #42 | **수정** | QuizOptionTile, LessonPathNode, 바텀 바 |
+| `ui/screens/DexScreen.kt` | #42 | **수정** | PlantInventoryCard, 테마 토큰, 히어로 카드 |
+| `ui/screens/ProfileScreen.kt` | #42 | **수정** | 히어로 카드, CosmeticShopCard |
+| `ui/screens/OnboardingScreen.kt` | #42 | **수정** | GreenBuddyHeroCard, GreenBuddyButton |
+| `app/build.gradle.kts` | #42 | **수정** | material-icons-extended 추가 |
+| `res/values/strings.xml` | #43 | **수정** | home_section_*, home_stat_*, home_growth_mini 키 추가 |
 
 ---
 
 ## 7. 향후 개선 가능 사항
 
+- **Chat 섹션 활성화**: `HomeSection.CHAT` 추가 + `CompanionChatCard` 패널로 연결 (현재 disabled 아이콘만 존재)
+- **Real Plant 섹션 활성화**: `HomeSection.REAL_PLANT` 추가 + 실물 케어 로그 패널로 연결
 - **Nunito 폰트 적용**: `res/font/` 디렉토리에 Nunito ttf 파일 추가 시 현재 타입 스케일 즉시 적용 가능
 - **다크 모드**: `GreenBuddyLightColors` 옆에 `GreenBuddyDarkColors` 추가로 확장 가능
 - **성장 해제 애니메이션**: 카드 scale/alpha 등장 + 이모지 회전 구현 (confetti 효과 포함)
 - **케어 버튼 햅틱**: press 시 `scale 0.92 → 1.0` spring 애니메이션 추가
 - **미션 체크 애니메이션**: 완료 시 원형 Primary 색상 변경 + 바운스 효과
+- **스탯 카드 탭 연동**: 스탯 카드 직접 탭 → Care 섹션 자동 펼침 + 해당 케어 하이라이트
