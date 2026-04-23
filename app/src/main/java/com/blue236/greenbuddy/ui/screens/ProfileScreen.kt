@@ -100,7 +100,7 @@ fun ProfileScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     rewardState.equippedCosmetic?.let {
-                        Text("${it.emoji} ${it.id}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${it.emoji} ${it.localizedName(localeTag)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 LeafTokenDisplay(amount = rewardState.leafTokens, large = true)
@@ -112,7 +112,7 @@ fun ProfileScreen(
                 }
                 dailyMissionSet?.let {
                     Column {
-                        Text("🔥 ${it.currentStreak} days", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.tertiary)
+                        Text(stringResource(R.string.streak_value, it.currentStreak), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.tertiary)
                         Text(stringResource(R.string.today_progress, it.completedCount, it.totalCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
