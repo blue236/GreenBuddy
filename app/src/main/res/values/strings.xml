@@ -192,6 +192,16 @@
     <string name="reward_feedback_cosmetic_unlocked">Unlocked %1$s %2$s</string>
     <string name="reward_feedback_greenhouse_unlock">New greenhouse buddy unlocked: %1$s %2$s</string>
     <string name="reward_feedback_with_greenhouse_unlock">%1$s · %2$s</string>
+    <string name="home_section_care">Care</string>
+    <string name="home_section_missions">Mission</string>
+    <string name="home_section_lesson">Lesson</string>
+    <string name="home_section_chat">Chat</string>
+    <string name="home_section_real_plant">Plant</string>
+    <string name="home_stat_water">Water</string>
+    <string name="home_stat_sun">Sun</string>
+    <string name="home_stat_feed">Feed</string>
+    <string name="home_stat_percent">%1$d%%</string>
+    <string name="home_growth_mini">%1$s · %2$d%% ready</string>
     <string name="notification_channel_name">GreenBuddy reminders</string>
     <string name="notification_channel_description">Gentle reminders for lessons, care, and routine check-ins.</string>
 </resources>
