@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,7 +19,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +43,10 @@ import com.blue236.greenbuddy.model.localizedName
 import com.blue236.greenbuddy.model.localizedRequirementSummary
 import com.blue236.greenbuddy.model.localizedUnlockHint
 import com.blue236.greenbuddy.model.localizedUnlockedMessage
+import com.blue236.greenbuddy.ui.components.CosmeticShopCard
+import com.blue236.greenbuddy.ui.components.GreenBuddyHeroCard
+import com.blue236.greenbuddy.ui.components.LeafTokenDisplay
+import com.blue236.greenbuddy.ui.components.SectionTitle
 import com.blue236.greenbuddy.ui.components.StatCard
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
@@ -71,32 +74,51 @@ fun ProfileScreen(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        // Top bar row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.profile_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Text(
-                    stringResource(R.string.profile_subtitle),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            Text(stringResource(R.string.profile_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             IconButton(onClick = onOpenSettings) {
-                Icon(
-                    imageVector = Icons.Outlined.Settings,
-                    contentDescription = stringResource(R.string.open_settings),
-                )
+                Icon(imageVector = Icons.Outlined.Settings, contentDescription = stringResource(R.string.open_settings))
             }
         }
-        TextButton(onClick = onOpenSettings, modifier = Modifier.align(Alignment.End)) {
-            Text(stringResource(R.string.open_settings))
+
+        // Companion identity hero card
+        GreenBuddyHeroCard(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        "${starter.previewEmoji} ${starter.companion.name}",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    rewardState.equippedCosmetic?.let {
+                        Text("${it.emoji} ${it.localizedName(localeTag)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                LeafTokenDisplay(amount = rewardState.leafTokens, large = true)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                Column {
+                    Text("⚡ ${progress.totalXp} XP", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.plants_owned_value, ownedPlantCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                dailyMissionSet?.let {
+                    Column {
+                        Text(stringResource(R.string.streak_value, it.currentStreak), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.tertiary)
+                        Text(stringResource(R.string.today_progress, it.completedCount, it.totalCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
         }
-        StatCard(stringResource(R.string.progress)) {
-            Text(stringResource(R.string.xp_value, progress.totalXp))
-            Text(stringResource(R.string.plants_owned_value, ownedPlantCount))
-        }
+
         RewardWalletCard(rewardState = rewardState, localeTag = localeTag)
         StatCard(stringResource(R.string.growth_status)) {
             Text(
@@ -145,16 +167,21 @@ fun ProfileScreen(
             Text(if (realPlantModeState.enabled) stringResource(R.string.mode_enabled) else stringResource(R.string.mode_off))
             Text(stringResource(R.string.logged_entries, realPlantModeState.entries.size))
         }
-        StatCard(stringResource(R.string.reward_shop)) {
-            Text(
-                stringResource(R.string.reward_shop_subtitle),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            RewardCatalog.cosmetics.forEachIndexed { index, item ->
-                if (index > 0) {
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                }
-                CosmeticShopRow(item, rewardState, localeTag, { onPurchaseCosmetic(item) }, { onEquipCosmetic(item.id) })
+        SectionTitle(stringResource(R.string.reward_shop))
+        Text(
+            stringResource(R.string.reward_shop_subtitle),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            RewardCatalog.cosmetics.forEach { item ->
+                CosmeticShopCard(
+                    item = item,
+                    rewardState = rewardState,
+                    localeTag = localeTag,
+                    onPurchase = { onPurchaseCosmetic(item) },
+                    onEquip = { onEquipCosmetic(item.id) },
+                )
             }
         }
     }

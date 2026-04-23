@@ -70,7 +70,17 @@ import com.blue236.greenbuddy.model.localizedUnlockedMessage
 import com.blue236.greenbuddy.model.localizedMood
 import com.blue236.greenbuddy.model.localizedLabel
 import com.blue236.greenbuddy.model.localizedName
+import com.blue236.greenbuddy.ui.components.CareActionButton
+import com.blue236.greenbuddy.ui.components.CompanionAvatarBubble
+import com.blue236.greenbuddy.ui.components.EmotionBanner
+import com.blue236.greenbuddy.ui.components.GreenBuddyButton
+import com.blue236.greenbuddy.ui.components.GreenBuddyButtonVariant
+import com.blue236.greenbuddy.ui.components.GreenBuddyHeroCard
+import com.blue236.greenbuddy.ui.components.LeafTokenDisplay
+import com.blue236.greenbuddy.ui.components.MissionRowItem
+import com.blue236.greenbuddy.ui.components.SectionTitle
 import com.blue236.greenbuddy.ui.components.StatCard
+import com.blue236.greenbuddy.ui.components.StreakBadge
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -124,50 +134,17 @@ fun HomeScreen(
     LaunchedEffect(rewardFeedback) {
         if (rewardFeedback != null) areExtrasExpanded = true
     }
-    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount))
-        TodaysLessonPrimaryCard(
-            currentLesson = currentLesson,
-            lessonComplete = progress.isComplete(lessons),
-            lessonNudge = dialogue.lessonNudge,
-            onOpenTodayLesson = onOpenTodayLesson,
-        )
-        GrowthOverviewCard(
-            growthStageState = growthStageState,
-            localeTag = localeTag,
-            onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
-        )
-        dailyMissionSet?.let {
-            DailyMissionCard(
-                missionSet = it,
-                localeTag = localeTag,
-            )
-        }
-        dailyMissionSet?.let { missionSet ->
-            if (!missionSet.allCompletedToday) {
-                StatCard(stringResource(R.string.reward_pulse)) {
-                    Text(
-                        stringResource(R.string.home_reward_strip_ready, missionSet.completedCount, missionSet.totalCount),
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
+    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        // Top strip: title + wallet
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Column {
+                Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.greenhouse_size, starter.companion.name, greenhouseCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            LeafTokenDisplay(amount = rewardState.leafTokens)
         }
-        rewardFeedback?.let {
-            StatCard(stringResource(R.string.reward_pulse)) {
-                Text(
-                    stringResource(R.string.home_reward_strip_feedback, it),
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
-        CompactRewardStrip(
-            rewardState = rewardState,
-            localeTag = localeTag,
-        )
+
+        // Hero companion card — focal point
         HomeHeroCard(
             starter = starter,
             companionHomeCheckIn = companionHomeCheckIn,
@@ -191,19 +168,54 @@ fun HomeScreen(
                 }
             },
         )
-        StatCard(stringResource(R.string.care_actions)) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { CareAction.entries.forEach { AssistChip(onClick = { onPerformCareAction(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
-            Text(dialogue.careGuidance, color = MaterialTheme.colorScheme.primary)
+
+        // Care actions — 3 tile buttons
+        SectionTitle(stringResource(R.string.care_actions))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            CareAction.entries.forEach { action ->
+                CareActionButton(
+                    action = action,
+                    emoji = careActionEmoji(action),
+                    label = action.localizedLabel(localeTag),
+                    onClick = { onPerformCareAction(action) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
-        Button(onClick = { areExtrasExpanded = !areExtrasExpanded }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(if (areExtrasExpanded) R.string.home_extras_hide else R.string.home_extras_show))
-        }
-        if (areExtrasExpanded) {
-            RewardOverviewCard(
-                rewardState = rewardState,
-                rewardFeedback = rewardFeedback,
-                localeTag = localeTag,
+        Text(dialogue.careGuidance, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+
+        // Daily missions — always visible
+        dailyMissionSet?.let { missionSet ->
+            SectionTitle(
+                stringResource(R.string.daily_missions),
+                trailingContent = { StreakBadge(streakCount = missionSet.currentStreak) },
             )
+            DailyMissionCard(missionSet = missionSet, localeTag = localeTag)
+        }
+
+        // Today's lesson nudge
+        SectionTitle(stringResource(R.string.todays_lesson))
+        TodaysLessonPrimaryCard(
+            currentLesson = currentLesson,
+            lessonComplete = progress.isComplete(lessons),
+            lessonNudge = dialogue.lessonNudge,
+            onOpenTodayLesson = onOpenTodayLesson,
+        )
+
+        // Expand/collapse extras
+        GreenBuddyButton(
+            onClick = { areExtrasExpanded = !areExtrasExpanded },
+            text = stringResource(if (areExtrasExpanded) R.string.home_extras_hide else R.string.home_extras_show),
+            modifier = Modifier.fillMaxWidth(),
+            variant = GreenBuddyButtonVariant.Ghost,
+        )
+        if (areExtrasExpanded) {
+            GrowthOverviewCard(
+                growthStageState = growthStageState,
+                localeTag = localeTag,
+                onAcknowledgeGrowthStage = onAcknowledgeGrowthStage,
+            )
+            CompactRewardStrip(rewardState = rewardState, localeTag = localeTag)
             StatCard(stringResource(R.string.local_weather_title)) {
                 Text(stringResource(R.string.weather_card_city, weatherSnapshot.city.defaultName), fontWeight = FontWeight.SemiBold)
                 Text(weatherAdvice.summary)
@@ -211,10 +223,15 @@ fun HomeScreen(
                 Text(weatherAdvice.reminderHint, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             StatCard(stringResource(R.string.real_plant_mode)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) { Text(stringResource(R.string.mirror_real_world_care)); Switch(checked = realPlantModeState.enabled, onCheckedChange = onSetRealPlantModeEnabled) }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.mirror_real_world_care))
+                    Switch(checked = realPlantModeState.enabled, onCheckedChange = onSetRealPlantModeEnabled)
+                }
                 if (realPlantModeState.enabled) {
                     Text(stringResource(R.string.today_real_plant, completedToday.size, RealPlantCareAction.entries.size))
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { RealPlantCareAction.entries.forEach { AssistChip(onClick = { onLogRealPlantCare(it) }, label = { Text(it.localizedLabel(localeTag)) }) } }
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        RealPlantCareAction.entries.forEach { AssistChip(onClick = { onLogRealPlantCare(it) }, label = { Text(it.localizedLabel(localeTag)) }) }
+                    }
                 }
             }
         }
@@ -260,89 +277,46 @@ private fun HomeHeroCard(
     onOpenCompanionPrompt: (String) -> Unit,
     onRunBestNextAction: () -> Unit,
 ) {
-    val emotionContainerColor = when (companionHomeCheckIn.emotion) {
-        CompanionEmotion.PROUD, CompanionEmotion.EXCITED -> MaterialTheme.colorScheme.primaryContainer
-        CompanionEmotion.CURIOUS -> MaterialTheme.colorScheme.tertiaryContainer
-        CompanionEmotion.CALM -> MaterialTheme.colorScheme.secondaryContainer
-        CompanionEmotion.WORRIED -> MaterialTheme.colorScheme.errorContainer
-    }
-    val emotionContentColor = when (companionHomeCheckIn.emotion) {
-        CompanionEmotion.PROUD, CompanionEmotion.EXCITED -> MaterialTheme.colorScheme.onPrimaryContainer
-        CompanionEmotion.CURIOUS -> MaterialTheme.colorScheme.onTertiaryContainer
-        CompanionEmotion.CALM -> MaterialTheme.colorScheme.onSecondaryContainer
-        CompanionEmotion.WORRIED -> MaterialTheme.colorScheme.onErrorContainer
-    }
-
-    StatCard(stringResource(R.string.companion_proactive_title)) {
+    GreenBuddyHeroCard {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(emotionContainerColor.copy(alpha = 0.55f), shape = MaterialTheme.shapes.large)
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.Top,
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
+            CompanionAvatarBubble(
+                emoji = companionEmotionEmoji(companionHomeCheckIn.emotion),
+                emotion = companionHomeCheckIn.emotion,
+            )
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(headline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text(supportLine, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(supportLine, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
             }
-            Text(
-                text = companionEmotionEmoji(companionHomeCheckIn.emotion),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(start = 12.dp),
-            )
         }
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(top = 10.dp),
-        ) {
-            AssistChip(
-                onClick = { },
-                label = { Text(stringResource(R.string.companion_emotion_chip, companionHomeCheckIn.emotionLabel)) },
-            )
-            AssistChip(
-                onClick = { },
-                label = { Text(stringResource(R.string.companion_familiarity_chip, companionHomeCheckIn.familiarityLabel)) },
-            )
-        }
+        EmotionBanner(
+            emotion = companionHomeCheckIn.emotion,
+            emotionLabel = companionHomeCheckIn.emotionLabel,
+            familiarityLabel = companionHomeCheckIn.familiarityLabel,
+        )
+        // Best next action box
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp)
-                .background(emotionContainerColor.copy(alpha = 0.3f), shape = MaterialTheme.shapes.large)
+                .background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.medium)
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(bestNextAction, color = emotionContentColor, fontWeight = FontWeight.SemiBold)
-            Button(onClick = onRunBestNextAction) {
-                Text(bestNextActionLabel)
-            }
+            Text(bestNextAction, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            GreenBuddyButton(onClick = onRunBestNextAction, text = bestNextActionLabel)
             companionHomeCheckIn.suggestionChips.firstOrNull()?.let { prompt ->
-                AssistChip(onClick = { onOpenCompanionPrompt(prompt) }, label = { Text(prompt) })
+                AssistChip(onClick = { onOpenCompanionPrompt(prompt) }, label = { Text(prompt, style = MaterialTheme.typography.labelMedium) })
             }
         }
-        Text(
-            stringResource(
-                R.string.companion_continuity_summary,
-                companionHomeCheckIn.emotionLabel,
-                companionHomeCheckIn.familiarityLabel,
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp),
+        // Chat toggle
+        GreenBuddyButton(
+            onClick = onToggleCompanionChat,
+            text = stringResource(if (isCompanionChatOpen) R.string.companion_chat_hide else R.string.companion_chat_open),
+            variant = GreenBuddyButtonVariant.Secondary,
         )
-        Text(
-            stringResource(R.string.companion_chat_title),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-        OutlinedButton(onClick = onToggleCompanionChat, modifier = Modifier.padding(top = 8.dp)) {
-            Text(stringResource(if (isCompanionChatOpen) R.string.companion_chat_hide else R.string.companion_chat_open))
-        }
         if (isCompanionChatOpen) {
             Text(
                 stringResource(R.string.companion_chat_entry, starter.companion.name),
@@ -788,6 +762,12 @@ private fun companionEmotionEmoji(emotion: CompanionEmotion): String = when (emo
     CompanionEmotion.CURIOUS -> "🌱"
     CompanionEmotion.CALM -> "🍃"
     CompanionEmotion.EXCITED -> "✨"
+}
+
+private fun careActionEmoji(action: CareAction): String = when (action) {
+    CareAction.WATER -> "💧"
+    CareAction.MOVE_TO_SUNLIGHT -> "☀️"
+    CareAction.FERTILIZE -> "🌿"
 }
 
 private fun CareStatType?.localizedStatLabel(localeTag: String): String {
