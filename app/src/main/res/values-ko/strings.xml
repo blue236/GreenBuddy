@@ -178,6 +178,16 @@
     <string name="reward_feedback_cosmetic_unlocked">%1$s %2$s 잠금 해제</string>
     <string name="reward_feedback_greenhouse_unlock">새 온실 버디 해제: %1$s %2$s</string>
     <string name="reward_feedback_with_greenhouse_unlock">%1$s · %2$s</string>
+    <string name="home_section_care">돌봄</string>
+    <string name="home_section_missions">미션</string>
+    <string name="home_section_lesson">레슨</string>
+    <string name="home_section_chat">채팅</string>
+    <string name="home_section_real_plant">식물</string>
+    <string name="home_stat_water">물</string>
+    <string name="home_stat_sun">햇빛</string>
+    <string name="home_stat_feed">영양</string>
+    <string name="home_stat_percent">%1$d%%</string>
+    <string name="home_growth_mini">%1$s · %2$d%% 준비</string>
     <string name="notification_channel_name">GreenBuddy 알림</string>
     <string name="notification_channel_description">레슨, 돌봄, 루틴 체크인을 위한 부드러운 알림.</string>
 </resources>

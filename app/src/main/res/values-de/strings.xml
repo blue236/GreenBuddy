@@ -178,6 +178,16 @@
     <string name="reward_feedback_cosmetic_unlocked">%1$s %2$s freigeschaltet</string>
     <string name="reward_feedback_greenhouse_unlock">Neuer Gewächshaus-Buddy freigeschaltet: %1$s %2$s</string>
     <string name="reward_feedback_with_greenhouse_unlock">%1$s · %2$s</string>
+    <string name="home_section_care">Pflege</string>
+    <string name="home_section_missions">Mission</string>
+    <string name="home_section_lesson">Lektion</string>
+    <string name="home_section_chat">Chat</string>
+    <string name="home_section_real_plant">Pflanze</string>
+    <string name="home_stat_water">Wasser</string>
+    <string name="home_stat_sun">Sonne</string>
+    <string name="home_stat_feed">Nahrung</string>
+    <string name="home_stat_percent">%1$d%%</string>
+    <string name="home_growth_mini">%1$s · %2$d%% bereit</string>
     <string name="notification_channel_name">GreenBuddy-Erinnerungen</string>
     <string name="notification_channel_description">Sanfte Erinnerungen für Lektionen, Pflege und Routine-Check-ins.</string>
 </resources>
