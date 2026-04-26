@@ -207,6 +207,7 @@ fun LearnScreen(
                     // ── Reward pills ─────────────────────────────────────
                     RewardPillsRow(
                         rewardXp = lesson?.rewardXp ?: 0,
+                        rewardLabel = lesson?.rewardLabel.orEmpty(),
                         alreadyCompleted = alreadyCompleted,
                     )
                 }
@@ -539,6 +540,7 @@ private fun QuizChallengeSection(
 @Composable
 private fun RewardPillsRow(
     rewardXp: Int,
+    rewardLabel: String,
     alreadyCompleted: Boolean,
 ) {
     Row(
@@ -557,6 +559,13 @@ private fun RewardPillsRow(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        if (rewardLabel.isNotBlank()) {
+            RewardPill(
+                text = rewardLabel,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            )
+        }
     }
 }
 
