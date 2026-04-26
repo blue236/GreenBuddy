@@ -662,16 +662,16 @@ private fun HealingLearnBottomBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+            .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
             .background(barColor)
             .navigationBarsPadding()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        feedbackMessage?.let { msg ->
+        if (!feedbackMessage.isNullOrBlank() && uiState != LearnUiState.IDLE) {
             Text(
-                msg,
-                style = MaterialTheme.typography.bodyMedium,
+                feedbackMessage,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
                 color = when (uiState) {
                     LearnUiState.EVALUATED_CORRECT, LearnUiState.COMPLETED -> MaterialTheme.colorScheme.primary
@@ -680,27 +680,46 @@ private fun HealingLearnBottomBar(
                 },
             )
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            OutlinedButton(
-                onClick = {},
-                enabled = false,
-                modifier = Modifier.weight(1f),
-                shape = CircleShape,
-            ) {
-                Text(statusLabel, style = MaterialTheme.typography.labelMedium)
-            }
+        if (uiState == LearnUiState.COMPLETED) {
             Button(
                 onClick = onPrimaryAction,
-                enabled = buttonEnabled,
-                modifier = Modifier.weight(2f),
+                enabled = false,
+                modifier = Modifier.fillMaxWidth(),
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = primaryButtonColor),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
             ) {
                 Text(primaryLabel, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlinedButton(
+                    onClick = {},
+                    enabled = false,
+                    modifier = Modifier.weight(0.8f),
+                    shape = CircleShape,
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                ) {
+                    Text(statusLabel, style = MaterialTheme.typography.labelSmall)
+                }
+                Button(
+                    onClick = onPrimaryAction,
+                    enabled = buttonEnabled,
+                    modifier = Modifier.weight(2.2f),
+                    shape = CircleShape,
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryButtonColor),
+                ) {
+                    Text(primaryLabel, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
