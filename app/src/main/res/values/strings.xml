@@ -53,6 +53,12 @@
     <string name="learn_reward_ready">Reward waiting</string>
     <string name="lesson_completed">Lesson completed</string>
     <string name="check_answer">Check answer</string>
+    <string name="learn_lore_title">What\'s this about?</string>
+    <string name="learn_challenge_title">Quick challenge</string>
+    <string name="learn_xp_earn">+%1$d XP</string>
+    <string name="learn_token_earn">+%1$d 🍃</string>
+    <string name="learn_correct_exclaim">✨ Brilliant!</string>
+    <string name="learn_lesson_of">%1$d / %2$d</string>
     <string name="profile_title">Profile</string>
     <string name="profile_subtitle">Track your buddy’s progress, growth, and collectibles here. Open Settings from the top-right action when you want to change app preferences.</string>
     <string name="open_settings">Open Settings</string>

@@ -1,7 +1,8 @@
 # GreenBuddy UI/UX 재설계 — 디자인 변경사항 문서
 
 > **1차 재설계:** `claude/design-greenbuddy-ui-Qlei2` → main (PR #42)
-> **2차 업데이트:** `claude/home-screen-icon-layout` (PR #43)
+> **2차 업데이트:** `claude/home-screen-icon-layout` → main (PR #43)
+> **3차 업데이트:** `claude/learn-screen-healing-game` (PR #44)
 > **목표:** 귀엽고 친근한(cute & friendly) 비주얼 아이덴티티 구축
 
 ---
@@ -203,13 +204,86 @@ icon = { Icon(imageVector = tab.icon, ...) }
 
 ### 3.3 학습 화면 (`LearnScreen.kt`)
 
-| 영역 | 변경사항 |
-|------|----------|
-| 레슨 히어로 카드 | `Card(PrimaryContainer)` → `GreenBuddyHeroCard` (그라디언트) |
-| 학습 경로 | 원형 박스 인라인 코드 → `LessonPathNode` 컴포넌트 |
-| 퀴즈 선택지 | 인라인 `Card` → `QuizOptionTile` (4상태 애니메이션) |
-| 바텀 액션 바 | `topStart/topEnd = 24dp` → `32dp` (ExtraLarge, 더 둥글게) |
-| 정답/오답 피드백 | 기존 텍스트 색상 → Primary(정답) / Error(오답) 색상 유지, 퀴즈 타일에 시각적 애니메이션 추가 |
+> **PR #44에서 "Healing Game" 스타일로 전면 재설계**
+
+**최종 레이아웃 구조:**
+
+```
+┌──────────────────────────────────────┐
+│  Lesson 2/4                  ⚡ XP   │  ← 상단 진행 스트립
+│  ██████████████████░░░░              │    얇은 둥근 진행 바 (6dp)
+├──────────────────────────────────────┤
+│                                      │
+│         [🌱 bobbing avatar]          │  ← 동반자 중앙 배치 (80dp)
+│   Window light without scorch        │    감정 연동 링 색상 변화
+│      Leafling · Monstera             │
+│   "Lesson nudge from companion"      │
+│                                      │
+│  [✓1]━━[✓2]━━[▶3]━━[○4]━━[○5]     │  ← 가로 스크롤 경로 (노드+커넥터)
+│  Done  Done Current                  │    완료=Primary, 현재=Secondary
+│                                      │
+│  📖 What's this about?               │  ← 레슨 로어 카드 (TertiaryContainer)
+│  "Monstera does best in..."          │    summary + concept + 💡 keyTakeaway
+│  💡 Light is key for photosynthesis  │
+│                                      │
+│  🎯 Quick challenge  · Multiple choice│  ← 퀴즈 섹션 헤더
+│  ╭────────────────────────────────╮  │
+│  │ "Which condition causes        │  │  ← 말풍선 스타일 프롬프트
+│  │  leaf scorch?"                 │  │    companionBubble 배경
+│  ╰────────────────────────────────╯  │
+│                                      │
+│  [A] Too much direct sun             │  ← QuizOptionTile (애니메이션)
+│  [B] Not enough water                │
+│  [C] Root rot                        │
+│                                      │
+│  [+12 XP] [Answer to unlock]         │  ← 보상 Pill 칩
+└──────────────────────────────────────┘
+┌──────────────────────────────────────┐
+│  Ready         [ Check Answer → ]   │  ← 하단 바 (상태별 배경 색상)
+│  ✓ Brilliant!  [ Continue →     ]   │    CORRECT: PrimaryContainer
+│  ✗ Try again   [ Check Answer → ]   │    INCORRECT: ErrorContainer
+│  You did it!   [ Lesson completed ] │    COMPLETED: TertiaryContainer
+└──────────────────────────────────────┘
+```
+
+**새로운 private 컴포넌트:**
+
+| 컴포넌트 | 설명 |
+|----------|------|
+| `LearnProgressStrip` | 상단 인라인 스트립 — 레슨 번호 + XP + 얇은 진행 바 |
+| `CompanionLessonStage` | 동반자 중앙 배치 — `CompanionAvatarBubble`(80dp) + 레슨 제목 + 동반자명 |
+| `HorizontalLessonPath` | 가로 스크롤 노드 경로 — 원형 노드 + 커넥터 선, 완료/현재/미래 상태별 색상 + scale spring 애니메이션 |
+| `LessonLoreCard` | 레슨을 "이야기/로어"로 프레이밍 — TertiaryContainer 배경, 📖 헤더, 💡 keyTakeaway 강조 |
+| `QuizChallengeSection` | 퀴즈 영역 — 🎯 헤더 + companionBubble 말풍선 프롬프트 + `QuizOptionTile` 목록 |
+| `RewardPillsRow` | 보상 Pill 칩 — XP 양 + 완료 여부 상태 텍스트 |
+| `HealingLearnBottomBar` | 상태별 색상 모핑 바텀 바 — 400ms tween 배경 전환, 버튼 색상도 애니메이션 |
+| `TrackCompleteCard` | 전체 완료 축하 카드 — 🎉 이모지 중앙, ExtraLarge 쉐이프 |
+
+**동반자 감정 ↔ 학습 상태 연동:**
+
+| 학습 상태 | 동반자 감정 | 이모지 | 링 색상 |
+|-----------|-------------|--------|---------|
+| IDLE | CALM | 🍃 | Secondary |
+| EVALUATED_CORRECT | PROUD | 🌟 | leafGold |
+| EVALUATED_INCORRECT | CURIOUS | 🌱 | Tertiary |
+| COMPLETED | PROUD | 🌟 | leafGold |
+
+**하단 바 색상 전환 (400ms tween):**
+
+| 상태 | 배경 | 버튼 색 |
+|------|------|---------|
+| IDLE | Surface | Primary |
+| CORRECT | PrimaryContainer | Primary |
+| INCORRECT | ErrorContainer | Error |
+| COMPLETED | TertiaryContainer | Primary |
+
+**제거된 항목:**
+- `LearnProgressStrip` 카드 래퍼 → 인라인 스트립으로 교체
+- `LearnHeroCard` (GreenBuddyHeroCard) → `CompanionLessonStage`로 교체
+- `LearnPathCard` (수직 카드) → `HorizontalLessonPath`로 교체
+- `LessonPreviewCard` (카드) → `LessonLoreCard`로 교체
+- `QuizChallengeCard` (카드) → `QuizChallengeSection`으로 교체
+- `RewardPreviewCard` (카드) → `RewardPillsRow`로 교체
 
 ---
 
@@ -256,6 +330,8 @@ icon = { Icon(imageVector = tab.icon, ...) }
 | 케어 버튼 | 탭 영역 ripple (Material 기본) | `clickable` |
 | **섹션 아이콘 선택** | **배경/텍스트 색상 200ms tween** | **`animateColorAsState(tween(200))`** |
 | **섹션 패널 펼침/접힘** | **수직 expand/collapse** | **`expandVertically + shrinkVertically`** |
+| **Learn 하단 바 색상** | **상태 전환 400ms tween** | **`animateColorAsState(tween(400))`** |
+| **Learn 경로 노드 크기** | **현재 노드 scale + MediumBouncy spring** | **`animateFloatAsState(spring)`** |
 | 퀴즈 선택 | 배경색 전환 200ms + scale 1.02x spring | `animateColorAsState + animateFloatAsState(spring)` |
 | 퀴즈 정답/오답 | PrimaryContainer/ErrorContainer 색상 전환 | `animateColorAsState(tween(200))` |
 | 잎 토큰 | `LeafTokenDisplay` 금색 강조 | `GreenBuddyColors.leafGold` |
@@ -284,7 +360,7 @@ implementation("androidx.compose.material:material-icons-extended")
 | `ui/components/PlantComponents.kt` | #42 | **신규** | 식물/퀴즈/레슨 경로 컴포넌트 |
 | `ui/GreenBuddyApp.kt` | #42 | **수정** | 네비게이션 바 아이콘 교체 |
 | `ui/screens/HomeScreen.kt` | #42 #43 | **수정** | **PR #43: 스탯 카드 + 아이콘 섹션 내비 전면 재설계** |
-| `ui/screens/LearnScreen.kt` | #42 | **수정** | QuizOptionTile, LessonPathNode, 바텀 바 |
+| `ui/screens/LearnScreen.kt` | #42 #44 | **수정** | **PR #44: Healing Game 스타일 전면 재설계** |
 | `ui/screens/DexScreen.kt` | #42 | **수정** | PlantInventoryCard, 테마 토큰, 히어로 카드 |
 | `ui/screens/ProfileScreen.kt` | #42 | **수정** | 히어로 카드, CosmeticShopCard |
 | `ui/screens/OnboardingScreen.kt` | #42 | **수정** | GreenBuddyHeroCard, GreenBuddyButton |
@@ -303,3 +379,5 @@ implementation("androidx.compose.material:material-icons-extended")
 - **케어 버튼 햅틱**: press 시 `scale 0.92 → 1.0` spring 애니메이션 추가
 - **미션 체크 애니메이션**: 완료 시 원형 Primary 색상 변경 + 바운스 효과
 - **스탯 카드 탭 연동**: 스탯 카드 직접 탭 → Care 섹션 자동 펼침 + 해당 케어 하이라이트
+- **Learn 퀴즈 오답 흔들기**: 수평 키프레임 `Animatable` 애니메이션 (현재 미구현)
+- **Learn 정답 보상 팝업**: 잎 토큰 숫자 바운스 + 화면 confetti (현재 미구현)
