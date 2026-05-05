@@ -79,12 +79,7 @@ import java.util.Locale
 // In-memory store for "don't show lore today" — persists across tab switches within the app session
 private val loreDismissedForDate = mutableMapOf<String, String>() // lessonKey -> date string
 
-private enum class LearnUiState {
-    IDLE,
-    EVALUATED_CORRECT,
-    EVALUATED_INCORRECT,
-    COMPLETED,
-}
+private enum class LearnUiState { IDLE, EVALUATED_CORRECT, EVALUATED_INCORRECT, COMPLETED }
 
 @Composable
 fun LearnScreen(
@@ -100,47 +95,34 @@ fun LearnScreen(
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val lesson = progress.currentLessonOrNull(lessons)
     val allLessonsComplete = progress.isComplete(lessons)
-    val alreadyCompleted = lesson?.id in progress.completedLessonIds
     val lessonKey = lesson?.id ?: "track_complete"
     val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons, localeTag)
-    val lessonIndex = lesson?.let { current ->
-        lessons.indexOfFirst { it.id == current.id }.takeIf { it >= 0 }?.plus(1)
-    } ?: lessons.size
+
+    // Group lessons into daily sessions (4 per day)
+    val dailySessions = remember(lessons) { if (lessons.isEmpty()) emptyList() else lessons.chunked(4) }
+
+    // Find the current (first incomplete) session
+    val currentSessionIndex = dailySessions.indexOfFirst { session ->
+        session.any { it.id !in progress.completedLessonIds }
+    }.takeIf { it >= 0 } ?: (dailySessions.size - 1).coerceAtLeast(0)
+    val currentSession = dailySessions.getOrNull(currentSessionIndex) ?: emptyList()
+    // Only pass uncompleted lessons into the quiz flow so the dialog starts at the right question
+    val currentSessionQuizLessons = currentSession.filter { it.id !in progress.completedLessonIds }
+
     val progressValue = if (lessons.isEmpty()) 1f
-    else (progress.completedCount.coerceAtLeast(0).toFloat() / lessons.size.toFloat()).coerceIn(0f, 1f)
-
-    // Quiz state
-    var selectedAnswerIndex by rememberSaveable(lessonKey) { mutableIntStateOf(-1) }
-    var feedbackMessage by rememberSaveable(lessonKey) { mutableStateOf<String?>(null) }
-    var learnUiState by rememberSaveable(lessonKey) {
-        mutableStateOf(
-            when {
-                allLessonsComplete || alreadyCompleted -> LearnUiState.COMPLETED
-                else -> LearnUiState.IDLE
-            },
-        )
-    }
-
-    val pickAnswerFirstText = stringResource(R.string.pick_answer_first)
-    val tryAgainText = stringResource(R.string.learn_try_again)
-    val correctExclaimText = stringResource(R.string.learn_correct_exclaim)
-
-    val companionEmotion = when (learnUiState) {
-        LearnUiState.EVALUATED_CORRECT, LearnUiState.COMPLETED -> CompanionEmotion.PROUD
-        LearnUiState.EVALUATED_INCORRECT -> CompanionEmotion.CURIOUS
-        LearnUiState.IDLE -> CompanionEmotion.CALM
-    }
+    else (progress.completedCount.toFloat() / lessons.size.toFloat()).coerceIn(0f, 1f)
 
     // Lore popup state
     val today = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) }
-    // lorePopupDismissed resets when lesson changes; initialises from in-memory map so it survives tab switches
+    // Initialises from in-memory map so dismissal survives tab switches within the session
     var lorePopupDismissed by remember(lessonKey) {
         mutableStateOf(loreDismissedForDate[lessonKey] == today)
     }
+    // Tracks the checkbox inside the lore popup; scoped to lessonKey so it resets per lesson
     var dontShowAgainChecked by remember(lessonKey) { mutableStateOf(false) }
     val showLorePopup = !lorePopupDismissed && lesson != null && !allLessonsComplete
 
-    // Quiz dialog state
+    // Quiz dialog open state
     var showQuizDialog by remember(lessonKey) { mutableStateOf(false) }
 
     // ── Lore popup — auto-shows on screen entry ────────────────────────────
@@ -152,45 +134,22 @@ fun LearnScreen(
             onDismiss = {
                 lorePopupDismissed = true
                 if (dontShowAgainChecked) loreDismissedForDate[lessonKey] = today
+                // reset so re-entering after a different dismiss path starts fresh
                 dontShowAgainChecked = false
             },
         )
     }
 
-    // ── Quiz popup — opens when tapping the current lesson node ───────────
+    // ── Quiz popup — opens when tapping the current daily session node ─────
     if (showQuizDialog) {
         QuizDialog(
-            lesson = lesson,
-            selectedAnswerIndex = selectedAnswerIndex,
-            learnUiState = learnUiState,
-            feedbackMessage = feedbackMessage,
-            alreadyCompleted = alreadyCompleted,
-            onSelectAnswer = { index ->
-                if (!alreadyCompleted) {
-                    selectedAnswerIndex = index
-                    feedbackMessage = null
-                    if (learnUiState != LearnUiState.IDLE) learnUiState = LearnUiState.IDLE
-                }
-            },
-            onSubmit = {
-                if (selectedAnswerIndex < 0) {
-                    feedbackMessage = pickAnswerFirstText
-                    return@QuizDialog
-                }
-                val isCorrect = onSubmitAnswer(selectedAnswerIndex)
-                if (isCorrect) {
-                    learnUiState = LearnUiState.EVALUATED_CORRECT
-                    feedbackMessage = correctExclaimText
-                } else {
-                    learnUiState = LearnUiState.EVALUATED_INCORRECT
-                    feedbackMessage = tryAgainText
-                }
-            },
+            sessionLessons = currentSessionQuizLessons,
+            onSubmitAnswer = onSubmitAnswer,
             onDismiss = { showQuizDialog = false },
         )
     }
 
-    // ── Main screen: path-focused layout ──────────────────────────────────
+    // ── Main screen ─────────────────────────────────────────────────────────
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -199,8 +158,8 @@ fun LearnScreen(
     ) {
         DuolingoLearnTopBar(
             progressValue = progressValue,
-            lessonIndex = lessonIndex,
-            lessonCount = lessons.size,
+            completedCount = progress.completedCount,
+            totalCount = lessons.size,
             currentStreak = currentStreak,
             leafTokens = leafTokens,
             totalXp = progress.totalXp,
@@ -217,7 +176,7 @@ fun LearnScreen(
                 localeTag = localeTag,
                 lessonTitle = if (allLessonsComplete) stringResource(R.string.all_lessons_complete)
                 else lesson?.title.orEmpty(),
-                companionEmotion = companionEmotion,
+                companionEmotion = CompanionEmotion.CALM,
                 supportLine = dialogue.lessonNudge,
             )
 
@@ -227,8 +186,7 @@ fun LearnScreen(
             )
 
             DuolingoVerticalLessonPath(
-                lessons = lessons,
-                currentLessonId = lesson?.id,
+                dailySessions = dailySessions,
                 completedLessonIds = progress.completedLessonIds,
                 onCurrentNodeTap = { showQuizDialog = true },
             )
@@ -251,8 +209,8 @@ fun LearnScreen(
 @Composable
 private fun DuolingoLearnTopBar(
     progressValue: Float,
-    lessonIndex: Int,
-    lessonCount: Int,
+    completedCount: Int,
+    totalCount: Int,
     currentStreak: Int,
     leafTokens: Int,
     totalXp: Int,
@@ -266,7 +224,7 @@ private fun DuolingoLearnTopBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            stringResource(R.string.learn_lesson_of, lessonIndex.coerceAtLeast(1), lessonCount),
+            stringResource(R.string.learn_lesson_of, completedCount, totalCount),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -308,11 +266,7 @@ private fun CompanionLessonStage(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        CompanionAvatarBubble(
-            emoji = companionEmoji(companionEmotion),
-            emotion = companionEmotion,
-            size = 80,
-        )
+        CompanionAvatarBubble(emoji = companionEmoji(companionEmotion), emotion = companionEmotion, size = 80)
         Text(
             lessonTitle,
             style = MaterialTheme.typography.headlineSmall,
@@ -336,7 +290,7 @@ private fun CompanionLessonStage(
     }
 }
 
-// ── Section banner (Duolingo-style orange pill) ───────────────────────────────
+// ── Section banner ────────────────────────────────────────────────────────────
 
 @Composable
 private fun SectionBanner(trackName: String, unitLabel: String) {
@@ -357,12 +311,7 @@ private fun SectionBanner(trackName: String, unitLabel: String) {
                 color = Color.White.copy(alpha = 0.80f),
                 letterSpacing = 1.sp,
             )
-            Text(
-                trackName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-            )
+            Text(trackName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
         }
         Box(
             modifier = Modifier.size(40.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.2f)),
@@ -373,36 +322,36 @@ private fun SectionBanner(trackName: String, unitLabel: String) {
     }
 }
 
-// ── Duolingo-style vertical winding lesson path ───────────────────────────────
+// ── Duolingo-style vertical daily path ───────────────────────────────────────
+// One node per daily session (group of 4 lessons). Fewer nodes = cleaner path.
 
 @Composable
 private fun DuolingoVerticalLessonPath(
-    lessons: List<Lesson>,
-    currentLessonId: String?,
+    dailySessions: List<List<Lesson>>,
     completedLessonIds: Set<String>,
     onCurrentNodeTap: () -> Unit,
 ) {
-    val nodeSize = 60.dp
-    val xFractions = listOf(0.05f, 0.28f, 0.52f, 0.75f, 0.95f, 0.75f, 0.52f, 0.28f)
+    val nodeSize = 68.dp
+    val xFractions = listOf(0.05f, 0.30f, 0.55f, 0.80f, 0.95f, 0.75f, 0.50f, 0.25f)
 
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val containerW = maxWidth
-        val availableX = containerW - nodeSize
+        val availableX = maxWidth - nodeSize
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            lessons.forEachIndexed { index, lesson ->
-                val isCompleted = lesson.id in completedLessonIds
-                val isCurrent = lesson.id == currentLessonId
+            dailySessions.forEachIndexed { dayIndex, sessionLessons ->
+                val isCompleted = sessionLessons.all { it.id in completedLessonIds }
+                val isCurrent = !isCompleted && (dayIndex == 0 ||
+                    dailySessions[dayIndex - 1].all { it.id in completedLessonIds })
                 val isNextUp = !isCompleted && !isCurrent &&
-                    index > 0 && lessons.getOrNull(index - 1)?.id in completedLessonIds
+                    dayIndex > 0 && dailySessions[dayIndex - 1].all { it.id in completedLessonIds }
 
-                val xFrac = xFractions[index % xFractions.size]
+                val xFrac = xFractions[dayIndex % xFractions.size]
                 val nodeX = availableX * xFrac
 
                 val nodeScale by animateFloatAsState(
-                    targetValue = if (isCurrent) 1.12f else 1f,
+                    targetValue = if (isCurrent) 1.14f else 1f,
                     animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-                    label = "duoNodeScale$index",
+                    label = "dayNodeScale$dayIndex",
                 )
                 val nodeBg by animateColorAsState(
                     targetValue = when {
@@ -412,21 +361,21 @@ private fun DuolingoVerticalLessonPath(
                         else -> MaterialTheme.colorScheme.surfaceVariant
                     },
                     animationSpec = tween(300),
-                    label = "duoNodeBg$index",
+                    label = "dayNodeBg$dayIndex",
                 )
                 val borderColor by animateColorAsState(
                     targetValue = if (isCurrent) MaterialTheme.colorScheme.secondary else Color.Transparent,
                     animationSpec = tween(300),
-                    label = "duoNodeBorder$index",
+                    label = "dayNodeBorder$dayIndex",
                 )
 
                 // Connector dots between adjacent nodes
-                if (index > 0) {
-                    val prevXFrac = xFractions[(index - 1) % xFractions.size]
+                if (dayIndex > 0) {
+                    val prevXFrac = xFractions[(dayIndex - 1) % xFractions.size]
                     val prevX = availableX * prevXFrac
                     val dotX = (prevX + nodeX) / 2 + nodeSize / 2 - 3.dp
-                    val prevCompleted = lessons.getOrNull(index - 1)?.id in completedLessonIds
-                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
+                    val prevCompleted = dailySessions[dayIndex - 1].all { it.id in completedLessonIds }
+                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                         Spacer(Modifier.width(dotX))
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             repeat(3) {
@@ -452,40 +401,48 @@ private fun DuolingoVerticalLessonPath(
                             modifier = Modifier
                                 .size(nodeSize)
                                 .shadow(
-                                    elevation = if (isCurrent) 8.dp else if (isCompleted) 4.dp else 1.dp,
+                                    elevation = if (isCurrent) 10.dp else if (isCompleted) 4.dp else 1.dp,
                                     shape = CircleShape,
                                 )
                                 .scale(nodeScale)
                                 .clip(CircleShape)
                                 .background(nodeBg)
                                 .border(3.dp, borderColor, CircleShape)
-                                .then(
-                                    if (isCurrent) Modifier.clickable(onClick = onCurrentNodeTap)
-                                    else Modifier,
-                                ),
+                                .then(if (isCurrent) Modifier.clickable(onClick = onCurrentNodeTap) else Modifier),
                             contentAlignment = Alignment.Center,
                         ) {
                             when {
-                                isCompleted -> Text("✓", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
-                                isCurrent -> Text("${index + 1}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondary)
-                                isNextUp -> Text("${index + 1}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                                else -> Text("🔒", fontSize = 20.sp)
+                                isCompleted -> Text(
+                                    "✓",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                                isCurrent -> Text("📗", fontSize = 26.sp)
+                                else -> Text("🔒", fontSize = 22.sp)
                             }
                         }
-                        // Label below node
-                        when {
-                            isCurrent -> Text(
+
+                        // Day label below node
+                        Text(
+                            stringResource(R.string.learn_day_label, dayIndex + 1),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                            color = when {
+                                isCurrent -> MaterialTheme.colorScheme.secondary
+                                isCompleted -> MaterialTheme.colorScheme.primary
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
+                            },
+                            fontSize = 10.sp,
+                        )
+
+                        // "Tap to start" hint only for current node
+                        if (isCurrent) {
+                            Text(
                                 stringResource(R.string.learn_node_tap_hint),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontSize = 9.sp,
-                            )
-                            isCompleted -> Text(
-                                stringResource(R.string.learn_path_done),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.75f),
                                 fontSize = 9.sp,
                             )
                         }
@@ -510,9 +467,7 @@ private fun LessonLoreDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.surface,
         ) {
@@ -526,10 +481,7 @@ private fun LessonLoreDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text("📖", fontSize = 20.sp)
                         Text(
                             stringResource(R.string.learn_lore_title),
@@ -585,7 +537,8 @@ private fun LessonLoreDialog(
 
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                // Don't show again checkbox
+                // "Don't show again today" — Row handles click; Checkbox is display-only (onCheckedChange=null)
+                // to prevent double-toggle when both Row.clickable and Checkbox fire on the same tap.
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -597,7 +550,7 @@ private fun LessonLoreDialog(
                 ) {
                     Checkbox(
                         checked = dontShowAgainChecked,
-                        onCheckedChange = onDontShowAgainChange,
+                        onCheckedChange = null, // Row.clickable owns the toggle; null prevents double-fire
                         colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary),
                     )
                     Text(
@@ -607,7 +560,6 @@ private fun LessonLoreDialog(
                     )
                 }
 
-                // Close button
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),
@@ -621,19 +573,58 @@ private fun LessonLoreDialog(
     }
 }
 
-// ── Quiz popup dialog ─────────────────────────────────────────────────────────
+// ── Quiz popup dialog — sequential multi-question flow ────────────────────────
 
 @Composable
 private fun QuizDialog(
-    lesson: Lesson?,
-    selectedAnswerIndex: Int,
-    learnUiState: LearnUiState,
-    feedbackMessage: String?,
-    alreadyCompleted: Boolean,
-    onSelectAnswer: (Int) -> Unit,
-    onSubmit: () -> Unit,
+    sessionLessons: List<Lesson>, // uncompleted lessons in the current daily session
+    onSubmitAnswer: (Int) -> Boolean,
     onDismiss: () -> Unit,
 ) {
+    // Which question within the session we're on (0-based)
+    var questionIndex by rememberSaveable { mutableIntStateOf(0) }
+    // Flips to true after the last question is answered correctly
+    var showCompletion by rememberSaveable { mutableStateOf(sessionLessons.isEmpty()) }
+
+    val lesson = sessionLessons.getOrNull(questionIndex)
+    val totalQuestions = sessionLessons.size
+
+    // Per-question quiz state — reset when question advances
+    var selectedAnswerIndex by rememberSaveable(questionIndex) { mutableIntStateOf(-1) }
+    var learnUiState by rememberSaveable(questionIndex) { mutableStateOf(LearnUiState.IDLE) }
+    var feedbackMessage by rememberSaveable(questionIndex) { mutableStateOf<String?>(null) }
+
+    val pickAnswerFirstText = stringResource(R.string.pick_answer_first)
+    val tryAgainText = stringResource(R.string.learn_try_again)
+    val correctExclaimText = stringResource(R.string.learn_correct_exclaim)
+
+    fun handleAction() {
+        when (learnUiState) {
+            LearnUiState.EVALUATED_CORRECT -> {
+                if (questionIndex + 1 < totalQuestions) {
+                    questionIndex++
+                } else {
+                    showCompletion = true
+                }
+            }
+            LearnUiState.COMPLETED -> onDismiss()
+            else -> {
+                if (selectedAnswerIndex < 0) {
+                    feedbackMessage = pickAnswerFirstText
+                    return
+                }
+                val isCorrect = onSubmitAnswer(selectedAnswerIndex)
+                if (isCorrect) {
+                    learnUiState = LearnUiState.EVALUATED_CORRECT
+                    feedbackMessage = correctExclaimText
+                } else {
+                    learnUiState = LearnUiState.EVALUATED_INCORRECT
+                    feedbackMessage = tryAgainText
+                }
+            }
+        }
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
@@ -646,85 +637,153 @@ private fun QuizDialog(
             shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.background,
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                // ── Dialog top bar ─────────────────────────────────────────
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
+            if (showCompletion) {
+                SessionCompleteContent(questionCount = totalQuestions, onClose = onDismiss)
+            } else {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // ── Dialog top bar ─────────────────────────────────────
+                    Row(
                         modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .clickable(onClick = onDismiss),
-                        contentAlignment = Alignment.Center,
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("✕", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Text(
-                        lesson?.title.orEmpty(),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
-                    )
-                    Spacer(Modifier.size(36.dp))
-                }
-
-                // ── Scrollable quiz content ────────────────────────────────
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    // Quiz challenge
-                    QuizChallengeSection(
-                        quizType = lesson?.quiz?.type,
-                        prompt = lesson?.quiz?.prompt.orEmpty(),
-                        options = lesson?.quiz?.options.orEmpty(),
-                        selectedAnswerIndex = selectedAnswerIndex,
-                        evaluatedState = learnUiState,
-                        onSelectAnswer = onSelectAnswer,
-                    )
-
-                    // Reward pills
-                    RewardPillsRow(
-                        rewardXp = lesson?.rewardXp ?: 0,
-                        rewardLabel = lesson?.rewardLabel.orEmpty(),
-                        alreadyCompleted = alreadyCompleted,
-                    )
-
-                    Spacer(Modifier.height(4.dp))
-                }
-
-                // ── Bottom action bar (embedded in dialog) ─────────────────
-                QuizDialogBottomBar(
-                    uiState = learnUiState,
-                    feedbackMessage = feedbackMessage,
-                    buttonEnabled = !alreadyCompleted,
-                    onAction = {
-                        when (learnUiState) {
-                            LearnUiState.EVALUATED_CORRECT, LearnUiState.COMPLETED -> onDismiss()
-                            else -> onSubmit()
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .clickable(onClick = onDismiss),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text("✕", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                    },
-                )
+                        Text(
+                            lesson?.title.orEmpty(),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                        )
+                        Spacer(Modifier.size(36.dp))
+                    }
+
+                    // ── Question progress bar ──────────────────────────────
+                    if (totalQuestions > 1) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp)
+                                .padding(bottom = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                stringResource(R.string.learn_lesson_of, questionIndex + 1, totalQuestions),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            LinearProgressIndicator(
+                                progress = { (questionIndex + 1).toFloat() / totalQuestions.toFloat() },
+                                modifier = Modifier.weight(1f).height(6.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                trackColor = MaterialTheme.colorScheme.primaryContainer,
+                                strokeCap = StrokeCap.Round,
+                            )
+                        }
+                    }
+
+                    // ── Scrollable quiz content ────────────────────────────
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        QuizChallengeSection(
+                            quizType = lesson?.quiz?.type,
+                            prompt = lesson?.quiz?.prompt.orEmpty(),
+                            options = lesson?.quiz?.options.orEmpty(),
+                            selectedAnswerIndex = selectedAnswerIndex,
+                            evaluatedState = learnUiState,
+                            onSelectAnswer = { index -> selectedAnswerIndex = index; feedbackMessage = null },
+                        )
+                        RewardPillsRow(
+                            rewardXp = lesson?.rewardXp ?: 0,
+                            rewardLabel = lesson?.rewardLabel.orEmpty(),
+                            alreadyCompleted = false,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                    }
+
+                    // ── Bottom action bar ──────────────────────────────────
+                    QuizDialogBottomBar(
+                        uiState = learnUiState,
+                        feedbackMessage = feedbackMessage,
+                        isLastQuestion = questionIndex + 1 >= totalQuestions,
+                        onAction = ::handleAction,
+                    )
+                }
             }
         }
     }
 }
 
+// ── Session complete content ──────────────────────────────────────────────────
+
+@Composable
+private fun SessionCompleteContent(questionCount: Int, onClose: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text("🎉", fontSize = 72.sp)
+        Spacer(Modifier.height(20.dp))
+        Text(
+            stringResource(R.string.you_did_it),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.ExtraBold,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            stringResource(R.string.learn_session_complete_message, questionCount),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.next_greenhouse_unlock),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.tertiary,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(40.dp))
+        Button(
+            onClick = onClose,
+            modifier = Modifier.fillMaxWidth(),
+            shape = CircleShape,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+        ) {
+            Text(stringResource(R.string.learn_continue), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+// ── Quiz dialog bottom bar ────────────────────────────────────────────────────
+
 @Composable
 private fun QuizDialogBottomBar(
     uiState: LearnUiState,
     feedbackMessage: String?,
-    buttonEnabled: Boolean,
+    isLastQuestion: Boolean,
     onAction: () -> Unit,
 ) {
     val barColor by animateColorAsState(
@@ -738,19 +797,16 @@ private fun QuizDialogBottomBar(
         label = "quizBarColor",
     )
     val buttonColor by animateColorAsState(
-        targetValue = when (uiState) {
-            LearnUiState.EVALUATED_INCORRECT -> MaterialTheme.colorScheme.error
-            else -> MaterialTheme.colorScheme.primary
-        },
+        targetValue = if (uiState == LearnUiState.EVALUATED_INCORRECT) MaterialTheme.colorScheme.error
+        else MaterialTheme.colorScheme.primary,
         animationSpec = tween(400),
         label = "quizButtonColor",
     )
     val primaryLabel = when (uiState) {
-        LearnUiState.EVALUATED_CORRECT -> stringResource(R.string.learn_continue)
+        LearnUiState.EVALUATED_CORRECT -> if (isLastQuestion) stringResource(R.string.learn_continue) else stringResource(R.string.learn_continue)
         LearnUiState.COMPLETED -> stringResource(R.string.lesson_completed)
         else -> stringResource(R.string.check_answer)
     }
-    val isClosingAction = uiState == LearnUiState.EVALUATED_CORRECT || uiState == LearnUiState.COMPLETED
 
     Column(
         modifier = Modifier
@@ -774,17 +830,9 @@ private fun QuizDialogBottomBar(
         }
         Button(
             onClick = onAction,
-            enabled = isClosingAction || buttonEnabled,
             modifier = Modifier.fillMaxWidth(),
             shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isClosingAction && uiState == LearnUiState.COMPLETED)
-                    MaterialTheme.colorScheme.surfaceVariant else buttonColor,
-                contentColor = if (isClosingAction && uiState == LearnUiState.COMPLETED)
-                    MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = buttonColor, contentColor = MaterialTheme.colorScheme.onPrimary),
         ) {
             Text(primaryLabel, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
         }
@@ -803,10 +851,7 @@ private fun QuizChallengeSection(
     onSelectAnswer: (Int) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("🎯", fontSize = 16.sp)
             Text(
                 stringResource(R.string.learn_challenge_title),
@@ -861,11 +906,7 @@ private fun QuizChallengeSection(
 // ── Reward pills row ──────────────────────────────────────────────────────────
 
 @Composable
-private fun RewardPillsRow(
-    rewardXp: Int,
-    rewardLabel: String,
-    alreadyCompleted: Boolean,
-) {
+private fun RewardPillsRow(rewardXp: Int, rewardLabel: String, alreadyCompleted: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -907,11 +948,7 @@ private fun RewardPill(text: String, containerColor: Color, contentColor: Color)
 // ── Track complete card ───────────────────────────────────────────────────────
 
 @Composable
-private fun TrackCompleteCard(
-    starter: StarterPlantOption,
-    localeTag: String,
-    dialogueLine: String,
-) {
+private fun TrackCompleteCard(starter: StarterPlantOption, localeTag: String, dialogueLine: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
