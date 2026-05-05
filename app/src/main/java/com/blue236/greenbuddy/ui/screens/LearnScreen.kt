@@ -7,9 +7,9 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.shadow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -81,6 +82,8 @@ fun LearnScreen(
     lessons: List<Lesson>,
     progress: LessonProgress,
     careState: PlantCareState,
+    leafTokens: Int = 0,
+    currentStreak: Int = 0,
     onSubmitAnswer: (Int) -> Boolean,
 ) {
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
@@ -148,12 +151,13 @@ fun LearnScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding),
         ) {
-            // ── Top progress strip ───────────────────────────────────────
-            LearnProgressStrip(
+            // ── Duolingo-style top stat bar ──────────────────────────────
+            DuolingoLearnTopBar(
                 progressValue = progressValue,
                 lessonIndex = lessonIndex,
                 lessonCount = lessons.size,
-                totalXp = progress.totalXp,
+                currentStreak = currentStreak,
+                leafTokens = leafTokens,
             )
 
             Column(
@@ -172,8 +176,12 @@ fun LearnScreen(
                     supportLine = dialogue.lessonNudge,
                 )
 
-                // ── Horizontal lesson path ───────────────────────────────
-                HorizontalLessonPath(
+                // ── Duolingo-style vertical winding lesson path ──────────
+                SectionBanner(
+                    trackName = starter.localizedTitle(localeTag),
+                    unitLabel = stringResource(R.string.starter_focus),
+                )
+                DuolingoVerticalLessonPath(
                     lessons = lessons,
                     currentLessonId = lesson?.id,
                     completedLessonIds = progress.completedLessonIds,
@@ -218,53 +226,63 @@ fun LearnScreen(
     }
 }
 
-// ── Top progress strip ────────────────────────────────────────────────────────
+// ── Duolingo-style top stat bar ───────────────────────────────────────────────
 
 @Composable
-private fun LearnProgressStrip(
+private fun DuolingoLearnTopBar(
     progressValue: Float,
     lessonIndex: Int,
     lessonCount: Int,
-    totalXp: Int,
+    currentStreak: Int,
+    leafTokens: Int,
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                stringResource(R.string.learn_lesson_of, lessonIndex.coerceAtLeast(1), lessonCount),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("⚡", fontSize = 14.sp)
-                Text(
-                    stringResource(R.string.xp_value, totalXp),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = GreenBuddyColors.leafGold,
-                )
-            }
-        }
+        Text(
+            stringResource(R.string.learn_lesson_of, lessonIndex.coerceAtLeast(1), lessonCount),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+        )
         LinearProgressIndicator(
             progress = { progressValue },
-            modifier = Modifier.fillMaxWidth().height(6.dp),
+            modifier = Modifier.weight(1f).height(8.dp),
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.primaryContainer,
             strokeCap = StrokeCap.Round,
         )
+        // 🔥 Streak
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("🔥", fontSize = 16.sp)
+            Text(
+                "$currentStreak",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = GreenBuddyColors.streakFlame,
+            )
+        }
+        // 🍃 Leaf tokens
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("🍃", fontSize = 14.sp)
+            Text(
+                "$leafTokens",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.secondary,
+            )
+        }
     }
 }
 
@@ -311,94 +329,181 @@ private fun CompanionLessonStage(
     }
 }
 
-// ── Horizontal scrollable lesson path ────────────────────────────────────────
+// ── Section banner (Duolingo-style orange pill) ───────────────────────────────
 
 @Composable
-private fun HorizontalLessonPath(
+private fun SectionBanner(trackName: String, unitLabel: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.extraLarge)
+            .background(Color(0xFFF5A623))
+            .padding(horizontal = 20.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                unitLabel.uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = Color.White.copy(alpha = 0.80f),
+                letterSpacing = 1.sp,
+            )
+            Text(
+                trackName,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.2f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("📋", fontSize = 20.sp)
+        }
+    }
+}
+
+// ── Duolingo-style vertical winding lesson path ───────────────────────────────
+
+@Composable
+private fun DuolingoVerticalLessonPath(
     lessons: List<Lesson>,
     currentLessonId: String?,
     completedLessonIds: Set<String>,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .clip(MaterialTheme.shapes.large)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        lessons.forEachIndexed { index, lesson ->
-            val isCompleted = lesson.id in completedLessonIds
-            val isCurrent = lesson.id == currentLessonId
+    val nodeSize = 60.dp
+    // Zigzag fractions within [0,1] — creates a sinewave winding path
+    val xFractions = listOf(0.05f, 0.28f, 0.52f, 0.75f, 0.95f, 0.75f, 0.52f, 0.28f)
 
-            // Connector line (before each node except the first)
-            if (index > 0) {
-                Box(
-                    modifier = Modifier
-                        .width(20.dp)
-                        .height(2.dp)
-                        .background(
-                            if (lessons[index - 1].id in completedLessonIds)
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                            else MaterialTheme.colorScheme.outlineVariant,
-                            RoundedCornerShape(1.dp),
-                        ),
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val containerW = maxWidth
+        val availableX = containerW - nodeSize
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            lessons.forEachIndexed { index, lesson ->
+                val isCompleted = lesson.id in completedLessonIds
+                val isCurrent = lesson.id == currentLessonId
+                val isNextUp = !isCompleted && !isCurrent &&
+                    index > 0 && lessons.getOrNull(index - 1)?.id in completedLessonIds
+
+                val xFrac = xFractions[index % xFractions.size]
+                val nodeX = availableX * xFrac
+
+                val nodeScale by animateFloatAsState(
+                    targetValue = if (isCurrent) 1.12f else 1f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                    label = "duoNodeScale$index",
                 )
-            }
-
-            // Node
-            val nodeSize = if (isCurrent) 40.dp else 32.dp
-            val nodeScale by animateFloatAsState(
-                targetValue = if (isCurrent) 1f else 0.85f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-                label = "nodeScale$index",
-            )
-            val nodeBg by animateColorAsState(
-                targetValue = when {
-                    isCompleted -> MaterialTheme.colorScheme.primary
-                    isCurrent -> MaterialTheme.colorScheme.secondary
-                    else -> MaterialTheme.colorScheme.outlineVariant
-                },
-                animationSpec = tween(300),
-                label = "nodeBg$index",
-            )
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(nodeSize)
-                        .scale(nodeScale)
-                        .clip(CircleShape)
-                        .background(nodeBg),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = if (isCompleted) "✓" else "${index + 1}",
-                        style = if (isCurrent) MaterialTheme.typography.labelLarge
-                        else MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isCompleted || isCurrent) MaterialTheme.colorScheme.onPrimary
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Text(
-                    text = when {
-                        isCompleted -> stringResource(R.string.learn_path_done)
-                        isCurrent -> stringResource(R.string.learn_path_current)
-                        else -> ""
-                    },
-                    style = MaterialTheme.typography.labelSmall,
-                    color = when {
+                val nodeBg by animateColorAsState(
+                    targetValue = when {
                         isCompleted -> MaterialTheme.colorScheme.primary
+                        isCurrent -> MaterialTheme.colorScheme.secondary
+                        isNextUp -> MaterialTheme.colorScheme.secondaryContainer
+                        else -> MaterialTheme.colorScheme.surfaceVariant
+                    },
+                    animationSpec = tween(300),
+                    label = "duoNodeBg$index",
+                )
+                val borderColor by animateColorAsState(
+                    targetValue = when {
                         isCurrent -> MaterialTheme.colorScheme.secondary
                         else -> Color.Transparent
                     },
-                    fontSize = 9.sp,
+                    animationSpec = tween(300),
+                    label = "duoNodeBorder$index",
                 )
+
+                // Connector dots between adjacent nodes
+                if (index > 0) {
+                    val prevXFrac = xFractions[(index - 1) % xFractions.size]
+                    val prevX = availableX * prevXFrac
+                    val dotX = (prevX + nodeX) / 2 + nodeSize / 2 - 3.dp
+                    val prevCompleted = lessons.getOrNull(index - 1)?.id in completedLessonIds
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                    ) {
+                        Spacer(Modifier.width(dotX))
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            repeat(3) {
+                                Box(
+                                    Modifier
+                                        .size(5.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (prevCompleted) MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
+                                            else MaterialTheme.colorScheme.outlineVariant,
+                                        ),
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Node row
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Spacer(Modifier.width(nodeX))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(nodeSize)
+                                .scale(nodeScale)
+                                .shadow(
+                                    elevation = if (isCurrent) 8.dp else if (isCompleted) 4.dp else 1.dp,
+                                    shape = CircleShape,
+                                )
+                                .clip(CircleShape)
+                                .background(nodeBg)
+                                .then(
+                                    if (isCurrent) Modifier.border(3.dp, borderColor, CircleShape)
+                                    else Modifier,
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            when {
+                                isCompleted -> Text(
+                                    "✓",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                                isCurrent -> Text(
+                                    "${index + 1}",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                )
+                                isNextUp -> Text(
+                                    "${index + 1}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                                else -> Text("🔒", fontSize = 20.sp)
+                            }
+                        }
+                        // Status label under the current node
+                        if (isCurrent || isCompleted) {
+                            Text(
+                                text = if (isCompleted) stringResource(R.string.learn_path_done)
+                                else stringResource(R.string.learn_path_current),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isCompleted) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.secondary,
+                                fontSize = 9.sp,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
