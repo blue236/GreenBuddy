@@ -29,6 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -240,6 +244,7 @@ private fun DuolingoNavBar(selectedTab: Tab, onSelectTab: (Tab) -> Unit) {
 @Composable
 private fun DuolingoNavItem(tab: Tab, selected: Boolean, onSelect: () -> Unit) {
     val tabColor = tab.duolingoColor
+    val tabLabel = stringResource(tab.labelRes)
     val iconBg by animateColorAsState(
         targetValue = if (selected) tabColor else Color.Transparent,
         animationSpec = tween(200),
@@ -252,6 +257,10 @@ private fun DuolingoNavItem(tab: Tab, selected: Boolean, onSelect: () -> Unit) {
     )
     Column(
         modifier = Modifier
+            .semantics {
+                contentDescription = tabLabel
+                role = Role.Tab
+            }
             .clip(MaterialTheme.shapes.medium)
             .clickable(onClick = onSelect)
             .padding(horizontal = 14.dp, vertical = 6.dp),
@@ -291,6 +300,7 @@ private val Tab.labelRes: Int
     }
 
 private val Tab.duolingoColor: Color
+    // SETTINGS is not in bottomNavigationTabs; branch required for exhaustive when on enum
     get() = when (this) {
         Tab.HOME -> Color(0xFF4B8B5E)
         Tab.LEARN -> Color(0xFF1976D2)
@@ -300,6 +310,7 @@ private val Tab.duolingoColor: Color
     }
 
 private val Tab.duolingoEmoji: String
+    // SETTINGS is not in bottomNavigationTabs; branch required for exhaustive when on enum
     get() = when (this) {
         Tab.HOME -> "🏡"
         Tab.LEARN -> "📗"

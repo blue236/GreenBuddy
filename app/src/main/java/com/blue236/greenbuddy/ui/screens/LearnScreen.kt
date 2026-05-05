@@ -158,6 +158,7 @@ fun LearnScreen(
                 lessonCount = lessons.size,
                 currentStreak = currentStreak,
                 leafTokens = leafTokens,
+                totalXp = progress.totalXp,
             )
 
             Column(
@@ -235,6 +236,7 @@ private fun DuolingoLearnTopBar(
     lessonCount: Int,
     currentStreak: Int,
     leafTokens: Int,
+    totalXp: Int,
 ) {
     Row(
         modifier = Modifier
@@ -281,6 +283,19 @@ private fun DuolingoLearnTopBar(
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.secondary,
+            )
+        }
+        // ⚡ Cumulative XP (learning depth signal)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("⚡", fontSize = 13.sp)
+            Text(
+                "$totalXp",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = GreenBuddyColors.leafGold,
             )
         }
     }
@@ -337,7 +352,7 @@ private fun SectionBanner(trackName: String, unitLabel: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.extraLarge)
-            .background(Color(0xFFF5A623))
+            .background(GreenBuddyColors.leafGold)
             .padding(horizontal = 20.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -455,17 +470,14 @@ private fun DuolingoVerticalLessonPath(
                         Box(
                             modifier = Modifier
                                 .size(nodeSize)
-                                .scale(nodeScale)
                                 .shadow(
                                     elevation = if (isCurrent) 8.dp else if (isCompleted) 4.dp else 1.dp,
                                     shape = CircleShape,
                                 )
+                                .scale(nodeScale)
                                 .clip(CircleShape)
                                 .background(nodeBg)
-                                .then(
-                                    if (isCurrent) Modifier.border(3.dp, borderColor, CircleShape)
-                                    else Modifier,
-                                ),
+                                .border(3.dp, borderColor, CircleShape),
                             contentAlignment = Alignment.Center,
                         ) {
                             when {
