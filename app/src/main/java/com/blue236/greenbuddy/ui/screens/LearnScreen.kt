@@ -50,6 +50,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -76,10 +77,28 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// In-memory store for "don't show lore today" — persists across tab switches within the app session
-private val loreDismissedForDate = mutableMapOf<String, String>() // lessonKey -> date string
-
 private enum class LearnUiState { IDLE, EVALUATED_CORRECT, EVALUATED_INCORRECT, COMPLETED }
+
+private const val LORE_PREFS_NAME = "learn_lore_prefs"
+private const val LORE_DISMISSED_PREFIX = "lore_dismissed_"
+
+private fun readLoreDismissedDate(context: android.content.Context, lessonKey: String): String? =
+    context.getSharedPreferences(LORE_PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        .getString("$LORE_DISMISSED_PREFIX$lessonKey", null)
+
+private fun persistLoreDismissedDate(context: android.content.Context, lessonKey: String, date: String) {
+    context.getSharedPreferences(LORE_PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        .edit()
+        .putString("$LORE_DISMISSED_PREFIX$lessonKey", date)
+        .apply()
+}
+
+private fun clearLoreDismissedDate(context: android.content.Context, lessonKey: String) {
+    context.getSharedPreferences(LORE_PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        .edit()
+        .remove("$LORE_DISMISSED_PREFIX$lessonKey")
+        .apply()
+}
 
 @Composable
 fun LearnScreen(
@@ -92,6 +111,7 @@ fun LearnScreen(
     currentStreak: Int = 0,
     onSubmitAnswer: (Int) -> Boolean,
 ) {
+    val context = LocalContext.current
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val lesson = progress.currentLessonOrNull(lessons)
     val allLessonsComplete = progress.isComplete(lessons)
@@ -114,9 +134,8 @@ fun LearnScreen(
 
     // Lore popup state
     val today = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) }
-    // Initialises from in-memory map so dismissal survives tab switches within the session
-    var lorePopupDismissed by remember(lessonKey) {
-        mutableStateOf(loreDismissedForDate[lessonKey] == today)
+    var lorePopupDismissed by remember(lessonKey, today) {
+        mutableStateOf(readLoreDismissedDate(context, lessonKey) == today)
     }
     // Tracks the checkbox inside the lore popup; scoped to lessonKey so it resets per lesson
     var dontShowAgainChecked by remember(lessonKey) { mutableStateOf(false) }
@@ -133,7 +152,11 @@ fun LearnScreen(
             onDontShowAgainChange = { dontShowAgainChecked = it },
             onDismiss = {
                 lorePopupDismissed = true
-                if (dontShowAgainChecked) loreDismissedForDate[lessonKey] = today
+                if (dontShowAgainChecked) {
+                    persistLoreDismissedDate(context, lessonKey, today)
+                } else {
+                    clearLoreDismissedDate(context, lessonKey)
+                }
                 // reset so re-entering after a different dismiss path starts fresh
                 dontShowAgainChecked = false
             },
