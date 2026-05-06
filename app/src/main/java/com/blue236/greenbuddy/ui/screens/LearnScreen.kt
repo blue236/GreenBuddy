@@ -115,7 +115,6 @@ fun LearnScreen(
     val localeTag = LocalConfiguration.current.locales[0]?.toLanguageTag().orEmpty()
     val lesson = progress.currentLessonOrNull(lessons)
     val allLessonsComplete = progress.isComplete(lessons)
-    val lessonKey = lesson?.id ?: "track_complete"
     val dialogue = CompanionPersonalitySystem.dialogueFor(starter, careState, progress, lessons, localeTag)
 
     // Group lessons into daily sessions (4 per day)
@@ -126,6 +125,7 @@ fun LearnScreen(
         session.any { it.id !in progress.completedLessonIds }
     }.takeIf { it >= 0 } ?: (dailySessions.size - 1).coerceAtLeast(0)
     val currentSession = dailySessions.getOrNull(currentSessionIndex) ?: emptyList()
+    val currentSessionKey = currentSession.firstOrNull()?.id ?: "session_$currentSessionIndex"
     // Only pass uncompleted lessons into the quiz flow so the dialog starts at the right question
     val currentSessionQuizLessons = currentSession.filter { it.id !in progress.completedLessonIds }
 
@@ -134,15 +134,17 @@ fun LearnScreen(
 
     // Lore popup state
     val today = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) }
-    var lorePopupDismissed by remember(lessonKey, today) {
-        mutableStateOf(readLoreDismissedDate(context, lessonKey) == today)
+    var lorePopupDismissed by remember(currentSessionKey, today) {
+        mutableStateOf(readLoreDismissedDate(context, currentSessionKey) == today)
     }
-    // Tracks the checkbox inside the lore popup; scoped to lessonKey so it resets per lesson
-    var dontShowAgainChecked by remember(lessonKey) { mutableStateOf(false) }
+    // Tracks the checkbox inside the lore popup; scoped to current session so it doesn't reset per question
+    var dontShowAgainChecked by remember(currentSessionKey) { mutableStateOf(false) }
     val showLorePopup = !lorePopupDismissed && lesson != null && !allLessonsComplete
 
-    // Quiz dialog open state
-    var showQuizDialog by remember(lessonKey) { mutableStateOf(false) }
+    // Quiz dialog state is scoped to the current daily session, not the current lesson.
+    // That keeps the popup open while progressing through all questions in the session.
+    var showQuizDialog by remember(currentSessionKey) { mutableStateOf(false) }
+    var activeSessionLessons by remember(currentSessionKey) { mutableStateOf(currentSessionQuizLessons) }
 
     // ── Lore popup — auto-shows on screen entry ────────────────────────────
     if (showLorePopup) {
@@ -153,9 +155,9 @@ fun LearnScreen(
             onDismiss = {
                 lorePopupDismissed = true
                 if (dontShowAgainChecked) {
-                    persistLoreDismissedDate(context, lessonKey, today)
+                    persistLoreDismissedDate(context, currentSessionKey, today)
                 } else {
-                    clearLoreDismissedDate(context, lessonKey)
+                    clearLoreDismissedDate(context, currentSessionKey)
                 }
                 // reset so re-entering after a different dismiss path starts fresh
                 dontShowAgainChecked = false
@@ -166,7 +168,7 @@ fun LearnScreen(
     // ── Quiz popup — opens when tapping the current daily session node ─────
     if (showQuizDialog) {
         QuizDialog(
-            sessionLessons = currentSessionQuizLessons,
+            sessionLessons = activeSessionLessons,
             onSubmitAnswer = onSubmitAnswer,
             onDismiss = { showQuizDialog = false },
         )
@@ -211,7 +213,10 @@ fun LearnScreen(
             DuolingoVerticalLessonPath(
                 dailySessions = dailySessions,
                 completedLessonIds = progress.completedLessonIds,
-                onCurrentNodeTap = { showQuizDialog = true },
+                onCurrentNodeTap = {
+                    activeSessionLessons = currentSessionQuizLessons
+                    showQuizDialog = true
+                },
             )
 
             if (allLessonsComplete) {
