@@ -160,6 +160,7 @@ fun GreenBuddyAppContent(
                 uiState.weatherAdvice,
                 uiState.companionStateSnapshot,
                 uiState.companionHomeCheckIn,
+                dailyPlant = uiState.dailyPlant,
                 onPerformCareAction,
                 onSubmitCompanionChatMessage,
                 onAcknowledgeGrowthStage,

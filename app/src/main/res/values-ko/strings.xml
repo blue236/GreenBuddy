@@ -190,4 +190,11 @@
     <string name="home_growth_mini">%1$s · %2$d%% 준비</string>
     <string name="notification_channel_name">GreenBuddy 알림</string>
     <string name="notification_channel_description">레슨, 돌봄, 루틴 체크인을 위한 부드러운 알림.</string>
+    <string name="daily_plant_title">오늘의 식물</string>
+    <string name="daily_plant_scientific">%1$s</string>
+    <string name="daily_plant_family">과(科): %1$s</string>
+    <string name="daily_plant_sunlight">☀️ %1$s</string>
+    <string name="daily_plant_watering">💧 %1$s</string>
+    <string name="daily_plant_region">🌍 %1$s</string>
+    <string name="daily_plant_fun_fact">"%1$s"</string>
 </resources>
