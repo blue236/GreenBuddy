@@ -59,6 +59,11 @@
     <string name="learn_token_earn">+%1$d 🍃</string>
     <string name="learn_correct_exclaim">✨ Brilliant!</string>
     <string name="learn_lesson_of">%1$d / %2$d</string>
+    <string name="learn_lore_dont_show_today">Don\'t show again today</string>
+    <string name="learn_quiz_close">Close quiz</string>
+    <string name="learn_node_tap_hint">Tap to start</string>
+    <string name="learn_day_label">Day %1$d</string>
+    <string name="learn_session_complete_message">You answered %1$d questions. Keep it up!</string>
     <string name="profile_title">Profile</string>
     <string name="profile_subtitle">Track your buddy’s progress, growth, and collectibles here. Open Settings from the top-right action when you want to change app preferences.</string>
     <string name="open_settings">Open Settings</string>

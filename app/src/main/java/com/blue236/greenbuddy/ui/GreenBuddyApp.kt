@@ -4,29 +4,41 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.LocalFlorist
-import androidx.compose.material.icons.outlined.MenuBook
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -127,28 +139,7 @@ fun GreenBuddyAppContent(
     }
     Scaffold(
         bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                bottomNavigationTabs.forEach { tab ->
-                    NavigationBarItem(
-                        selected = uiState.selectedTab == tab,
-                        onClick = { onSelectTab(tab) },
-                        icon = {
-                            Icon(
-                                imageVector = tab.icon,
-                                contentDescription = stringResource(tab.labelRes),
-                            )
-                        },
-                        label = { Text(stringResource(tab.labelRes), style = MaterialTheme.typography.labelMedium) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    )
-                }
-            }
+            DuolingoNavBar(selectedTab = uiState.selectedTab, onSelectTab = onSelectTab)
         },
     ) { innerPadding ->
         val modifier = Modifier.padding(innerPadding).padding(horizontal = 0.dp)
@@ -176,7 +167,16 @@ fun GreenBuddyAppContent(
                 onLogRealPlantCare,
                 onOpenTodayLesson = { onSelectTab(Tab.LEARN) },
             )
-            Tab.LEARN -> LearnScreen(modifier, uiState.selectedStarter, lessons, uiState.lessonProgress, uiState.plantCareState, onSubmitLessonAnswer)
+            Tab.LEARN -> LearnScreen(
+                modifier,
+                uiState.selectedStarter,
+                lessons,
+                uiState.lessonProgress,
+                uiState.plantCareState,
+                leafTokens = uiState.rewardState.leafTokens,
+                currentStreak = uiState.dailyMissionSet?.currentStreak ?: 0,
+                onSubmitAnswer = onSubmitLessonAnswer,
+            )
             Tab.DEX -> DexScreen(modifier, uiState.inventoryEntries, uiState.ownedStarterIds, onSelectStarter)
             Tab.PROFILE -> ProfileScreen(
                 modifier,
@@ -212,6 +212,84 @@ private fun GreenBuddyAppPreview() {
     }
 }
 
+// ── Duolingo-style bottom navigation ─────────────────────────────────────────
+
+@Composable
+private fun DuolingoNavBar(selectedTab: Tab, onSelectTab: (Tab) -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 8.dp,
+        tonalElevation = 0.dp,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            bottomNavigationTabs.forEach { tab ->
+                DuolingoNavItem(
+                    tab = tab,
+                    selected = tab == selectedTab,
+                    onSelect = { onSelectTab(tab) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DuolingoNavItem(tab: Tab, selected: Boolean, onSelect: () -> Unit) {
+    val tabColor = tab.duolingoColor
+    val tabLabel = stringResource(tab.labelRes)
+    val iconBg by animateColorAsState(
+        targetValue = if (selected) tabColor else Color.Transparent,
+        animationSpec = tween(200),
+        label = "navIconBg${tab.name}",
+    )
+    val labelColor by animateColorAsState(
+        targetValue = if (selected) tabColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+        animationSpec = tween(200),
+        label = "navLabel${tab.name}",
+    )
+    Column(
+        modifier = Modifier
+            .semantics {
+                contentDescription = tabLabel
+                role = Role.Tab
+            }
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(onClick = onSelect)
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .background(iconBg),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = tab.duolingoEmoji,
+                fontSize = 22.sp,
+            )
+        }
+        Text(
+            text = stringResource(tab.labelRes),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Normal,
+            color = labelColor,
+        )
+    }
+}
+
+// ── Tab metadata ──────────────────────────────────────────────────────────────
+
 private val Tab.labelRes: Int
     get() = when (this) {
         Tab.HOME -> R.string.tab_home
@@ -221,11 +299,22 @@ private val Tab.labelRes: Int
         Tab.SETTINGS -> R.string.tab_settings
     }
 
-private val Tab.icon
+private val Tab.duolingoColor: Color
+    // SETTINGS is not in bottomNavigationTabs; branch required for exhaustive when on enum
     get() = when (this) {
-        Tab.HOME -> Icons.Outlined.Home
-        Tab.LEARN -> Icons.Outlined.MenuBook
-        Tab.DEX -> Icons.Outlined.LocalFlorist
-        Tab.PROFILE -> Icons.Outlined.Person
-        Tab.SETTINGS -> Icons.Outlined.Person
+        Tab.HOME -> Color(0xFF4B8B5E)
+        Tab.LEARN -> Color(0xFF1976D2)
+        Tab.DEX -> Color(0xFF00897B)
+        Tab.PROFILE -> Color(0xFFF57C00)
+        Tab.SETTINGS -> Color(0xFF7B1FA2)
+    }
+
+private val Tab.duolingoEmoji: String
+    // SETTINGS is not in bottomNavigationTabs; branch required for exhaustive when on enum
+    get() = when (this) {
+        Tab.HOME -> "🏡"
+        Tab.LEARN -> "📗"
+        Tab.DEX -> "🌿"
+        Tab.PROFILE -> "🌸"
+        Tab.SETTINGS -> "⚙️"
     }
