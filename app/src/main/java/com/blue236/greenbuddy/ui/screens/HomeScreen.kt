@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.blue236.greenbuddy.R
 import com.blue236.greenbuddy.model.CareAction
+import com.blue236.greenbuddy.model.DailyPlant
 import com.blue236.greenbuddy.model.CareStatType
 import com.blue236.greenbuddy.model.CompanionEmotion
 import com.blue236.greenbuddy.model.CompanionHomeCheckIn
@@ -104,6 +105,7 @@ fun HomeScreen(
     weatherAdvice: WeatherAdvice,
     companionStateSnapshot: CompanionStateSnapshot,
     companionHomeCheckIn: CompanionHomeCheckIn,
+    dailyPlant: DailyPlant? = null,
     onPerformCareAction: (CareAction) -> Unit,
     onSubmitCompanionChatMessage: (String) -> Unit,
     onAcknowledgeGrowthStage: () -> Unit,
@@ -186,6 +188,11 @@ fun HomeScreen(
                 )
                 null -> {}
             }
+        }
+
+        // Plant of the day — always visible, below section panels
+        dailyPlant?.let { plant ->
+            DailyPlantCard(plant = plant)
         }
     }
 }
@@ -641,6 +648,55 @@ private fun missionIconFor(mission: DailyMission): String = when (mission.type) 
     DailyMissionType.COMPLETE_LESSON -> "📘"
     DailyMissionType.PERFORM_CARE_ACTION -> "💧"
     DailyMissionType.KEEP_STAT_ABOVE_THRESHOLD -> "☀️"
+}
+
+@Composable
+private fun DailyPlantCard(plant: DailyPlant) {
+    StatCard(stringResource(R.string.daily_plant_title)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(plant.emoji, style = MaterialTheme.typography.displaySmall)
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(plant.commonName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(
+                    stringResource(R.string.daily_plant_scientific, plant.scientificName),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Text(
+            stringResource(R.string.daily_plant_family, plant.family),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text(
+                stringResource(R.string.daily_plant_sunlight, plant.sunlight),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                stringResource(R.string.daily_plant_watering, plant.watering),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        Text(
+            stringResource(R.string.daily_plant_region, plant.nativeRegion),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            stringResource(R.string.daily_plant_fun_fact, plant.funFact),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+    }
 }
 
 private fun companionEmotionEmoji(emotion: CompanionEmotion): String = when (emotion) {

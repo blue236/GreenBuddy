@@ -2,9 +2,11 @@ package com.blue236.greenbuddy.ui.state
 
 import com.blue236.greenbuddy.data.content.CompanionCopySet
 import com.blue236.greenbuddy.domain.CompanionCoordinator
+import com.blue236.greenbuddy.domain.DailyPlantEngine
 import com.blue236.greenbuddy.domain.GrowthEngine
 import com.blue236.greenbuddy.domain.MissionEngine
 import com.blue236.greenbuddy.model.AppPreferences
+import com.blue236.greenbuddy.model.DailyPlant
 import com.blue236.greenbuddy.model.FeedbackEvent
 import com.blue236.greenbuddy.model.GreenBuddyUiState
 import com.blue236.greenbuddy.model.Lesson
@@ -22,6 +24,7 @@ class UiStateAssembler(
     private val growthEngine: GrowthEngine,
     private val companionCoordinator: CompanionCoordinator,
     private val lessonsForStarter: (starterId: String, localeTag: String) -> List<Lesson>,
+    private val dailyPlantsProvider: () -> List<DailyPlant> = { emptyList() },
     private val weatherProvider: WeatherProvider = SeasonalWeatherProvider,
 ) {
     fun assemble(
@@ -68,6 +71,7 @@ class UiStateAssembler(
             recentConversationMemory = preferences.companionConversationMemory,
             languageTag = localeTag,
         )
+        val dailyPlant = DailyPlantEngine.plantFor(dailyPlantsProvider(), today)
         return GreenBuddyUiState(
             selectedTab = selectedTab,
             selectedStarterId = preferences.selectedStarter.id,
@@ -88,6 +92,7 @@ class UiStateAssembler(
             companionStateSnapshot = companionSnapshot,
             companionHomeCheckIn = companionCoordinator.homeCheckIn(companionSnapshot, localeTag, companionCopy),
             appLanguage = preferences.appLanguage,
+            dailyPlant = dailyPlant,
         )
     }
 }

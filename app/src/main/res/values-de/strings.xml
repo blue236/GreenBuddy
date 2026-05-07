@@ -190,4 +190,11 @@
     <string name="home_growth_mini">%1$s · %2$d%% bereit</string>
     <string name="notification_channel_name">GreenBuddy-Erinnerungen</string>
     <string name="notification_channel_description">Sanfte Erinnerungen für Lektionen, Pflege und Routine-Check-ins.</string>
+    <string name="daily_plant_title">Pflanze des Tages</string>
+    <string name="daily_plant_scientific">%1$s</string>
+    <string name="daily_plant_family">Familie: %1$s</string>
+    <string name="daily_plant_sunlight">☀️ %1$s</string>
+    <string name="daily_plant_watering">💧 %1$s</string>
+    <string name="daily_plant_region">🌍 %1$s</string>
+    <string name="daily_plant_fun_fact">"%1$s"</string>
 </resources>

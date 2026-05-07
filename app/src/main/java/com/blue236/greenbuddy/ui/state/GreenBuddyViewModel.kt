@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.blue236.greenbuddy.data.GreenBuddyPreferencesRepository
 import com.blue236.greenbuddy.data.content.CompanionCopyLoader
+import com.blue236.greenbuddy.data.content.DailyPlantLoader
 import com.blue236.greenbuddy.data.content.LessonContentLoader
 import com.blue236.greenbuddy.domain.AnalyticsEvent
 import com.blue236.greenbuddy.domain.ActionPersistenceCoordinator
@@ -48,6 +49,7 @@ import kotlinx.coroutines.launch
 class GreenBuddyViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = GreenBuddyPreferencesRepository(application)
     private val lessonContentLoader = LessonContentLoader(application)
+    private val dailyPlantLoader = DailyPlantLoader(application)
     private val companionCopyLoader = CompanionCopyLoader(application)
     private val analyticsLogger = AndroidAnalyticsLogger()
     private val missionEngine = MissionEngine()
@@ -70,6 +72,7 @@ class GreenBuddyViewModel(application: Application) : AndroidViewModel(applicati
             val starter = StarterPlants.options.first { it.id == starterId }
             lessonContentLoader.lessonsFor(starter.companion.species, localeTag)
         },
+        dailyPlantsProvider = { dailyPlantLoader.load() },
     )
     private val selectedTab = MutableStateFlow(Tab.HOME)
     private val rewardFeedback = MutableStateFlow<String?>(null)

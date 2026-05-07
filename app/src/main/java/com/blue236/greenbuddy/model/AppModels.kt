@@ -86,6 +86,7 @@ data class GreenBuddyUiState(
         ),
     ),
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
+    val dailyPlant: DailyPlant? = null,
 ) {
     val selectedStarter: StarterPlantOption
         get() = starterOptions.firstOrNull { it.id == selectedStarterId && it.id in ownedStarterIds }
