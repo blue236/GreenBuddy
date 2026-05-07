@@ -1,8 +1,1684 @@
 {
   "Monstera": [
-    {"id":"monstera_light","title":"Helles Fensterlicht ohne Blattbrand","summary":"Deine Monstera fühlt sich an einem hellen Platz mit gefiltertem Licht am wohlsten, ohne dass die Blätter verbrennen.","concept":"Monsteras wachsen am besten bei hellem indirektem Licht. Sanfte Morgensonne kann gut funktionieren, aber starke Nachmittagssonne kann die Blätter schnell verbrennen.","keyTakeaway":"Belohnung: Leaf Finder-Abzeichen — baue dir eine ruhige Lichtroutine im Zuhause auf.","quiz":{"type":"MULTIPLE_CHOICE","prompt":"Welche Lichtsituation passt in den meisten Wohnungen am besten zu einer Monstera?","options":["Helles indirektes Licht in Fensternähe","Den ganzen Tag harte Sonne auf dem Balkon","Eine dunkle Ecke weit weg vom Fenster"],"correctAnswerIndex":0},"rewardXp":20,"rewardLabel":"Leaf Finder-Abzeichen"},
-    {"id":"monstera_rotation","title":"Für gleichmäßiges Wachstum drehen","summary":"Ein kurzes Drehen jede Woche hilft deiner Monstera, nicht nur zu einer Seite hin zu wachsen.","concept":"Zimmerpflanzen orientieren sich an der stärksten Lichtquelle. Wenn du den Topf regelmäßig drehst, können sich Stängel und Blätter gleichmäßiger entwickeln.","keyTakeaway":"Belohnung: Balanced Canopy-Abzeichen — fördere eine vollere Pflanzenform.","quiz":{"type":"TRUE_FALSE","prompt":"Wahr oder falsch: Wenn man eine Monstera alle ein bis zwei Wochen dreht, kann sie gleichmäßiger wachsen.","options":["True","False"],"correctAnswerIndex":0},"rewardXp":25,"rewardLabel":"Balanced Canopy-Abzeichen"},
-    {"id":"monstera_watering","title":"Gießen, nachdem die obere Schicht getrocknet ist","summary":"Monsteras mögen lieber einen Rhythmus aus gründlichem Gießen und kurzer Pause statt dauerhaft nasser Erde.","concept":"Lass die obere Erdschicht etwas antrocknen, bevor du wieder gießt. Dauerhaft nasse Erde erhöht das Risiko für Wurzelstress und gelbe Blätter.","keyTakeaway":"Belohnung: Root Watch-Abzeichen — schütze die Wurzeln vor Überwässerung.","quiz":{"type":"SCENARIO_CHOICE","prompt":"Die Erde deiner Monstera ist zwei Zentimeter tief noch feucht, aber laut Kalender ist heute Gießtag. Was ist die beste Entscheidung?","options":["Noch etwas warten und später erneut prüfen","Jetzt gießen, weil der Plan wichtiger ist","Mehr Dünger geben statt die Feuchtigkeit zu prüfen"],"correctAnswerIndex":0},"rewardXp":25,"rewardLabel":"Root Watch-Abzeichen"},
-    {"id":"monstera_support","title":"Kletternde Blätter mit einer Stütze führen","summary":"Ein Stab oder Moospfahl hilft einer größeren Monstera, aufrechter und natürlicher zu wachsen statt schlaff zu hängen.","concept":"Monsteras sind von Natur aus Kletterpflanzen. Eine Stütze kann größere Blätter und einen ordentlicheren Wuchs fördern.","keyTakeaway":"Belohnung: Climber Coach-Abzeichen — unterstütze einen stärkeren Wuchs.","quiz":{"type":"MULTIPLE_CHOICE","prompt":"Warum lohnt sich eine Stütze für eine wachsende Monstera?","options":["Sie unterstützt das natürliche Kletterwachstum","Sie hält die Erde dauerhaft nass","Sie ersetzt den Bedarf an Licht"],"correctAnswerIndex":0},"rewardXp":30,"rewardLabel":"Climber Coach-Abzeichen"}
+    {
+      "id": "monstera_light",
+      "title": "Fensterlicht ohne Blattbrand nutzen",
+      "summary": "Die Monstera fühlt sich an einem hellen Platz mit indirektem Licht am wohlsten, ohne dass die Blätter verbrennen.",
+      "concept": "Monsteras wachsen am besten bei hellem indirektem Licht. Sanfte Morgensonne ist in Ordnung, aber starke Nachmittagssonne verbrennt die Blätter schnell.",
+      "keyTakeaway": "Belohnung: Leaf Finder-Abzeichen — baue eine ruhige Lichtroutine zuhause auf.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welche Lichtsituation eignet sich in den meisten Haushalten am besten für eine Monstera?",
+        "options": [
+          "Helles indirektes Licht in Fensternähe",
+          "Grelles Balkonlicht den ganzen Tag",
+          "Eine dunkle Ecke weit weg vom Fenster"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Leaf Finder-Abzeichen"
+    },
+    {
+      "id": "monstera_rotation",
+      "title": "Für gleichmäßiges Wachstum drehen",
+      "summary": "Ein kurzes Drehen jede Woche hilft der Monstera, nicht nur zu einer Seite hin zu wachsen.",
+      "concept": "Zimmerpflanzen orientieren sich an der stärksten Lichtquelle. Regelmäßiges Drehen des Topfes fördert ein gleichmäßigeres Wachstum von Stängeln und Blättern.",
+      "keyTakeaway": "Belohnung: Balanced Canopy-Abzeichen — fördere eine vollere Pflanzenform.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Wenn man eine Monstera alle ein bis zwei Wochen dreht, wächst sie gleichmäßiger.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Balanced Canopy-Abzeichen"
+    },
+    {
+      "id": "monstera_watering",
+      "title": "Gießen, wenn die Oberfläche angetrocknet ist",
+      "summary": "Monsteras mögen lieber einen Rhythmus aus gründlichem Gießen und kurzer Trockenpause statt dauerhaft nasser Erde.",
+      "concept": "Lass die oberste Erdschicht etwas antrocknen, bevor du wieder gießt. Dauerhaft nasse Erde erhöht das Risiko für Wurzelstress und gelbe Blätter.",
+      "keyTakeaway": "Belohnung: Root Watch-Abzeichen — schütze die Wurzeln vor Staunässe.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "Die Erde deiner Monstera ist 2 cm tief noch feucht, aber laut Kalender ist heute Gießtag. Was tust du?",
+        "options": [
+          "Noch etwas warten und dann erneut prüfen",
+          "Jetzt gießen, weil der Plan wichtiger ist",
+          "Mehr Dünger geben statt die Feuchtigkeit zu prüfen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Root Watch-Abzeichen"
+    },
+    {
+      "id": "monstera_support",
+      "title": "Kletternden Blättern Halt geben",
+      "summary": "Monsteras sind natürliche Kletterpflanzen. Eine Stütze hilft, größere und gesündere Blätter zu entwickeln.",
+      "concept": "Ein Moosstab oder eine Stütze ermöglicht der Monstera zu klettern. Wächst sie nach oben wie in der Natur, bilden sich größere Blätter mit schönerer Fensterung.",
+      "keyTakeaway": "Belohnung: Climber-Abzeichen — respektiere das natürliche Wachstum der Pflanze.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welchen Vorteil bringt ein Moosstab für die Monstera?",
+        "options": [
+          "Größere Blätter und bessere Fensterung",
+          "Sie braucht mehr Wasser",
+          "Sie benötigt direkte Sonne"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Climber-Abzeichen"
+    },
+    {
+      "id": "monstera_humidity",
+      "title": "Luftfeuchtigkeit richtig erhöhen",
+      "summary": "Die Monstera stammt aus den Tropen und liebt Feuchtigkeit – aber die Methode ist entscheidend.",
+      "concept": "Am wirksamsten ist eine Kiesschale mit Wasser unter dem Topf oder ein Luftbefeuchter. Direktes Besprühen der Blätter kann Schimmel fördern.",
+      "keyTakeaway": "Belohnung: Humidity Hero-Abzeichen — schaffe das perfekte Klima für Tropenpflanzen.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wie erhöhst du die Luftfeuchtigkeit für deine Monstera am sichersten?",
+        "options": [
+          "Kiesschale mit Wasser unter dem Topf",
+          "Täglich direkt auf die Blätter sprühen",
+          "Plastiktüte über den Topf stülpen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Humidity Hero-Abzeichen"
+    },
+    {
+      "id": "monstera_soil_mix",
+      "title": "Durchlässige Erde wählen",
+      "summary": "Gut durchlässige Erde hält die Monstera-Wurzeln belüftet und verhindert Staunässe.",
+      "concept": "Mische normale Blumenerde mit Perlite oder grobem Kies. Monsteras bevorzugen lockere, gut belüftete Erde, damit die Wurzeln genug Sauerstoff bekommen.",
+      "keyTakeaway": "Belohnung: Soil Savvy-Abzeichen — lerne die Grundlagen gesunder Wurzeln.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Für eine Monstera ist Blumenerde mit Perlite besser geeignet als normale Gartenerde.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Soil Savvy-Abzeichen"
+    },
+    {
+      "id": "monstera_repotting",
+      "title": "Umtopfen, wenn die Wurzeln keinen Platz mehr haben",
+      "summary": "Wenn Wurzeln aus den Abzugslöchern ragen oder das Wachstum stagniert, ist Umtopfen angesagt.",
+      "concept": "Topfe alle 1–2 Jahre im Frühling in einen Topf um, der etwa 5 cm größer ist. Ein zu großer Topf erhöht das Risiko von Staunässe.",
+      "keyTakeaway": "Belohnung: Fresh Start-Abzeichen — fördere Wachstum durch rechtzeitiges Umtopfen.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "Die Wurzeln deiner Monstera wachsen aus dem Abzugsloch heraus. Was tust du?",
+        "options": [
+          "In einen 5 cm größeren Topf umtopfen",
+          "Im gleichen Topf lassen",
+          "Häufiger gießen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Fresh Start-Abzeichen"
+    },
+    {
+      "id": "monstera_leaf_cleaning",
+      "title": "Blätter reinigen für mehr Lichtaufnahme",
+      "summary": "Staubige Blätter reinigen verbessert die Photosynthese und lässt die Pflanze strahlen.",
+      "concept": "Wipe die Blattoberseiten mit einem feuchten, weichen Tuch ab. Auch die Unterseiten reinigen hält die Poren frei.",
+      "keyTakeaway": "Belohnung: Shine Master-Abzeichen — optimiere die Photosynthese deiner Pflanze.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Regelmäßiges Reinigen der Monstera-Blätter verbessert die Photosynthese.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Shine Master-Abzeichen"
+    },
+    {
+      "id": "monstera_fenestration",
+      "title": "Warum Monstera-Blätter Löcher entwickeln",
+      "summary": "Die einzigartigen Löcher sind kein Zufall, sondern eine clevere Anpassung an den tropischen Regenwald.",
+      "concept": "Fensterung hilft der Pflanze, bei Sturm Winddruck zu reduzieren und Licht bis zu den unteren Blättern durchzulassen. Sie entsteht mit zunehmendem Alter.",
+      "keyTakeaway": "Belohnung: Fenestration Fan-Abzeichen — verstehe das clevere Design der Natur.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Warum entwickelt die Monstera Löcher in ihren Blättern?",
+        "options": [
+          "Um Winddruck zu reduzieren und Licht durchzulassen",
+          "Um mehr Wasser zu speichern",
+          "Um Schädlinge abzuwehren"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Fenestration Fan-Abzeichen"
+    },
+    {
+      "id": "monstera_aerial_roots",
+      "title": "Mit Luftwurzeln umgehen",
+      "summary": "Luftwurzeln nicht abschneiden – zum Moosstab oder in die Erde lenken fördert die Gesundheit.",
+      "concept": "In der Natur dienen Luftwurzeln zum Klettern an Bäumen. Im Zimmer können sie zum Moosstab geleitet oder in die Erde gesteckt werden, um Nährstoffe aufzunehmen.",
+      "keyTakeaway": "Belohnung: Root Whisperer-Abzeichen — verstehe die Funktion der Luftwurzeln.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "Die Luftwurzeln deiner Monstera wachsen weit aus dem Topf heraus. Was machst du?",
+        "options": [
+          "Zum Moosstab oder in die Erde lenken",
+          "Abschneiden, weil sie unschön aussehen",
+          "In Wasser tauchen und zur Hydrokultur wechseln"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Root Whisperer-Abzeichen"
+    },
+    {
+      "id": "monstera_winter_care",
+      "title": "Pflege im Winter reduzieren",
+      "summary": "Im Winter wächst die Monstera langsamer. Gieß- und Düngerhäufigkeit reduzieren.",
+      "concept": "Bei weniger Licht und niedrigeren Temperaturen wächst die Monstera kaum. Gieße seltener und dünge bis zum Frühling gar nicht mehr.",
+      "keyTakeaway": "Belohnung: Seasonal Wisdom-Abzeichen — passe die Pflege an die Jahreszeit an.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Im Winter sollte man die Monstera seltener gießen.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Seasonal Wisdom-Abzeichen"
+    },
+    {
+      "id": "monstera_pests",
+      "title": "Häufige Schädlinge erkennen und bekämpfen",
+      "summary": "Wollläuse und Spinnmilben lassen sich bei frühzeitiger Entdeckung leicht bekämpfen.",
+      "concept": "Überprüfe regelmäßig die Blattunterseiten und Stängelansätze. Klebrige Substanzen oder Spinnenweben sind Warnsignale – dann mit Alkohol abtupfen oder Neem-Öl behandeln.",
+      "keyTakeaway": "Belohnung: Pest Patrol-Abzeichen — finde Schädlinge frühzeitig durch regelmäßige Kontrolle.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wo sollte man bei der Monstera zuerst nach Schädlingen suchen?",
+        "options": [
+          "Blattunterseiten und Stängelansätze",
+          "Oben auf dem Substrat",
+          "An den Topfrändern"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Pest Patrol-Abzeichen"
+    },
+    {
+      "id": "monstera_fertilizing",
+      "title": "In der Wachstumsphase düngen",
+      "summary": "Von Frühling bis Sommer regelmäßig düngen hilft der Monstera, kräftigere Blätter zu bilden.",
+      "concept": "Dünge in der Wachstumsphase (Frühling–Sommer) alle 2–4 Wochen mit einem ausgewogenen Flüssigdünger in halber Konzentration. Im Herbst und Winter pausieren.",
+      "keyTakeaway": "Belohnung: Feeding Pro-Abzeichen — entwickle einen saisonalen Düngeplan.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wann ist die beste Zeit, eine Monstera zu düngen?",
+        "options": [
+          "Frühling und Sommer (Wachstumsphase)",
+          "Herbst und Winter (Ruhephase)",
+          "Das ganze Jahr wöchentlich"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Feeding Pro-Abzeichen"
+    },
+    {
+      "id": "monstera_root_health",
+      "title": "Gesunde Wurzeln, gesunde Pflanze",
+      "summary": "Gelegentlich die Wurzeln zu kontrollieren hilft, Probleme früh zu erkennen.",
+      "concept": "Beim Umtopfen die Wurzeln begutachten. Gesunde Wurzeln sind weiß oder hellbraun. Weiche, dunkle Wurzeln deuten auf Fäule hin – abschneiden und in frische Erde pflanzen.",
+      "keyTakeaway": "Belohnung: Root Doctor-Abzeichen — lerne, Wurzelgesundheit zu beurteilen.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "Beim Umtopfen entdeckst du einige weiche, schwärzliche Wurzeln. Was tust du?",
+        "options": [
+          "Faulende Wurzeln abschneiden und frisch einpflanzen",
+          "Mehr gießen",
+          "Einfach wieder einpflanzen wie bisher"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Root Doctor-Abzeichen"
+    },
+    {
+      "id": "monstera_growth_pace",
+      "title": "Realistische Wachstumserwartungen setzen",
+      "summary": "Monsteras sind keine Schnellwüchser. Wachstumsgeschwindigkeit variiert je nach Jahreszeit und Standort.",
+      "concept": "In der Wachstumsphase ist 1–2 neue Blätter pro Monat normal. Im Winter kaum Wachstum ist völlig in Ordnung. Zu viel Dünger beschleunigt das Wachstum nicht dauerhaft.",
+      "keyTakeaway": "Belohnung: Patience Plant-Abzeichen — respektiere das natürliche Tempo der Pflanze.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Es ist normal, dass eine Monstera im Winter kaum neue Blätter bildet.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Patience Plant-Abzeichen"
+    },
+    {
+      "id": "general_soil_drainage",
+      "title": "Warum Drainage so wichtig ist",
+      "summary": "Schlechte Drainage erstickt die Wurzeln und kann die gesamte Pflanze gefährden.",
+      "concept": "Gut durchlässige Erde lässt überschüssiges Wasser schnell abfließen, sodass die Wurzeln genug Sauerstoff bekommen. Perlite, Blähton oder grober Sand verbessern die Drainage erheblich.",
+      "keyTakeaway": "Belohnung: Drainage Defender-Abzeichen — lerne die Grundlage gesunder Erde.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welches Material verbessert die Drainage der Erde am besten?",
+        "options": [
+          "Perlite oder grober Sand",
+          "Feiner Ton",
+          "Nur Moos verwenden"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Drainage Defender-Abzeichen"
+    },
+    {
+      "id": "general_overwatering",
+      "title": "Zu viel Gießen früh erkennen",
+      "summary": "Staunässe ist der häufigste Fehler und tötet Pflanzen schneller als zu wenig Wasser.",
+      "concept": "Gelbe, weiche Blätter oder modrig riechende Erde sind Warnsignale. Gießen stoppen, Topf an einen helleren Platz stellen und bei Bedarf die Wurzeln prüfen.",
+      "keyTakeaway": "Belohnung: Overwater Detector-Abzeichen — erkenne frühe Warnsignale.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist das häufigste erste Zeichen von Staunässe?",
+        "options": [
+          "Gelb werdende Blätter und modrig riechende Erde",
+          "Braune Blattspitzen",
+          "Nach innen rollende Blätter"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Overwater Detector-Abzeichen"
+    },
+    {
+      "id": "general_underwatering",
+      "title": "Zeichen von zu wenig Wasser lesen",
+      "summary": "Wer erkennt, wie eine durstige Pflanze aussieht, kann rechtzeitig gießen.",
+      "concept": "Hängende oder eingerollte Blätter und knochig trockene Erde, die sich vom Topfrand löst, deuten auf zu wenig Wasser hin. Dann gründlich gießen bis Wasser aus dem Abzugsloch läuft.",
+      "keyTakeaway": "Belohnung: Thirst Spotter-Abzeichen — erkenne die Wassersignale deiner Pflanze.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Hängende Blätter und extrem trockene Erde sind Zeichen von zu wenig Wasser.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Thirst Spotter-Abzeichen"
+    },
+    {
+      "id": "general_light_intensity",
+      "title": "Lichtverhältnisse im Zimmer verstehen",
+      "summary": "Innenlicht unterscheidet sich stark vom Außenlicht. Jede Pflanze braucht eine andere Lichtmenge.",
+      "concept": "Helles indirektes Licht findet sich 1–2 m vom Fenster, schwaches Licht weiter im Raum. Ein Luxmeter oder eine Smartphone-App hilft beim genauen Messen.",
+      "keyTakeaway": "Belohnung: Light Literacy-Abzeichen — finde den besten Platz für deine Pflanze.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was bedeutet 'helles indirektes Licht' im Zimmer in der Regel?",
+        "options": [
+          "1–2 m vom Fenster entfernt",
+          "In der Raummitte",
+          "Direkt am Fenster in der prallen Sonne"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Light Literacy-Abzeichen"
+    },
+    {
+      "id": "general_fertilizer_basics",
+      "title": "NPK einfach erklärt",
+      "summary": "NPK steht für Stickstoff, Phosphor und Kalium – die drei wichtigsten Nährstoffe für Pflanzen.",
+      "concept": "Stickstoff (N) fördert Blätter und Triebe, Phosphor (P) Wurzeln und Blüten, Kalium (K) die allgemeine Widerstandsfähigkeit und den Wasserhaushalt. Ein ausgewogenes Verhältnis (z. B. 10-10-10) eignet sich für die meisten Zimmerpflanzen.",
+      "keyTakeaway": "Belohnung: Nutrient Nerd-Abzeichen — lerne die Grundlagen des Düngens.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welcher Nährstoff fördert hauptsächlich Blätter und Triebe?",
+        "options": [
+          "Stickstoff (N)",
+          "Phosphor (P)",
+          "Kalium (K)"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Nutrient Nerd-Abzeichen"
+    },
+    {
+      "id": "general_propagation_stem",
+      "title": "Stecklinge – die Grundlagen",
+      "summary": "Stecklinge zu schneiden ist eine der einfachsten Methoden, Pflanzen zu vermehren.",
+      "concept": "Einen gesunden Trieb knapp unter einem Knoten abschneiden und in Wasser oder feuchte Erde stecken. An einem warmen, nicht direkt besonnten Platz bilden sich in 2–4 Wochen Wurzeln.",
+      "keyTakeaway": "Belohnung: Propagation Pro-Abzeichen — mache deine ersten Schritte in der Pflanzenvermehrung.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Man kann Stecklinge in Wasser bewurzeln.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Propagation Pro-Abzeichen"
+    },
+    {
+      "id": "general_repotting_season",
+      "title": "Der beste Zeitpunkt zum Umtopfen",
+      "summary": "Der Frühling ist für die meisten Pflanzen die beste Zeit zum Umtopfen.",
+      "concept": "Im Frühling, wenn das Wachstum einsetzt, können sich die Wurzeln schnell an die neue Erde gewöhnen. Im Winter während der Ruhephase besser auf das Umtopfen verzichten.",
+      "keyTakeaway": "Belohnung: Timing Expert-Abzeichen — meistere den Zeitpunkt fürs Umtopfen.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "In welcher Jahreszeit ist Umtopfen am sinnvollsten?",
+        "options": [
+          "Frühling (wenn das Wachstum startet)",
+          "Winter (Ruhephase)",
+          "Hochsommer (Hitzeperiode)"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Timing Expert-Abzeichen"
+    },
+    {
+      "id": "general_yellowing_leaves",
+      "title": "Gelbe Blätter richtig deuten",
+      "summary": "Gelbe Blätter können viele Ursachen haben. Die richtige Diagnose ist der erste Schritt zur Lösung.",
+      "concept": "Staunässe, Nährstoffmangel, Lichtmangel oder Wurzelschäden kommen in Frage. Das Vergilben von 1–2 alten Blättern am unteren Stängel ist ein normaler Erneuerungsprozess.",
+      "keyTakeaway": "Belohnung: Yellow Decoder-Abzeichen — lese den Zustand deiner Pflanze an den Blättern ab.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was bedeutet es, wenn 1–2 ältere untere Blätter gelb werden?",
+        "options": [
+          "Normaler Erneuerungsprozess der Pflanze",
+          "Ernsthafte Krankheit",
+          "Signal für sofortige Düngung"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Yellow Decoder-Abzeichen"
+    },
+    {
+      "id": "general_drainage_holes",
+      "title": "Abzugslöcher sind unverzichtbar",
+      "summary": "Ein Topf ohne Abzugslöcher erhöht das Risiko von Staunässe erheblich.",
+      "concept": "Ohne Abzugslöcher staut sich überschüssiges Wasser am Topfboden und fault die Wurzeln. Ein hübscher Übertopf ist fein, aber der eigentliche Pflanztopf braucht immer Löcher.",
+      "keyTakeaway": "Belohnung: Drain Guard-Abzeichen — schütze die Grundlage gesunder Wurzeln.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Jeder Pflanztopf braucht Abzugslöcher, um die Wurzeln gesund zu halten.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Drain Guard-Abzeichen"
+    },
+    {
+      "id": "general_root_bound",
+      "title": "Erkennen, wenn eine Pflanze eingewachsen ist",
+      "summary": "Wenn die Wurzeln den Topf ausfüllen, wird Wasser- und Nährstoffaufnahme schwierig.",
+      "concept": "Wurzeln, die aus Abzugslöchern wachsen, Erde die schnell austrocknet oder stagnierendes Wachstum zeigen: Die Pflanze braucht einen größeren Topf.",
+      "keyTakeaway": "Belohnung: Space Maker-Abzeichen — gib den Wurzeln Raum zum Atmen.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welches Zeichen deutet darauf hin, dass eine Pflanze umgetopft werden muss?",
+        "options": [
+          "Wurzeln wachsen aus Abzugslöchern, Wachstum stagniert",
+          "Blätter werden leicht gelblich",
+          "Blätter neigen sich zum Fenster"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Space Maker-Abzeichen"
+    },
+    {
+      "id": "general_watering_method",
+      "title": "Gründlich gießen, dann warten",
+      "summary": "Gründlich gießen bis Wasser abläuft und dann die Erde für die nächste Art trocknen lassen.",
+      "concept": "So lange gießen, bis Wasser aus dem Abzugsloch läuft. Dann je nach Pflanzenart auf das teilweise oder vollständige Abtrocknen der Erde warten.",
+      "keyTakeaway": "Belohnung: Water Wise-Abzeichen — lerne die richtige Gießmethode.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Beim Gießen sollte man so lange gießen, bis Wasser aus dem Abzugsloch austritt.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Water Wise-Abzeichen"
+    },
+    {
+      "id": "general_humidity_tricks",
+      "title": "Einfache Wege, die Luftfeuchtigkeit zu erhöhen",
+      "summary": "Mit einfachen Mitteln kann man für Tropenpflanzen ein angenehmes Feuchtigkeitsklima schaffen.",
+      "concept": "Ein Kies-Wassertablett unter dem Topf, Pflanzen gruppieren oder ein Luftbefeuchter sind wirkungsvolle Methoden. Direktes Besprühen der Blätter ist weniger effektiv und kann Schimmel begünstigen.",
+      "keyTakeaway": "Belohnung: Humidity Hacker-Abzeichen — meistere die Klimakontrolle.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist der effektivste Weg, die Luftfeuchtigkeit im Zimmer zu erhöhen?",
+        "options": [
+          "Luftbefeuchter oder Kies-Wassertablett",
+          "Täglich auf die Blätter sprühen",
+          "Fenster dauerhaft offen lassen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Humidity Hacker-Abzeichen"
+    },
+    {
+      "id": "general_seasonal_light",
+      "title": "Licht verändert sich mit den Jahreszeiten",
+      "summary": "Im Winter ändert sich der Lichtwinkel, sodass Pflanzen eventuell näher ans Fenster müssen.",
+      "concept": "Im Winter steht die Sonne tiefer, Tage sind kürzer und das Licht schwächer. Pflanzen näher ans Fenster rücken oder mit einer Pflanzenlampe ergänzen.",
+      "keyTakeaway": "Belohnung: Season Watcher-Abzeichen — passe dich saisonalen Lichtwechseln an.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Im Winter kann es nötig sein, Pflanzen näher ans Fenster zu rücken, weil das Licht schwächer wird.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Season Watcher-Abzeichen"
+    },
+    {
+      "id": "general_plant_stress",
+      "title": "Wie Pflanzen Stress signalisieren",
+      "summary": "Pflanzen sprechen nicht, aber sie senden viele Zeichen, wenn etwas nicht stimmt.",
+      "concept": "Welke Blätter, Verfärbungen, Blattfall oder stagnierendes Wachstum können auf Probleme mit Licht, Wasser, Temperatur oder Nährstoffen hinweisen. Veränderungen immer einzeln vornehmen.",
+      "keyTakeaway": "Belohnung: Stress Reader-Abzeichen — lerne die Sprache deiner Pflanze.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Warum sollte man beim Diagnostizieren von Pflanzenproblemen immer nur eine Sache auf einmal ändern?",
+        "options": [
+          "Um genau zu wissen, was geholfen hat",
+          "Um schnellere Ergebnisse zu erzielen",
+          "Um Kosten zu sparen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Stress Reader-Abzeichen"
+    },
+    {
+      "id": "general_potting_mix_diy",
+      "title": "Eigene Erde-Mischung zusammenstellen",
+      "summary": "Mit einer auf die Pflanze zugeschnittenen Erde-Mischung erzielt man bessere Ergebnisse.",
+      "concept": "Für Tropenpflanzen: Blumenerde + Perlite (3:1). Für Kakteen/Sukkulenten: Blumenerde + Blähton + Sand (1:1:1). Für Orchideen: Rindenstückchen als Basis. Selber mischen spart Geld.",
+      "keyTakeaway": "Belohnung: Mix Master-Abzeichen — meistere individuelle Erde-Rezepte für verschiedene Pflanzen.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welche Mischung eignet sich für Tropenpflanzen am besten?",
+        "options": [
+          "Blumenerde + Perlite (3:1)",
+          "Nur Sand",
+          "Tonreiche Gartenerde"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Mix Master-Abzeichen"
+    }
+  ],
+  "Basil": [
+    {
+      "id": "basil_sun",
+      "title": "Fensterlicht in der Küche optimal nutzen",
+      "summary": "Basilikum braucht mindestens 6 Stunden Helligkeit am Tag. Ein Südfenster ist ideal.",
+      "concept": "Bei zu wenig Licht werden Blätter klein und geschmacklos. Den hellsten Fensterplatz wählen und bei Bedarf mit einer Pflanzenlampe ergänzen.",
+      "keyTakeaway": "Belohnung: Sun Chaser-Abzeichen — erfülle Basilikums Lichtbedarf.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wie viele Stunden Sonnenlicht braucht Basilikum mindestens pro Tag, um gesund zu wachsen?",
+        "options": [
+          "Mindestens 6 Stunden",
+          "2–3 Stunden",
+          "Es kommt auch ohne Licht aus"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Sun Chaser-Abzeichen"
+    },
+    {
+      "id": "basil_harvest",
+      "title": "Oberhalb von Blattpaaren ernten",
+      "summary": "Richtig geerntet wächst Basilikum buschiger und üppiger nach.",
+      "concept": "Schneide den Stiel direkt über einem Blattpaar ab – dann wachsen zwei neue Triebe nach. Nie mehr als ein Drittel der Pflanze auf einmal ernten.",
+      "keyTakeaway": "Belohnung: Harvest Hero-Abzeichen — ernte richtig für üppiges Basilikum.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Wenn man Basilikum oberhalb eines Blattpaares schneidet, wächst es buschiger nach.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Harvest Hero-Abzeichen"
+    },
+    {
+      "id": "basil_flower",
+      "title": "Blüten frühzeitig entfernen",
+      "summary": "Sobald Basilikum blüht, werden die Blätter bitter. Knospen frühzeitig entfernen.",
+      "concept": "Wenn Basilikum blüht, leitet es seine Energie in die Samenbildung um – die Blätter verlieren an Aroma. Knospen sofort abkneifen, um die Erntesaison zu verlängern.",
+      "keyTakeaway": "Belohnung: Bloom Buster-Abzeichen — halte das Aroma so lange wie möglich.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "Du entdeckst kleine Blütenknospen an der Spitze deines Basilikums. Was tust du?",
+        "options": [
+          "Knospen sofort entfernen",
+          "Hübsch lassen, stehen lassen",
+          "Warten, bis sie verblüht sind, dann ernten"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Bloom Buster-Abzeichen"
+    },
+    {
+      "id": "basil_moisture",
+      "title": "Erde gleichmäßig feucht halten",
+      "summary": "Basilikum mag weder zu trockene noch zu nasse Erde.",
+      "concept": "Wenn die oberste Erdschicht leicht angetrocknet ist, gießen. Staunässe und vollständiges Austrocknen vermeiden. Gleichmäßige Feuchtigkeit sorgt für aromatische Blätter.",
+      "keyTakeaway": "Belohnung: Moisture Master-Abzeichen — finde den richtigen Wasserrhythmus für Basilikum.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Basilikum bevorzugt völlig trockene Erde.",
+        "options": [
+          "Falsch",
+          "Wahr"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Moisture Master-Abzeichen"
+    },
+    {
+      "id": "basil_temperature",
+      "title": "Basilikum vor Kälte schützen",
+      "summary": "Basilikum ist wärmeliebend und sehr empfindlich gegenüber Kälte und Zugluft.",
+      "concept": "Unter 15 °C werden Blätter schwarz und die Pflanze stirbt ab. Weit weg von Klimaanlagen und kalten Fensterscheiben aufstellen.",
+      "keyTakeaway": "Belohnung: Warmth Guardian-Abzeichen — verstehe Basilikums Temperaturempfindlichkeit.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist für Basilikum gefährlich?",
+        "options": [
+          "Kalte Zugluft von der Klimaanlage",
+          "Helles Südfenster",
+          "Warme, gut durchlüftete Küche"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Warmth Guardian-Abzeichen"
+    },
+    {
+      "id": "basil_pests",
+      "title": "Blattläuse und Weiße Fliegen bekämpfen",
+      "summary": "Häufige Schädlinge an Basilikum früh zu entdecken macht die Bekämpfung einfach.",
+      "concept": "Blattunterseiten regelmäßig prüfen. Blattläuse oder Weiße Fliegen mit Wasserstrahl abspritzen oder mit Neem-Öl behandeln. Betroffene Pflanzen isolieren.",
+      "keyTakeaway": "Belohnung: Pest Buster-Abzeichen — lerne Schädlingsmanagement für Kräuter.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wo solltest du bei Basilikum zuerst nach Schädlingen suchen?",
+        "options": [
+          "An den Blattunterseiten",
+          "An der Stängelspitze",
+          "Auf der Erdoberfläche"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Pest Buster-Abzeichen"
+    },
+    {
+      "id": "basil_container",
+      "title": "Den richtigen Topf wählen",
+      "summary": "Ein zu kleiner Topf lässt Basilikum früh blühen. Ausreichend Platz ist wichtig.",
+      "concept": "Töpfe mit mindestens 20 cm Durchmesser sorgen für gleichmäßigeres Austrocknen der Erde und ein länger anhaltendes Wachstum. Mehrere Pflanzen im gleichen Topf konkurrieren und reduzieren den Ertrag.",
+      "keyTakeaway": "Belohnung: Container Coach-Abzeichen — lerne die Wichtigkeit der Topfgröße.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Für eine Basilikumpflanze ist ein Topf mit mindestens 20 cm Durchmesser empfehlenswert.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Container Coach-Abzeichen"
+    },
+    {
+      "id": "basil_varieties",
+      "title": "Die richtige Basilikumsorte wählen",
+      "summary": "Neben dem klassischen Genoveser Basilikum gibt es viele Sorten – für jeden Geschmack.",
+      "concept": "Genoveser Basilikum (Pasta/Pizza), Thai-Basilikum (asiatische Küche), Zitronen-Basilikum (Fisch/Salat), Rotes Basilikum (Deko + Kochen) haben unterschiedliche Aromen.",
+      "keyTakeaway": "Belohnung: Variety Explorer-Abzeichen — entdecke die vielfältige Welt des Basilikums.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welche Basilikumsorte passt am besten zur asiatischen Küche?",
+        "options": [
+          "Thai-Basilikum",
+          "Genoveser Basilikum",
+          "Zitronen-Basilikum"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Variety Explorer-Abzeichen"
+    },
+    {
+      "id": "basil_storage",
+      "title": "Frisch geerntetes Basilikum richtig lagern",
+      "summary": "Richtig gelagert bleibt frisches Basilikum ohne Kühlschrank länger frisch.",
+      "concept": "Basilikumzweige in ein Glas Wasser bei Raumtemperatur stellen – das hält länger als im Kühlschrank. Im Kühlschrank werden die Blätter schnell schwarz.",
+      "keyTakeaway": "Belohnung: Freshness Keeper-Abzeichen — lerne das Geheimnis frischer Kräuter.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wie lagert man frisches Basilikum am besten?",
+        "options": [
+          "In einem Glas Wasser bei Raumtemperatur",
+          "Versiegelt im Gemüsefach des Kühlschranks",
+          "Eingefroren"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Freshness Keeper-Abzeichen"
+    },
+    {
+      "id": "basil_soil",
+      "title": "Nährstoffreiche, gut durchlässige Erde für Basilikum",
+      "summary": "Basilikum wächst am besten in humusreicher, gut durchlässiger Erde.",
+      "concept": "Blumenerde mit 10–20 % Kompost gemischt ist ideal. Schlechte Drainage führt zu Wurzelfäule, zu nährstoffarme Erde zu kleinen, geschmacklosen Blättern.",
+      "keyTakeaway": "Belohnung: Soil Rich-Abzeichen — lerne die Grundlagen der Kräutererde.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Basilikum wächst am besten in humusreicher, gut durchlässiger Erde.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Soil Rich-Abzeichen"
+    },
+    {
+      "id": "basil_rooting",
+      "title": "Basilikumstecklinge im Wasser bewurzeln",
+      "summary": "Basilikumstiele lassen sich ganz einfach im Wasserglas bewurzeln.",
+      "concept": "Einen Trieb von mindestens 10 cm Länge abschneiden, untere Blätter entfernen und ins Wasser stellen. Bei hellem, indirektem Licht treiben nach 2–3 Wochen Wurzeln aus. Dann in Erde umtopfen.",
+      "keyTakeaway": "Belohnung: Water Rooter-Abzeichen — erlebe die Vermehrung von Basilikum.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Basilikumstiele können im Wasser Wurzeln bilden.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Water Rooter-Abzeichen"
+    },
+    {
+      "id": "basil_succession",
+      "title": "Staffelsaat für kontinuierliche Ernte",
+      "summary": "Alle 2–3 Wochen neue Samen aussäen sorgt dauerhaft für frisches Basilikum.",
+      "concept": "Wer alles auf einmal sät, hat einen Engpass. Staffelsaat in regelmäßigen Abständen liefert über viele Monate gleichmäßig frisches Basilikum.",
+      "keyTakeaway": "Belohnung: Succession Star-Abzeichen — lerne nachhaltige Kräuteranbau-Strategien.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wie sorgt man am besten für kontinuierlich frisches Basilikum?",
+        "options": [
+          "Alle 2–3 Wochen neue Samen aussäen",
+          "Alles auf einmal aussäen",
+          "Erst nach der Blüte säen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Succession Star-Abzeichen"
+    },
+    {
+      "id": "basil_companion",
+      "title": "Basilikum neben Tomaten pflanzen",
+      "summary": "Basilikum und Tomaten sind gute Nachbarn – sie profitieren voneinander.",
+      "concept": "Der Duft von Basilikum vertreibt Schädlinge, die Tomaten befallen. Der Schatten der Tomaten schützt Basilikum vor zu starker Mittagssonne. Beide Pflanzen werden langfristig gesünder.",
+      "keyTakeaway": "Belohnung: Companion Planner-Abzeichen — entdecke die Weisheit des Mischanbaus.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Basilikum neben Tomaten zu pflanzen hilft, Schädlinge fernzuhalten.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Companion Planner-Abzeichen"
+    },
+    {
+      "id": "basil_seed_saving",
+      "title": "Samen von der besten Pflanze ernten",
+      "summary": "Aus verblühtem Basilikum Samen zu ernten spart Geld und ermöglicht eigene Sorten zu entwickeln.",
+      "concept": "Warten, bis Blüten verblüht und Samen braun geworden sind, dann ernten. Kühl und trocken in einer Tüte aufbewahren und im nächsten Jahr aussäen.",
+      "keyTakeaway": "Belohnung: Seed Saver-Abzeichen — nachhaltiger Anbau durch eigene Samenernte.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wann ist der beste Zeitpunkt, Basilikumsamen zu ernten?",
+        "options": [
+          "Wenn die Samen vollständig braun und reif sind",
+          "Wenn die Knospen gerade aufgehen",
+          "Wenn die Blätter am üppigsten sind"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Seed Saver-Abzeichen"
+    },
+    {
+      "id": "basil_indoor_winter",
+      "title": "Basilikum im Winter drinnen halten",
+      "summary": "Mit Pflanzenlampe und Wärme lässt sich Basilikum auch im Winter im Zimmer kultivieren.",
+      "concept": "Basilikum verträgt keine Kälte und übersteht draußen keinen Winter. Drinnen mit ausreichend Licht (z. B. Pflanzenlampe) und Wärme kann man das ganze Jahr über frisches Basilikum genießen.",
+      "keyTakeaway": "Belohnung: Winter Grower-Abzeichen — lerne, Kräuter ganzjährig zu kultivieren.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Basilikum kann mit ausreichend Licht und Wärme drinnen überwintern.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Winter Grower-Abzeichen"
+    },
+    {
+      "id": "general_herb_pinching",
+      "title": "Warum Auspinzieren Kräuter buschiger macht",
+      "summary": "Den Wuchspunkt entfernen verteilt Energie auf Seitentriebe – das macht Kräuter dichter.",
+      "concept": "Wenn der Hauptwuchspunkt entfernt wird, wachsen darunter liegende Seitentriebe stärker. Auspinzieren ist gleichzeitig Ernte und Pflege in einem.",
+      "keyTakeaway": "Belohnung: Pinching Pro-Abzeichen — lerne das Geheimnis üppiger Kräuter.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Das Auspinzieren der Krautspitze führt zu mehr Seitentrieben.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Pinching Pro-Abzeichen"
+    },
+    {
+      "id": "general_kitchen_herbs",
+      "title": "Einen Küchenkräutergarten betreiben",
+      "summary": "Ein Kräutergarten auf der Fensterbank liefert immer frische Kräuter direkt beim Kochen.",
+      "concept": "Basilikum, Petersilie, Minze, Schnittlauch auf der hellsten Fensterbank platzieren. Abzugslöcher kontrollieren und auf ausreichend Licht achten.",
+      "keyTakeaway": "Belohnung: Kitchen Garden-Abzeichen — starte deinen Küchenkräutergarten.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Worauf muss man bei einem Küchenkräutergarten am meisten achten?",
+        "options": [
+          "Ausreichend Licht und Drainage",
+          "Täglich düngen",
+          "Die Farbe der Töpfe"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Kitchen Garden-Abzeichen"
+    },
+    {
+      "id": "general_herb_harvest",
+      "title": "Kräuter zum richtigen Zeitpunkt ernten",
+      "summary": "Kräuter schmecken am besten kurz vor der Blüte, wenn das Aroma am stärksten ist.",
+      "concept": "Kurz vor der Blüte ist der Gehalt an ätherischen Ölen am höchsten. Am besten morgens nach dem Abtropfen des Taues ernten.",
+      "keyTakeaway": "Belohnung: Perfect Harvest-Abzeichen — finde den optimalen Erntezeitpunkt.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wann ist das Aroma der Kräuter am intensivsten?",
+        "options": [
+          "Kurz vor der Blüte",
+          "Nach der vollständigen Blüte",
+          "Wenn die Blätter im Herbst fallen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Perfect Harvest-Abzeichen"
+    },
+    {
+      "id": "general_herb_drying",
+      "title": "Kräuter trocknen und Aroma bewahren",
+      "summary": "Richtig getrocknete Kräuter behalten ihr Aroma über viele Monate.",
+      "concept": "Stiele bündeln und kopfüber an einem luftigen, dunklen Ort 1–2 Wochen trocknen lassen. Dann luftdicht in dunklen, kühlen Behältern aufbewahren.",
+      "keyTakeaway": "Belohnung: Herb Dryer-Abzeichen — meistere das Trocknen von Kräutern.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Kopfüber aufgehängte Kräuter trocknen besser und bewahren mehr Aroma.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Herb Dryer-Abzeichen"
+    },
+    {
+      "id": "general_herb_fertilizing",
+      "title": "Kräuter sparsam düngen",
+      "summary": "Zu viel Dünger lässt Kräuter schnell wachsen, aber das Aroma nimmt ab.",
+      "concept": "Das Aroma entsteht durch ätherische Öle, die als Stressreaktion gebildet werden. Viel Dünger bedeutet schnelles Wachstum, aber weniger Aroma. In der Wachstumsphase monatlich in halber Konzentration düngen.",
+      "keyTakeaway": "Belohnung: Light Feeder-Abzeichen — lerne das goldene Verhältnis beim Kräuterdüngen.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Zu viel Dünger kann das Aroma von Kräutern verringern.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Light Feeder-Abzeichen"
+    },
+    {
+      "id": "general_herb_pests",
+      "title": "Biologischer Pflanzenschutz für Kräuter",
+      "summary": "Da Kräuter gegessen werden, ist biologischer Pflanzenschutz besonders wichtig.",
+      "concept": "Seifenwasser-Sprays (verdünnter Naturseife), Neem-Öl oder das manuelle Entfernen von Schädlingen sind wirksame chemiefreie Methoden.",
+      "keyTakeaway": "Belohnung: Organic Guardian-Abzeichen — praktiziere sicheren Kräuteranbau.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist kein biologischer Weg, Kräuterschädlinge zu bekämpfen?",
+        "options": [
+          "Starkes synthetisches Insektizid",
+          "Neem-Öl-Spray",
+          "Blätter mit Seifenwasser abwischen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Organic Guardian-Abzeichen"
+    },
+    {
+      "id": "general_container_drainage",
+      "title": "Drainage im Topf – das Wichtigste",
+      "summary": "Gute Drainage ist die Grundlage für gesunde Kräuter im Topf.",
+      "concept": "Töpfe mit Abzugslöchern und durchlässige Erde verwenden. Untersetzer regelmäßig leeren, um Staunässe zu vermeiden.",
+      "keyTakeaway": "Belohnung: Drain Pro-Abzeichen — schaffe eine gesunde Wurzelumgebung.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Das regelmäßige Leeren des Untersetzers ist wichtig, um Staunässe zu verhindern.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Drain Pro-Abzeichen"
+    },
+    {
+      "id": "general_soil_ph",
+      "title": "Boden-pH und Pflanzengesundheit",
+      "summary": "Die meisten Kräuter gedeihen am besten in leicht saurem Boden (pH 6,0–7,0).",
+      "concept": "Ist der pH zu niedrig oder zu hoch, können Wurzeln Nährstoffe nicht aufnehmen, obwohl diese im Boden vorhanden sind. Handelsübliche Blumenerde ist meistens im richtigen Bereich.",
+      "keyTakeaway": "Belohnung: pH Pal-Abzeichen — verstehe die Bedeutung des Boden-pH.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welcher pH-Bereich ist für die meisten Kräuter ideal?",
+        "options": [
+          "6,0–7,0 (leicht sauer bis neutral)",
+          "4,0–5,0 (stark sauer)",
+          "Über 8,0 (alkalisch)"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "pH Pal-Abzeichen"
+    },
+    {
+      "id": "general_composting",
+      "title": "Kompost verbessert die Erde",
+      "summary": "Kompost in die Erde gemischt liefert langsam Nährstoffe und verbessert die Struktur.",
+      "concept": "Handelsüblicher Kompost oder Wurmkompost zu 10–20 % in die Blumenerde mischen verbessert Wasserhaltung und Nährstoffversorgung gleichzeitig. Wirkt langsamer, aber nachhaltiger als Dünger.",
+      "keyTakeaway": "Belohnung: Compost Champion-Abzeichen — lerne nachhaltige Bodenpflege.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Kompost in die Erde zu mischen verbessert gleichzeitig die Wasserhaltung und die Nährstoffversorgung.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Compost Champion-Abzeichen"
+    },
+    {
+      "id": "general_watering_consistency",
+      "title": "Regelmäßiges Gießen verhindert Stress",
+      "summary": "Pflanzen wachsen am gesündesten, wenn sie einen gleichmäßigen Gießrhythmus haben.",
+      "concept": "Unregelmäßiges Gießen kann bei Tomaten zu Blütenendenfäule oder bei Kräutern zu früher Blüte führen. Ein fester Rhythmus, angepasst an den Bodenzustand, ist entscheidend.",
+      "keyTakeaway": "Belohnung: Consistent Carer-Abzeichen — entwickle deinen Gießrhythmus.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welche Probleme kann unregelmäßiges Gießen verursachen?",
+        "options": [
+          "Blütenendenfäule bei Tomaten, frühe Blüte bei Kräutern",
+          "Blätter werden dunkler grün",
+          "Wurzeln wachsen schneller"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Consistent Carer-Abzeichen"
+    },
+    {
+      "id": "general_south_window",
+      "title": "Das Südfenster optimal nutzen",
+      "summary": "Das Südfenster ist der hellste Platz drinnen – ideal für lichtliebende Pflanzen.",
+      "concept": "Ein Südfenster bekommt den ganzen Tag direktes oder indirektes Licht. Basilikum, Tomaten, Kakteen und Sukkulenten gedeihen hier am besten. Im Sommer kann es zu hell werden – Gardinen können helfen.",
+      "keyTakeaway": "Belohnung: South Window Expert-Abzeichen — nutze die Lichtrichtung optimal.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welches Fenster empfängt in der Regel am meisten Licht?",
+        "options": [
+          "Südfenster",
+          "Nordfenster",
+          "Ostfenster"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "South Window Expert-Abzeichen"
+    },
+    {
+      "id": "general_herb_overwatering",
+      "title": "Staunässe bei Kräuterwurzeln vermeiden",
+      "summary": "Kräuter reagieren sehr empfindlich auf zu viel Wasser. Zu nass kann schnell tödlich sein.",
+      "concept": "Kräutertöpfe brauchen immer Abzugslöcher, und der Untersetzer darf nicht dauerhaft voll stehen. Die Erde sollte sich leicht feucht anfühlen, wenn du gießt.",
+      "keyTakeaway": "Belohnung: Root Protector-Abzeichen — lerne Kräuter vor Staunässe zu schützen.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Im Untersetzer stehendes Wasser sollte sofort ausgeleert werden.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Root Protector-Abzeichen"
+    },
+    {
+      "id": "general_bolting",
+      "title": "Frühe Blüte (Bolting) verstehen und verhindern",
+      "summary": "Wenn Kräuter plötzlich blühen, lässt die Blattqualität nach. Ursachen und Vorbeugung kennenlernen.",
+      "concept": "Bolting wird durch Hitze, Trockenstress oder lange Tage ausgelöst. Kühle, feuchte Bedingungen und frühzeitiges Entfernen der Knospen verlängern die Erntesaison.",
+      "keyTakeaway": "Belohnung: Anti-Bolt Expert-Abzeichen — meistere die Verhinderung von früher Blüte.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was löst bei Kräutern meistens frühes Blühen aus?",
+        "options": [
+          "Hitze, Trockenstress, lange Tage",
+          "Staunässe",
+          "Nährstoffmangel"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Anti-Bolt Expert-Abzeichen"
+    },
+    {
+      "id": "general_organic_pest",
+      "title": "Neem-Öl zur Schädlingsprävention",
+      "summary": "Neem-Öl ist ein sicheres und wirksames biologisches Mittel gegen Schädlinge.",
+      "concept": "Verdünntes Neem-Öl auf Blattober- und unterseiten sprühen schützt vor Blattläusen, Spinnmilben und Weißen Fliegen. Alle 2 Wochen vorbeugend sprühen.",
+      "keyTakeaway": "Belohnung: Neem Ninja-Abzeichen — setze biologischen Pflanzenschutz in die Praxis um.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Alle 2 Wochen vorbeugend mit Neem-Öl zu sprühen kann Schädlinge wirksam fernhalten.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Neem Ninja-Abzeichen"
+    },
+    {
+      "id": "general_herb_season",
+      "title": "Saisongerechte Kräuter wählen",
+      "summary": "Jedes Kraut hat seine Lieblingssaison. Saisongerechte Auswahl ergibt gesündere Pflanzen.",
+      "concept": "Basilikum und Koriander sind Sommerkräuter, Petersilie und Dill eignen sich für Frühling und Herbst, Rosmarin und Thymian können ganzjährig angebaut werden.",
+      "keyTakeaway": "Belohnung: Seasonal Herb Pro-Abzeichen — meistere den saisonalen Kräuteranbau.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welches Kraut gedeiht am besten im Sommer?",
+        "options": [
+          "Basilikum",
+          "Petersilie",
+          "Dill"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Seasonal Herb Pro-Abzeichen"
+    }
+  ],
+  "Tomato": [
+    {
+      "id": "tomato_support",
+      "title": "Fruchtragende Triebe frühzeitig stützen",
+      "summary": "Ohne Stütze können Tomatenstiele das Gewicht reifer Früchte nicht tragen.",
+      "concept": "Schon beim Pflanzen Stützstäbe oder Tomatenkäfige aufstellen. Umgefallene Triebe erhöhen die Krankheitsgefahr und verschlechtern die Fruchtqualität.",
+      "keyTakeaway": "Belohnung: Support Star-Abzeichen — lerne die richtige Tomatenstütze.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Es ist besser, Tomaten von Anfang an zu stützen.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Support Star-Abzeichen"
+    },
+    {
+      "id": "tomato_deep_water",
+      "title": "Tief und seltener gießen",
+      "summary": "Tomaten brauchen tiefes Gießen, damit die Wurzeln tiefer wachsen und widerstandsfähiger werden.",
+      "concept": "Lieber 2–3 Mal pro Woche gründlich gießen, damit Wasser 30 cm tief in die Erde eindringt, als täglich wenig. Tiefe Wurzeln sind dürreresistenter.",
+      "keyTakeaway": "Belohnung: Deep Waterer-Abzeichen — lerne das Gießprinzip für Tomaten.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist beim Gießen von Tomaten am effektivsten?",
+        "options": [
+          "2–3 Mal pro Woche gründlich gießen",
+          "Täglich wenig gießen",
+          "Über die Blätter sprühen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Deep Waterer-Abzeichen"
+    },
+    {
+      "id": "tomato_feeding",
+      "title": "Zur Blütezeit richtig düngen",
+      "summary": "Blühende Tomaten brauchen mehr Phosphor und Kalium, weniger Stickstoff für guten Fruchtansatz.",
+      "concept": "In der Wachstumsphase Universaldünger verwenden, ab der Blüte auf tomatenspeziellen Dünger mit wenig Stickstoff und viel Phosphor/Kalium wechseln.",
+      "keyTakeaway": "Belohnung: Bloom Feeder-Abzeichen — lerne die Düngerstrategie für die Blütezeit.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welcher Dünger eignet sich am besten, wenn Tomaten zu blühen beginnen?",
+        "options": [
+          "Tomatendünger mit viel Phosphor/Kalium",
+          "Stickstoffreicher Wachstumsdünger",
+          "Gar kein Dünger"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Bloom Feeder-Abzeichen"
+    },
+    {
+      "id": "tomato_airflow",
+      "title": "Für gute Luftzirkulation sorgen",
+      "summary": "Ausreichend Platz zwischen Tomatenpflanzen reduziert das Krankheitsrisiko deutlich.",
+      "concept": "Tomaten 60–90 cm auseinander pflanzen. Zu enge Anordnung schränkt die Luftzirkulation ein und begünstigt Pilzkrankheiten wie Kraut- und Braunfäule.",
+      "keyTakeaway": "Belohnung: Airflow Agent-Abzeichen — halte Tomaten durch gute Belüftung gesund.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Zu eng stehende Tomaten erhöhen das Risiko von Pilzkrankheiten.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Airflow Agent-Abzeichen"
+    },
+    {
+      "id": "tomato_pruning",
+      "title": "Geiztriebe entfernen für fokussiertes Wachstum",
+      "summary": "Das Entfernen von Geiztrieben lenkt die Energie der Pflanze von Blättern auf Früchte.",
+      "concept": "Geiztriebe entstehen im Winkel zwischen Haupttrieb und Blattstiel. Frühzeitig von Hand ausbrechen. Besonders wichtig bei unbestimmten (indeterminierten) Sorten.",
+      "keyTakeaway": "Belohnung: Pruning Pro-Abzeichen — meistere das Ausgeizen von Tomaten.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wo wachsen Tomatengeiztriebe?",
+        "options": [
+          "Im Winkel zwischen Haupttrieb und Blattstiel",
+          "An der Blattspitze",
+          "Um die Wurzeln herum"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Pruning Pro-Abzeichen"
+    },
+    {
+      "id": "tomato_pollination",
+      "title": "Bei der Bestäubung nachhelfen",
+      "summary": "Drinnen oder bei wenig Wind kann künstliche Bestäubung den Fruchtansatz verbessern.",
+      "concept": "Wenn Tomatenblüten offen sind, den Blütenstiel sanft schütteln oder eine elektrische Zahnbürste an die Blüte halten, damit der Pollen auf die Narbe gelangt. Besonders ohne Bienen wichtig.",
+      "keyTakeaway": "Belohnung: Pollinator Helper-Abzeichen — lerne Bestäubungsmethoden kennen.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "Deine Zimmertomaten blühen, aber es bilden sich kaum Früchte. Was tust du?",
+        "options": [
+          "Blütenstiele sanft schütteln, um die Bestäubung zu fördern",
+          "Mehr gießen",
+          "Mehr düngen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Pollinator Helper-Abzeichen"
+    },
+    {
+      "id": "tomato_blossom_drop",
+      "title": "Blütenfall bei Tomaten verhindern",
+      "summary": "Wenn Blüten abfallen ohne Früchte zu bilden, liegt es oft an Temperatur oder Ernährung.",
+      "concept": "Häufige Ursachen: Nachtemperatur unter 13 °C oder über 30 °C, zu viel Stickstoff, unzureichende Bewässerung. Stabiles Klima und gleichmäßiges Gießen sind die beste Vorbeugung.",
+      "keyTakeaway": "Belohnung: Blossom Saver-Abzeichen — lerne Ursachen und Lösung des Blütenfalls.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist die häufigste Ursache für Blütenfall bei Tomaten?",
+        "options": [
+          "Zu niedrige oder zu hohe Nachttemperatur",
+          "Staunässe",
+          "Lichtmangel"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Blossom Saver-Abzeichen"
+    },
+    {
+      "id": "tomato_calcium",
+      "title": "Blütenendenfäule mit Kalzium verhindern",
+      "summary": "Blütenendenfäule ist keine Krankheit, sondern ein Kalzium-Aufnahmeproblem.",
+      "concept": "Unregelmäßiges Gießen stört die Kalziumaufnahme und führt zu schwarzen Stellen an der Fruchtunterseite. Regelmäßiges Gießen und Kalzium-Dünger beugen vor.",
+      "keyTakeaway": "Belohnung: Calcium Champion-Abzeichen — schütze Tomaten mit Kalziummanagement.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Blütenendenfäule bei Tomaten entsteht durch gestörte Kalziumaufnahme infolge unregelmäßigen Gießens.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Calcium Champion-Abzeichen"
+    },
+    {
+      "id": "tomato_mulching",
+      "title": "Mulch hält die Feuchtigkeit gleichmäßig",
+      "summary": "Tomatenbeet mulchen hält die Erde feucht, hemmt Unkraut und stabilisiert die Temperatur.",
+      "concept": "Stroh, Holzspäne oder Kompost 5–8 cm dick auflegen reduziert Verdunstung und Temperaturschwankungen. Beugt auch Blütenendenfäule und Krautfäule vor.",
+      "keyTakeaway": "Belohnung: Mulch Master-Abzeichen — lerne die vielfältigen Vorteile des Mulchens.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist der wichtigste Vorteil von Mulch um Tomaten?",
+        "options": [
+          "Feuchtigkeitsspeicherung und Temperaturstabilisierung",
+          "Früchte werden größer",
+          "Schädlinge werden vollständig beseitigt"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Mulch Master-Abzeichen"
+    },
+    {
+      "id": "tomato_types",
+      "title": "Determinate und indeterminate Tomaten",
+      "summary": "Tomatensorten wachsen unterschiedlich, daher variiert auch die Pflege.",
+      "concept": "Determinate Sorten wachsen bis zu einer bestimmten Größe und tragen die Früchte konzentriert. Indeterminate Sorten wachsen durchgehend und liefern die ganze Saison über Früchte.",
+      "keyTakeaway": "Belohnung: Tomato Taxonomist-Abzeichen — lerne Sorteneigenschaften kennen.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welcher Tomatentyp liefert die ganze Saison über kontinuierlich Früchte?",
+        "options": [
+          "Indeterminate (unbestimmte) Sorte",
+          "Determinate (bestimmte) Sorte",
+          "Beide sind gleich"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Tomato Taxonomist-Abzeichen"
+    },
+    {
+      "id": "tomato_transplanting",
+      "title": "Tief pflanzen für starke Wurzeln",
+      "summary": "Tomaten tief zu pflanzen fördert ein kräftiges Wurzelsystem.",
+      "concept": "Bis zu 2/3 des Stängels einpflanzen ist unbedenklich. Am vergrabenen Stängel wachsen neue Wurzeln heraus, die die Pflanze kräftiger und stabiler machen.",
+      "keyTakeaway": "Belohnung: Deep Planter-Abzeichen — lerne das Geheimnis des Tiefpflanzens.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Tomaten tief zu pflanzen fördert die Wurzelbildung.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Deep Planter-Abzeichen"
+    },
+    {
+      "id": "tomato_disease",
+      "title": "Häufige Tomatenkrankheiten früh erkennen",
+      "summary": "Krautfäule und Grauschimmel lassen sich stoppen, wenn man sie früh erkennt.",
+      "concept": "Braune oder schwarze Flecken auf Blättern oder Stängeln, weißer Belag sind Warnsignale. Befallene Blätter sofort entfernen, für bessere Belüftung sorgen, biologische Fungizide anwenden.",
+      "keyTakeaway": "Belohnung: Disease Detector-Abzeichen — lerne frühzeitig zu reagieren.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was sollte man als Erstes tun, wenn man braune Flecken auf Tomatenblättern entdeckt?",
+        "options": [
+          "Befallene Blätter entfernen und für Belüftung sorgen",
+          "Mehr gießen",
+          "Mehr düngen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Disease Detector-Abzeichen"
+    },
+    {
+      "id": "tomato_harvest",
+      "title": "Tomaten zum richtigen Zeitpunkt ernten",
+      "summary": "Farbe und Druckfestigkeit helfen zu erkennen, wann eine Tomate wirklich reif ist.",
+      "concept": "Wenn die sortentypische Farbe vollständig ausgebildet ist und die Frucht beim sanften Drücken leicht nachgibt, ist sie reif. Zu früh geerntete Früchte schmecken fade, zu spät platzen sie.",
+      "keyTakeaway": "Belohnung: Perfect Ripeness-Abzeichen — entwickle ein Gespür für Reife.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Woran erkennt man am besten eine reife Tomate?",
+        "options": [
+          "Vollständige sortentypische Farbe + leichtes Nachgeben beim Drücken",
+          "Warten, bis der Stiel komplett trocknet",
+          "Nur an der Größe"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Perfect Ripeness-Abzeichen"
+    },
+    {
+      "id": "tomato_end_season",
+      "title": "Die Tomatensaison gut abschließen",
+      "summary": "Grüne Tomaten nachreifen lassen und das Beet aufräumen erleichtert das nächste Frühjahr.",
+      "concept": "Grüne Tomaten vor dem ersten Frost ins Haus holen und bei Raumtemperatur nachreifen lassen. Stängel und Blätter kompostieren oder entsorgen. Kranke Pflanzenteile separat entsorgen.",
+      "keyTakeaway": "Belohnung: Season Closer-Abzeichen — meistere den Saisonabschluss.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wie lässt man grüne Tomaten vor dem Frost am besten nachreifen?",
+        "options": [
+          "Drinnen bei Raumtemperatur nachreifen lassen",
+          "Im Kühlschrank lagern",
+          "Den Frost abwarten"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Season Closer-Abzeichen"
+    },
+    {
+      "id": "tomato_companion",
+      "title": "Gute Nachbarpflanzen für Tomaten",
+      "summary": "Manche Pflanzen neben Tomaten helfen bei Schädlingsabwehr und Bodenverbesserung.",
+      "concept": "Basilikum vertreibt Schädlinge, Tagetes hemmt Wurzelnematoden, Möhren verbessern die Bodenstruktur. Fenchel hingegen hemmt das Tomatenwachstum.",
+      "keyTakeaway": "Belohnung: Companion Expert-Abzeichen — entdecke die Weisheit des Mischanbaus.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welche Pflanze neben Tomaten hilft bei der Schädlingsabwehr?",
+        "options": [
+          "Basilikum",
+          "Fenchel",
+          "Koriander"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Companion Expert-Abzeichen"
+    },
+    {
+      "id": "general_vegetable_sun",
+      "title": "Gemüse braucht viel Sonne",
+      "summary": "Die meisten Gemüsesorten benötigen 6–8 Stunden direkte Sonne täglich.",
+      "concept": "Bei zu wenig Sonne werden Triebe lang und dünn, und es bilden sich kaum Früchte. Den Standort so wählen, dass den ganzen Tag Licht auf das Beet fällt.",
+      "keyTakeaway": "Belohnung: Sun Farmer-Abzeichen — lerne den Lichtbedarf von Gemüse kennen.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Wie viele Stunden direktes Sonnenlicht braucht Gemüse täglich?",
+        "options": [
+          "6–8 Stunden",
+          "1–2 Stunden",
+          "Auch ohne Sonne möglich"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Sun Farmer-Abzeichen"
+    },
+    {
+      "id": "general_vegetable_water",
+      "title": "Gemüsebeet richtig bewässern",
+      "summary": "Gleichmäßige Bewässerung ist entscheidend für Qualität und Ertrag im Gemüsegarten.",
+      "concept": "Meist 2–3 Mal pro Woche gründlich gießen. Wasser nah an die Wurzeln statt auf die Blätter bringen, um Krankheiten zu reduzieren. Morgens gießen ist am effizientesten.",
+      "keyTakeaway": "Belohnung: Veggie Waterer-Abzeichen — meistere die Gemüsebewässerung.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Beim Gemüsegießen ist es besser, Wasser an die Wurzeln statt auf die Blätter zu bringen.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Veggie Waterer-Abzeichen"
+    },
+    {
+      "id": "general_vegetable_feed",
+      "title": "Gemüsegarten düngen",
+      "summary": "Je nach Wachstumsphase braucht Gemüse unterschiedliche Nährstoffe.",
+      "concept": "In der Wachstumsphase Stickstoffdünger, in der Blüte- und Fruchtphase Phosphor-/Kaliumdünger. Organische Dünger wirken langsamer, verbessern aber auch die Bodenstruktur.",
+      "keyTakeaway": "Belohnung: Fertilizer Farmer-Abzeichen — lerne phasengerechtes Düngen für Gemüse.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welche Nährstoffe sind in der Blüte- und Fruchtphase am wichtigsten?",
+        "options": [
+          "Phosphor (P) und Kalium (K)",
+          "Nur Stickstoff (N)",
+          "Gar nicht düngen"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Fertilizer Farmer-Abzeichen"
+    },
+    {
+      "id": "general_pest_management",
+      "title": "Schädlinge natürlich bekämpfen",
+      "summary": "Ohne Chemie lassen sich die meisten Gartenschädlinge wirkungsvoll in Schach halten.",
+      "concept": "Manuelles Absammeln, Seifenwasser-Spray, Neem-Öl, Nützlinge (Marienkäfer) einsetzen und Schutznetze aufspannen sind bewährte Methoden. Regelmäßige Kontrolle ist wichtigster Schritt.",
+      "keyTakeaway": "Belohnung: Natural Pest Guard-Abzeichen — setze biologischen Pflanzenschutz um.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist kein biologischer Weg zur Schädlingsbekämpfung?",
+        "options": [
+          "Starkes synthetisches Pestizid",
+          "Neem-Öl-Spray",
+          "Manuelles Absammeln"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Natural Pest Guard-Abzeichen"
+    },
+    {
+      "id": "general_vegetable_harvest",
+      "title": "Häufig ernten erhöht den Ertrag",
+      "summary": "Wer regelmäßig erntet, motiviert die Pflanze, immer wieder neue Früchte zu bilden.",
+      "concept": "Reife Früchte sofort zu ernten ist wichtig. Zu lange an der Pflanze hängen gelassene Früchte lenken die Energie in die Samenreife, statt in neue Blüten und Früchte.",
+      "keyTakeaway": "Belohnung: Frequent Harvester-Abzeichen — verstehe die Wichtigkeit häufiger Ernte.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Häufiges Ernten animiert Gemüsepflanzen, mehr Früchte zu bilden.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Frequent Harvester-Abzeichen"
+    },
+    {
+      "id": "general_succession",
+      "title": "Staffelanbau verlängert die Ernte",
+      "summary": "Alle 2–3 Wochen neu säen sorgt über viele Monate für frisches Gemüse.",
+      "concept": "Salat, Koriander, Basilikum eignen sich gut für Staffelanbau. Alles auf einmal zu säen führt zu einem Erntestau; gestaffelt gesät kommt immer etwas nach.",
+      "keyTakeaway": "Belohnung: Succession Expert-Abzeichen — meistere die Staffelanbau-Strategie.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Für welche Gemüsesorten eignet sich Staffelanbau am besten?",
+        "options": [
+          "Salat, Koriander",
+          "Tomaten",
+          "Kürbis"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Succession Expert-Abzeichen"
+    },
+    {
+      "id": "general_raised_beds",
+      "title": "Vorteile von Hochbeeten",
+      "summary": "Hochbeete erleichtern die Bodenpflege, Drainage und Schädlingsabwehr.",
+      "concept": "Gegenüber dem offenen Boden lässt sich Erde leichter kontrollieren, die Drainage ist besser, der Rücken wird geschont und Schnecken sowie andere Schädlinge haben es schwerer.",
+      "keyTakeaway": "Belohnung: Bed Builder-Abzeichen — lerne die Vorteile von Hochbeeten kennen.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist der größte Vorteil eines Hochbeets?",
+        "options": [
+          "Leichtere Bodenpflege und bessere Drainage",
+          "Man kann größere Pflanzen ziehen",
+          "Kostet weniger"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Bed Builder-Abzeichen"
+    },
+    {
+      "id": "general_soil_amendment",
+      "title": "Gartenboden verbessern",
+      "summary": "Kompost und organische Stoffe machen auch mageren Boden fruchtbar für Gemüse.",
+      "concept": "Kompost, Torf, Vermiculite, Wurmkompost in die Erde einarbeiten verbessert Struktur, Nährstoffgehalt und Wasserhaltefähigkeit gleichzeitig. Vor jeder Saison ergänzen.",
+      "keyTakeaway": "Belohnung: Soil Improver-Abzeichen — lerne die Kunst der Bodenverbesserung.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Jedes Jahr vor der Saison Kompost in die Erde einzuarbeiten verbessert den Gemüseertrag.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Soil Improver-Abzeichen"
+    },
+    {
+      "id": "general_crop_rotation",
+      "title": "Fruchtfolge schützt Boden und Pflanzen",
+      "summary": "Dieselbe Gemüsesorte jedes Jahr an gleicher Stelle zu pflanzen fördert Krankheiten und Schädlinge.",
+      "concept": "Das Grundprinzip der Fruchtfolge: Nie die gleiche Pflanzenfamilie in direkter Folge an die gleiche Stelle pflanzen. Beispiel: Tomaten, dann Bohnen im Folgejahr. Schädlings- und Krankheitszyklen werden unterbrochen.",
+      "keyTakeaway": "Belohnung: Rotation Ranger-Abzeichen — lerne das Prinzip der Fruchtfolge.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist der Hauptvorteil der Fruchtfolge?",
+        "options": [
+          "Unterbrechung von Bodenkrankheits- und Schädlingszyklen",
+          "Sofortige Ertragssteigerung",
+          "Weniger Wasserverbrauch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Rotation Ranger-Abzeichen"
+    },
+    {
+      "id": "general_organic",
+      "title": "Grundprinzipien des biologischen Anbaus",
+      "summary": "Ohne Chemikalien lassen sich gesundes und schmackhaftes Gemüse anbauen.",
+      "concept": "Bio-Anbau setzt auf Bodengesundheit, Förderung der Artenvielfalt und Nutzung natürlicher Ressourcen. Kompost, Mulch, Fruchtfolge und Nützlinge sind die wichtigsten Methoden.",
+      "keyTakeaway": "Belohnung: Organic Farmer-Abzeichen — verstehe die Philosophie des Bio-Anbaus.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Beim biologischen Anbau werden keine chemisch-synthetischen Dünge- und Pflanzenschutzmittel eingesetzt.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Organic Farmer-Abzeichen"
+    },
+    {
+      "id": "general_plant_nutrition",
+      "title": "Wie Pflanzen Nährstoffe verwerten",
+      "summary": "Pflanzen wachsen durch Photosynthese und Nährstoffaufnahme aus dem Boden.",
+      "concept": "Pflanzen nutzen Licht, Wasser und CO₂ für die Photosynthese und nehmen über die Wurzeln Mineralien wie NPK auf. Nur wenn beides stimmt, wachsen sie optimal.",
+      "keyTakeaway": "Belohnung: Plant Nutritionist-Abzeichen — verstehe die Wissenschaft der Pflanzenernährung.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Welche drei Stoffe benötigt eine Pflanze für die Photosynthese?",
+        "options": [
+          "Licht, Wasser, Kohlendioxid",
+          "Erde, Dünger, Wasser",
+          "Luft, Dünger, Wärme"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Plant Nutritionist-Abzeichen"
+    },
+    {
+      "id": "general_mulching",
+      "title": "Warum Mulch jedem Garten hilft",
+      "summary": "Mulch hält Feuchtigkeit, hemmt Unkraut und stabilisiert die Bodentemperatur.",
+      "concept": "Stroh, Holzspäne, Kompost oder Zeitungspapier 5–8 cm dick auflegen reduziert Verdunstung, verhindert Unkrautwachstum und aktiviert Bodenmikroorganismen.",
+      "keyTakeaway": "Belohnung: Mulch Benefit Expert-Abzeichen — lerne die vielfältige Wirkung von Mulch.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was sind die drei wichtigsten Vorteile des Mulchens?",
+        "options": [
+          "Feuchtigkeitsspeicherung, Unkraunthemmung, Temperaturstabilisierung",
+          "Düngereinsparung, Schädlingsbeseitigung, Ertragserhöhung",
+          "Unkrautbeseitigung, Wassereinsparung, Kostensenkung"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Mulch Benefit Expert-Abzeichen"
+    },
+    {
+      "id": "general_irrigation",
+      "title": "Effizientes Bewässerungssystem aufbauen",
+      "summary": "Tröpfchenberegnung oder Bewässerungspläne sparen Wasser und machen Pflanzen gesünder.",
+      "concept": "Tröpfchenbewässerung liefert Wasser direkt an die Wurzeln, minimiert Verdunstung. Timer ermöglichen konsistentes Gießen, Blätter bleiben trocken und Krankheiten werden reduziert.",
+      "keyTakeaway": "Belohnung: Irrigation Innovator-Abzeichen — setze clevere Bewässerung um.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Tröpfchenbewässerung reduziert Wasserverschwendung und versorgt Wurzeln effizient.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Irrigation Innovator-Abzeichen"
+    },
+    {
+      "id": "general_container_veg",
+      "title": "Gemüse im Topf anbauen",
+      "summary": "Im Topf lassen sich Tomaten, Salat, Paprika und viele Kräuter gut anbauen.",
+      "concept": "Ausreichend große Töpfe (mindestens 30 Liter), durchlässige Erde, ausreichend Sonne sowie regelmäßiges Gießen und Düngen sind entscheidend für Container-Gemüse.",
+      "keyTakeaway": "Belohnung: Container Veggie Grower-Abzeichen — meistere den Gemüseanbau im Topf.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "Was ist beim Gemüseanbau im Topf am wichtigsten?",
+        "options": [
+          "Ausreichend große Töpfe mit Drainage",
+          "Die Farbe des Topfes",
+          "Das Topfmaterial (Plastik vs. Ton)"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Container Veggie Grower-Abzeichen"
+    },
+    {
+      "id": "general_end_season_garden",
+      "title": "Gartensaison sauber abschließen",
+      "summary": "Gut aufräumen nach der Saison erleichtert den Start im nächsten Frühjahr erheblich.",
+      "concept": "Abgeerntete Pflanzen entfernen, kranke Blätter separat entsorgen. Erde mit Kompost anreichern und das Beet abdecken – so verbessert sich die Bodenstruktur über den Winter.",
+      "keyTakeaway": "Belohnung: Season Wrap-Up Pro-Abzeichen — meistere den Saisonabschluss im Garten.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "Wahr oder falsch: Kompost nach der Saison in die Erde einzuarbeiten hilft beim Gemüseanbau im nächsten Frühling.",
+        "options": [
+          "Wahr",
+          "Falsch"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Season Wrap-Up Pro-Abzeichen"
+    }
   ]
 }

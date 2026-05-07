@@ -1,8 +1,1684 @@
 {
   "Monstera": [
-    {"id":"monstera_light","title":"강한 직사광선 대신 밝은 간접광","summary":"몬스테라는 잎이 타지 않도록 밝고 부드러운 빛이 드는 자리에서 가장 편안해해요.","concept":"몬스테라는 밝은 간접광에서 가장 안정적으로 자라요. 부드러운 아침 햇살은 괜찮을 수 있지만, 강한 오후 직사광은 잎을 데이게 할 수 있어요.","keyTakeaway":"보상: Leaf Finder 배지 — 실내 빛 루틴을 차분하게 만들어요.","quiz":{"type":"MULTIPLE_CHOICE","prompt":"대부분의 집에서 몬스테라 스타터에게 가장 잘 맞는 빛 환경은 무엇일까요?","options":["창가 근처의 밝은 간접광","하루 종일 강한 베란다 직사광","창문에서 먼 어두운 구석"],"correctAnswerIndex":0},"rewardXp":20,"rewardLabel":"Leaf Finder 배지"},
-    {"id":"monstera_rotation","title":"주기적으로 돌려서 균형 있게 자라게 하기","summary":"화분을 가볍게 돌려 주면 몬스테라가 한쪽으로만 치우치지 않고 더 균형 있게 자라요.","concept":"실내 식물은 가장 강한 빛 쪽으로 자라려 해요. 화분 방향을 바꿔 주면 줄기와 잎이 더 고르게 발달할 수 있어요.","keyTakeaway":"보상: Balanced Canopy 배지 — 더 풍성한 실루엣을 길러 봐요.","quiz":{"type":"TRUE_FALSE","prompt":"참 또는 거짓: 몬스테라를 1~2주마다 돌려 주면 더 고르게 자라는 데 도움이 된다.","options":["True","False"],"correctAnswerIndex":0},"rewardXp":25,"rewardLabel":"Balanced Canopy 배지"},
-    {"id":"monstera_watering","title":"겉흙이 마른 뒤에 물 주기","summary":"몬스테라는 흙이 늘 젖어 있기보다, 흠뻑 주고 조금 쉬는 리듬을 더 좋아해요.","concept":"겉흙이 어느 정도 마른 뒤 다시 물을 주세요. 계속 축축한 흙은 뿌리 스트레스와 잎 노랗게 변함의 위험을 높일 수 있어요.","keyTakeaway":"보상: Root Watch 배지 — 과습으로부터 뿌리를 지켜요.","quiz":{"type":"SCENARIO_CHOICE","prompt":"화분 속 2cm 아래 흙이 아직 촉촉한데, 캘린더에는 물 주는 날이라고 적혀 있어요. 어떻게 하는 게 가장 좋을까요?","options":["조금 더 기다렸다가 다시 확인한 뒤 물을 준다","일정이 더 중요하니 바로 물을 준다","수분 확인 대신 비료를 더 준다"],"correctAnswerIndex":0},"rewardXp":25,"rewardLabel":"Root Watch 배지"},
-    {"id":"monstera_support","title":"오를 수 있도록 지지대 주기","summary":"지지대나 수태봉은 몬스테라가 축 처지기보다 더 자연스럽게 오르며 자라도록 도와줘요.","concept":"몬스테라는 원래 타고 오르는 식물이에요. 지지대는 더 큰 잎과 정돈된 성장 습관을 만드는 데 도움을 줄 수 있어요.","keyTakeaway":"보상: Climber Coach 배지 — 더 강한 성장 습관을 길러요.","quiz":{"type":"MULTIPLE_CHOICE","prompt":"자라는 몬스테라에 지지대를 추가하는 이유는 무엇일까요?","options":["원래의 climbing 성장 습관을 돕기 위해","흙을 항상 젖게 유지하기 위해","빛이 없어도 자라게 하기 위해"],"correctAnswerIndex":0},"rewardXp":30,"rewardLabel":"Climber Coach 배지"}
+    {
+      "id": "monstera_light",
+      "title": "창가의 부드러운 빛 활용하기",
+      "summary": "몬스테라는 잎이 타지 않도록 밝은 간접광 자리에서 가장 편안하게 자라요.",
+      "concept": "몬스테라는 밝은 간접광에서 가장 잘 자라요. 부드러운 아침 햇살은 괜찮지만, 강렬한 오후 직사광은 잎을 데이게 할 수 있어요.",
+      "keyTakeaway": "보상: Leaf Finder 배지 — 실내 빛 루틴을 차분하게 만들어요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "대부분의 집에서 몬스테라에게 가장 알맞은 빛 환경은 무엇일까요?",
+        "options": [
+          "창가 근처의 밝은 간접광",
+          "하루 종일 강한 베란다 직사광",
+          "창문에서 먼 어두운 구석"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Leaf Finder 배지"
+    },
+    {
+      "id": "monstera_rotation",
+      "title": "균형 있는 성장을 위해 화분 돌리기",
+      "summary": "매주 화분을 살짝 돌려 주면 몬스테라가 한쪽으로만 기울지 않고 더 고르게 자라요.",
+      "concept": "실내 식물은 가장 강한 빛 쪽으로 자라려 해요. 화분을 정기적으로 돌려 주면 줄기와 잎이 더 균형 있게 발달할 수 있어요.",
+      "keyTakeaway": "보상: Balanced Canopy 배지 — 더 풍성한 실루엣을 길러 봐요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 몬스테라를 1~2주마다 돌려 주면 더 고르게 자라는 데 도움이 된다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Balanced Canopy 배지"
+    },
+    {
+      "id": "monstera_watering",
+      "title": "겉흙이 마른 뒤에 물 주기",
+      "summary": "몬스테라는 흙이 늘 젖어 있기보다, 흠뻑 주고 조금 쉬는 리듬을 더 좋아해요.",
+      "concept": "겉흙이 어느 정도 마른 뒤 다시 물을 주세요. 계속 축축한 흙은 뿌리 스트레스와 잎이 노래지는 위험을 높일 수 있어요.",
+      "keyTakeaway": "보상: Root Watch 배지 — 과습으로부터 뿌리를 지켜요.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "화분 속 2cm 아래 흙이 아직 촉촉한데, 캘린더에 물 주는 날이라고 표시되어 있어요. 어떻게 하는 게 좋을까요?",
+        "options": [
+          "조금 더 기다렸다가 다시 확인한 뒤 물을 준다",
+          "일정이 더 중요하니 바로 물을 준다",
+          "수분 확인 대신 비료를 더 준다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Root Watch 배지"
+    },
+    {
+      "id": "monstera_support",
+      "title": "자라는 잎에 지지대 달아 주기",
+      "summary": "몬스테라는 원래 나무를 타고 오르는 식물이에요. 지지대를 달아 주면 잎이 더 크고 건강하게 자라요.",
+      "concept": "이끼 기둥이나 지지대가 있으면 몬스테라가 기어오를 수 있어요. 덩굴식물처럼 위로 자라면 잎이 더 커지고 멋진 구멍(페네스트레이션)도 잘 생겨요.",
+      "keyTakeaway": "보상: Climber 배지 — 식물의 자연스러운 성장 방식을 존중해 봐요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "몬스테라에 이끼 기둥이나 지지대를 달면 어떤 점이 좋을까요?",
+        "options": [
+          "잎이 더 크게 자라고 페네스트레이션이 잘 생긴다",
+          "물을 더 자주 줘야 한다",
+          "직사광이 필요해진다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Climber 배지"
+    },
+    {
+      "id": "monstera_humidity",
+      "title": "습도를 제대로 높이는 방법",
+      "summary": "열대 원산인 몬스테라는 습한 환경을 좋아하지만, 방법이 중요해요.",
+      "concept": "습도를 높이는 가장 효과적인 방법은 주변에 물 담긴 자갈 쟁반을 두거나 가습기를 사용하는 거예요. 잎에 직접 분무하는 건 곰팡이 위험이 있어요.",
+      "keyTakeaway": "보상: Humidity Hero 배지 — 열대 식물에게 딱 맞는 환경을 만들어요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "몬스테라의 습도를 높이는 가장 안전한 방법은 무엇일까요?",
+        "options": [
+          "자갈 쟁반에 물을 담아 화분 아래 놓기",
+          "매일 잎에 직접 분무하기",
+          "화분 위에 비닐봉지 씌우기"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Humidity Hero 배지"
+    },
+    {
+      "id": "monstera_soil_mix",
+      "title": "물 빠짐 좋은 흙 고르기",
+      "summary": "적절한 배수 흙은 몬스테라 뿌리가 숨 쉴 수 있게 해주고, 과습을 막아줘요.",
+      "concept": "일반 배양토에 퍼라이트나 난석을 섞어 주면 배수력이 높아져요. 몬스테라는 뿌리에 산소가 잘 공급되는 통기성 좋은 흙을 좋아해요.",
+      "keyTakeaway": "보상: Soil Savvy 배지 — 뿌리 건강의 기초를 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 몬스테라에는 퍼라이트를 섞은 배수 좋은 흙이 일반 정원 흙보다 더 적합하다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Soil Savvy 배지"
+    },
+    {
+      "id": "monstera_repotting",
+      "title": "뿌리가 꽉 찼을 때 분갈이하기",
+      "summary": "뿌리가 배수 구멍 밖으로 나오거나 성장이 느려지면 분갈이가 필요하다는 신호예요.",
+      "concept": "1~2년에 한 번, 봄에 현재 화분보다 약 5cm 큰 화분으로 옮겨 심어요. 너무 큰 화분은 오히려 과습 위험을 높일 수 있어요.",
+      "keyTakeaway": "보상: Fresh Start 배지 — 적시에 분갈이해서 성장을 도와요.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "몬스테라 뿌리가 화분 밑 배수 구멍 밖으로 나왔어요. 어떻게 해야 할까요?",
+        "options": [
+          "5cm 더 큰 화분으로 분갈이한다",
+          "같은 화분에 그냥 둔다",
+          "물을 더 자주 준다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Fresh Start 배지"
+    },
+    {
+      "id": "monstera_leaf_cleaning",
+      "title": "잎을 닦아 빛 흡수 늘리기",
+      "summary": "잎 표면의 먼지를 닦아 주면 광합성 효율이 높아지고 잎이 빛나 보여요.",
+      "concept": "축축한 부드러운 천으로 잎 앞면을 살살 닦아 주세요. 잎 뒷면도 닦으면 기공이 막히지 않아 더 좋아요.",
+      "keyTakeaway": "보상: Shine Master 배지 — 광합성 최적화 루틴을 만들어요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 몬스테라 잎을 정기적으로 닦으면 광합성 능력이 향상된다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Shine Master 배지"
+    },
+    {
+      "id": "monstera_fenestration",
+      "title": "몬스테라 잎에 구멍이 생기는 이유",
+      "summary": "그 독특한 구멍들은 장식이 아니라 열대 환경에 적응한 생존 전략이에요.",
+      "concept": "페네스트레이션(잎의 구멍)은 바람이 강한 우림에서 폭풍을 견디고, 아래 잎에도 빛이 투과되도록 진화한 특성이에요. 성장하면서 자연스럽게 생겨요.",
+      "keyTakeaway": "보상: Fenestration Fan 배지 — 자연의 영리한 설계를 이해해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "몬스테라 잎에 구멍이 생기는 주된 이유는 무엇일까요?",
+        "options": [
+          "바람을 견디고 빛을 아래로 통과시키기 위해",
+          "물을 더 잘 저장하기 위해",
+          "해충을 막기 위해"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Fenestration Fan 배지"
+    },
+    {
+      "id": "monstera_aerial_roots",
+      "title": "공중 뿌리를 잘 활용하기",
+      "summary": "공중 뿌리는 자르지 말고, 이끼 기둥이나 흙으로 유도하면 더 건강하게 자라요.",
+      "concept": "공중 뿌리는 자연 속에서 나무를 잡는 역할을 해요. 실내에서는 이끼 기둥에 감거나 흙 속으로 유도해 영양 흡수를 도울 수 있어요.",
+      "keyTakeaway": "보상: Root Whisperer 배지 — 공중 뿌리의 역할을 이해해요.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "몬스테라의 공중 뿌리가 화분 밖으로 길게 나왔어요. 어떻게 하는 게 좋을까요?",
+        "options": [
+          "이끼 기둥이나 흙으로 유도한다",
+          "보기 흉하니 잘라 낸다",
+          "물통에 담가 수경 재배로 전환한다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Root Whisperer 배지"
+    },
+    {
+      "id": "monstera_winter_care",
+      "title": "겨울에는 케어를 줄여야 해요",
+      "summary": "몬스테라는 겨울에 성장이 느려져요. 물과 비료를 줄여서 뿌리 문제를 예방하세요.",
+      "concept": "기온이 낮아지고 빛이 줄어드는 겨울에는 몬스테라 성장이 거의 멈춰요. 물 주기 간격을 늘리고, 비료는 봄까지 주지 않는 게 좋아요.",
+      "keyTakeaway": "보상: Seasonal Wisdom 배지 — 계절에 맞춘 케어 리듬을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 겨울에는 몬스테라 물 주기 횟수를 줄이는 게 좋다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Seasonal Wisdom 배지"
+    },
+    {
+      "id": "monstera_pests",
+      "title": "흔한 해충 발견하고 관리하기",
+      "summary": "깍지벌레와 응애 같은 해충은 일찍 발견할수록 피해를 최소화할 수 있어요.",
+      "concept": "잎 뒷면과 줄기 연결 부분을 정기적으로 확인하세요. 끈적한 물질이나 거미줄이 보이면 알코올로 닦거나 님 오일로 처리하세요.",
+      "keyTakeaway": "보상: Pest Patrol 배지 — 정기 점검으로 해충을 초기에 잡아요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "몬스테라 해충을 조기 발견하는 가장 좋은 방법은 무엇일까요?",
+        "options": [
+          "잎 뒷면과 줄기를 정기적으로 확인하기",
+          "물을 더 많이 주기",
+          "직사광에 내놓기"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Pest Patrol 배지"
+    },
+    {
+      "id": "monstera_fertilizing",
+      "title": "성장 시기에 비료 주기",
+      "summary": "봄부터 여름까지 비료를 주면 몬스테라가 더 크고 건강한 잎을 만들 수 있어요.",
+      "concept": "성장이 활발한 봄~여름에 2~4주마다 균형 잡힌 액체 비료를 절반 농도로 줘요. 가을·겨울에는 쉬게 해주세요.",
+      "keyTakeaway": "보상: Feeding Pro 배지 — 계절에 맞는 비료 루틴을 만들어요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "몬스테라 비료 주기에 가장 적합한 시기는 언제일까요?",
+        "options": [
+          "봄과 여름 성장기",
+          "가을과 겨울 휴면기",
+          "연중 매주"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Feeding Pro 배지"
+    },
+    {
+      "id": "monstera_root_health",
+      "title": "건강한 뿌리가 건강한 식물을 만들어요",
+      "summary": "가끔 뿌리 상태를 확인하면 문제를 일찍 발견하고 식물을 오래 키울 수 있어요.",
+      "concept": "분갈이할 때 뿌리를 살펴보세요. 건강한 뿌리는 흰색이나 연한 갈색이에요. 물컹거리거나 어두운 색이면 뿌리 썩음일 수 있으니 잘라내고 새 흙에 옮겨 심어요.",
+      "keyTakeaway": "보상: Root Doctor 배지 — 뿌리 건강 체크를 익혀요.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "분갈이 중에 뿌리 일부가 물컹하고 검게 변한 것을 발견했어요. 어떻게 하나요?",
+        "options": [
+          "검게 변한 뿌리를 잘라내고 새 흙에 심는다",
+          "물을 더 많이 준다",
+          "그냥 같은 화분에 다시 심는다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Root Doctor 배지"
+    },
+    {
+      "id": "monstera_growth_pace",
+      "title": "현실적인 성장 기대치 갖기",
+      "summary": "몬스테라는 빠른 식물이 아니에요. 계절과 환경에 따라 성장 속도가 달라요.",
+      "concept": "성장기에는 월 1~2장의 새 잎이 평균적이에요. 겨울에는 거의 성장하지 않아도 정상이에요. 갑자기 빨리 자라게 하려고 비료를 과하게 주면 오히려 역효과가 날 수 있어요.",
+      "keyTakeaway": "보상: Patience Plant 배지 — 자연의 속도를 존중해요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 몬스테라가 겨울에 새 잎을 거의 내지 않는 건 정상이다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Patience Plant 배지"
+    },
+    {
+      "id": "general_soil_drainage",
+      "title": "흙의 배수가 왜 중요한가",
+      "summary": "물 빠짐이 나쁜 흙은 뿌리를 질식시키고 식물 전체를 망칠 수 있어요.",
+      "concept": "배수가 좋은 흙은 여분의 물이 빠르게 빠져나가 뿌리가 산소를 충분히 받을 수 있게 해줘요. 퍼라이트, 난석, 굵은 모래를 섞으면 배수력을 크게 높일 수 있어요.",
+      "keyTakeaway": "보상: Drainage Defender 배지 — 건강한 흙의 기초를 배워요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "흙의 배수를 개선하는 가장 좋은 재료는 무엇일까요?",
+        "options": [
+          "퍼라이트나 굵은 모래",
+          "고운 점토질 흙",
+          "이끼만 가득 넣기"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Drainage Defender 배지"
+    },
+    {
+      "id": "general_overwatering",
+      "title": "과습 징후를 일찍 알아채기",
+      "summary": "과습은 관수 부족보다 식물을 더 빨리 죽이는 가장 흔한 실수예요.",
+      "concept": "잎이 노랗게 변하거나 물렁물렁해지고, 흙에서 퀴퀴한 냄새가 나면 과습을 의심하세요. 조치: 물 주기를 멈추고, 화분을 빛이 잘 드는 곳으로 옮기고, 필요하면 뿌리를 확인하세요.",
+      "keyTakeaway": "보상: Overwater Detector 배지 — 조기 징후를 읽어요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "과습의 가장 흔한 초기 징후는 무엇일까요?",
+        "options": [
+          "잎이 노랗게 변하고 흙에서 냄새가 남",
+          "잎 끝이 갈색으로 타들어감",
+          "잎이 안으로 말림"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Overwater Detector 배지"
+    },
+    {
+      "id": "general_underwatering",
+      "title": "물 부족 신호 읽기",
+      "summary": "식물이 목마를 때 보내는 신호를 알면 제때 물을 줄 수 있어요.",
+      "concept": "잎이 시들거나 안으로 말리고, 흙이 화분 가장자리에서 떨어질 정도로 바짝 마르면 물 부족이에요. 흘러넘칠 때까지 충분히 물을 준 뒤 배수시키세요.",
+      "keyTakeaway": "보상: Thirst Spotter 배지 — 식물의 물 신호를 잡아요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 잎이 시들고 흙이 바짝 마르면 물 부족의 신호이다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Thirst Spotter 배지"
+    },
+    {
+      "id": "general_light_intensity",
+      "title": "실내 빛 세기 이해하기",
+      "summary": "실내 빛은 밖과 매우 달라요. 식물마다 필요한 빛의 양도 각각 달라요.",
+      "concept": "밝은 간접광은 창 1~2m 이내, 낮은 광도는 방 안쪽이에요. 광도계나 스마트폰 앱으로 측정하면 더 정확해요.",
+      "keyTakeaway": "보상: Light Literacy 배지 — 식물에게 맞는 자리를 찾아요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "실내 '밝은 간접광'은 일반적으로 어떤 위치를 의미할까요?",
+        "options": [
+          "창문에서 1~2m 이내",
+          "방 한가운데",
+          "직사광이 내리쬐는 창가 바로 앞"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Light Literacy 배지"
+    },
+    {
+      "id": "general_fertilizer_basics",
+      "title": "비료 성분 NPK 쉽게 이해하기",
+      "summary": "NPK는 질소·인산·칼륨의 약자로, 식물 성장에 각각 다른 역할을 해요.",
+      "concept": "질소(N)는 잎과 줄기 성장, 인(P)은 뿌리와 꽃, 칼륨(K)은 전반적인 면역과 수분 균형을 도와요. 균형 잡힌 비율(예: 10-10-10)은 대부분의 관엽식물에 좋아요.",
+      "keyTakeaway": "보상: Nutrient Nerd 배지 — 비료의 기본을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "비료 성분 중 잎과 줄기 성장을 주로 담당하는 것은?",
+        "options": [
+          "질소(N)",
+          "인(P)",
+          "칼륨(K)"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Nutrient Nerd 배지"
+    },
+    {
+      "id": "general_propagation_stem",
+      "title": "줄기 꺾꽂이 기초",
+      "summary": "줄기 꺾꽂이는 식물을 늘리는 가장 쉬운 방법 중 하나예요.",
+      "concept": "건강한 줄기를 마디 아래에서 잘라 물이나 촉촉한 흙에 꽂아요. 직접 빛을 피해 따뜻한 곳에 두면 2~4주 안에 뿌리가 내려요.",
+      "keyTakeaway": "보상: Propagation Pro 배지 — 식물 번식의 첫걸음을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 줄기 꺾꽂이를 물에 꽂아 뿌리를 내릴 수 있다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Propagation Pro 배지"
+    },
+    {
+      "id": "general_repotting_season",
+      "title": "어떤 식물이든 분갈이 적기",
+      "summary": "봄은 대부분의 식물에게 분갈이하기 가장 좋은 시기예요.",
+      "concept": "성장이 시작되는 봄에 분갈이하면 뿌리가 새 흙에 빠르게 적응할 수 있어요. 겨울 휴면기에는 분갈이를 피하는 게 좋아요.",
+      "keyTakeaway": "보상: Timing Expert 배지 — 분갈이 타이밍을 마스터해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "분갈이에 가장 적합한 계절은 언제일까요?",
+        "options": [
+          "봄 (성장이 시작될 때)",
+          "겨울 (휴면기)",
+          "한여름 (무더위)"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Timing Expert 배지"
+    },
+    {
+      "id": "general_yellowing_leaves",
+      "title": "잎이 노래지는 원인 파악하기",
+      "summary": "노란 잎은 원인이 다양해요. 올바른 진단이 해결의 첫걸음이에요.",
+      "concept": "과습, 영양 부족, 빛 부족, 뿌리 손상 등 다양한 원인이 있어요. 가장 오래된 (아래쪽) 잎 1~2장이 노래지는 건 자연스러운 잎 갱신 과정이에요.",
+      "keyTakeaway": "보상: Yellow Decoder 배지 — 잎 색깔로 식물 상태를 읽어요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "아래쪽 오래된 잎 1~2장이 노래지는 건 무엇을 의미할까요?",
+        "options": [
+          "자연스러운 잎 갱신 과정",
+          "심각한 질병",
+          "즉시 비료가 필요하다는 신호"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Yellow Decoder 배지"
+    },
+    {
+      "id": "general_drainage_holes",
+      "title": "배수 구멍이 항상 있어야 하는 이유",
+      "summary": "배수 구멍이 없는 화분은 과습의 위험이 훨씬 높아요.",
+      "concept": "배수 구멍이 없으면 여분의 물이 흙 아래에 고여 뿌리가 썩을 수 있어요. 예쁜 커버 포트는 괜찮지만, 실제 화분에는 반드시 구멍이 있어야 해요.",
+      "keyTakeaway": "보상: Drain Guard 배지 — 건강한 뿌리의 기본을 지켜요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 모든 화분에는 배수 구멍이 있어야 건강한 뿌리를 유지할 수 있다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Drain Guard 배지"
+    },
+    {
+      "id": "general_root_bound",
+      "title": "뿌리가 꽉 찼다는 신호 알기",
+      "summary": "뿌리가 화분을 가득 채우면 물과 영양 흡수가 어려워져요.",
+      "concept": "뿌리가 배수 구멍으로 나오거나, 물 줘도 금방 마르거나, 성장이 정체된다면 화분이 너무 작은 거예요. 한 사이즈 큰 화분으로 옮겨 줄 때예요.",
+      "keyTakeaway": "보상: Space Maker 배지 — 뿌리에게 새 공간을 줘요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "식물이 분갈이가 필요하다는 신호는 무엇인가요?",
+        "options": [
+          "뿌리가 배수 구멍 밖으로 나오고 성장이 정체됨",
+          "잎이 약간 노랗게 변함",
+          "잎이 창가를 향해 기울어짐"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Space Maker 배지"
+    },
+    {
+      "id": "general_watering_method",
+      "title": "충분히 주고 완전히 기다리기",
+      "summary": "흘러넘칠 때까지 물을 주고, 완전히 마를 때까지 기다리는 방식이 대부분의 식물에 맞아요.",
+      "concept": "화분 아래로 물이 흘러나올 때까지 충분히 주세요. 다음에 줄 때는 흙 종류에 맞게 겉흙이나 절반 정도 마를 때까지 기다려요.",
+      "keyTakeaway": "보상: Water Wise 배지 — 올바른 물 주기 방식을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 식물에 물을 줄 때는 배수 구멍으로 물이 흘러나올 때까지 충분히 주는 게 좋다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Water Wise 배지"
+    },
+    {
+      "id": "general_humidity_tricks",
+      "title": "쉽게 습도 높이는 방법",
+      "summary": "간단한 방법으로 열대 식물이 좋아하는 습도 환경을 만들 수 있어요.",
+      "concept": "자갈 쟁반에 물을 담거나, 식물을 그룹핑하거나, 가습기를 사용하면 효과적으로 습도를 높일 수 있어요. 잎에 직접 분무하는 것은 일시적이라 그다지 효과적이지 않아요.",
+      "keyTakeaway": "보상: Humidity Hacker 배지 — 환경 제어 스킬을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "실내 습도를 높이는 가장 효과적인 방법은?",
+        "options": [
+          "가습기 사용 또는 자갈 쟁반 활용",
+          "잎에 매일 분무하기",
+          "창문을 항상 열어 두기"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Humidity Hacker 배지"
+    },
+    {
+      "id": "general_seasonal_light",
+      "title": "계절에 따라 달라지는 실내 빛",
+      "summary": "겨울에는 빛의 각도와 강도가 달라지니, 식물 자리를 조정해야 할 수 있어요.",
+      "concept": "겨울에는 태양 고도가 낮아 빛이 더 약하고 낮이 짧아져요. 식물을 창가에 더 가까이 옮기거나 성장 조명을 보조로 사용하는 것을 고려해 보세요.",
+      "keyTakeaway": "보상: Season Watcher 배지 — 계절별 빛 변화에 맞춰요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 겨울에는 실내 빛이 약해져 식물을 창가에 더 가까이 옮겨야 할 수 있다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Season Watcher 배지"
+    },
+    {
+      "id": "general_plant_stress",
+      "title": "식물이 스트레스를 표현하는 방법",
+      "summary": "식물은 말하지 못하지만 다양한 신호로 상태를 알려줘요.",
+      "concept": "시들음, 잎 변색, 낙엽, 성장 정체 등은 빛·물·온도·영양 중 무언가가 맞지 않는다는 신호예요. 변화는 한 번에 하나씩만 해야 원인을 정확히 파악할 수 있어요.",
+      "keyTakeaway": "보상: Stress Reader 배지 — 식물의 언어를 이해해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "식물 문제를 진단할 때 한 번에 한 가지만 바꿔야 하는 이유는?",
+        "options": [
+          "어떤 변화가 효과가 있었는지 정확히 알기 위해",
+          "더 빠른 결과를 얻기 위해",
+          "비용을 아끼기 위해"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Stress Reader 배지"
+    },
+    {
+      "id": "general_potting_mix_diy",
+      "title": "나만의 최적 흙 배합 만들기",
+      "summary": "식물 종류에 맞게 흙을 직접 배합하면 더 건강하게 키울 수 있어요.",
+      "concept": "열대 관엽식물엔 배양토+퍼라이트(3:1), 다육식물엔 배양토+난석+모래(1:1:1), 난초엔 수피(bark)를 베이스로 써요. 직접 배합하면 비용도 절약돼요.",
+      "keyTakeaway": "보상: Mix Master 배지 — 식물별 맞춤 흙 배합을 마스터해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "열대 관엽식물에 적합한 흙 배합은?",
+        "options": [
+          "배양토+퍼라이트 (3:1)",
+          "모래만 사용",
+          "점토 위주의 정원 흙"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Mix Master 배지"
+    }
+  ],
+  "Basil": [
+    {
+      "id": "basil_sun",
+      "title": "창가 햇빛 최대한 활용하기",
+      "summary": "바질은 하루 6시간 이상 밝은 햇빛이 필요해요. 남향 창가가 가장 이상적이에요.",
+      "concept": "빛이 부족한 바질은 잎이 작고 맛이 연해져요. 창가 중에서도 가장 밝은 자리를 선택하고, 빛이 부족하면 식물등을 보조로 활용해요.",
+      "keyTakeaway": "보상: Sun Chaser 배지 — 바질의 빛 요구를 충족시켜요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "실내에서 바질을 건강하게 키우려면 하루 최소 몇 시간의 햇빛이 필요할까요?",
+        "options": [
+          "6시간 이상",
+          "2~3시간",
+          "빛이 없어도 괜찮다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Sun Chaser 배지"
+    },
+    {
+      "id": "basil_harvest",
+      "title": "잎 쌍 위에서 수확하기",
+      "summary": "제대로 수확하면 바질이 더 무성하고 풍성하게 자라요.",
+      "concept": "잎 쌍 바로 위에서 줄기를 자르면 두 개의 새 가지가 자라 더 풍성해져요. 한 번에 전체의 1/3 이상 수확하지 않는 게 좋아요.",
+      "keyTakeaway": "보상: Harvest Hero 배지 — 올바른 수확으로 풍성한 바질을 만들어요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 잎 쌍 위에서 바질을 자르면 더 풍성하게 자란다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Harvest Hero 배지"
+    },
+    {
+      "id": "basil_flower",
+      "title": "꽃이 피기 전에 따야 해요",
+      "summary": "꽃이 피면 잎 맛이 쓴맛으로 변해요. 꽃봉오리를 일찍 제거하세요.",
+      "concept": "바질은 꽃이 피면 에너지를 씨앗으로 보내 잎 맛이 약해져요. 꽃봉오리를 발견하면 바로 떼어내 잎 수확 기간을 늘리세요.",
+      "keyTakeaway": "보상: Bloom Buster 배지 — 바질을 오래 맛있게 키워요.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "바질 꼭대기에 작은 꽃봉오리가 보였어요. 어떻게 하나요?",
+        "options": [
+          "꽃봉오리를 바로 떼어낸다",
+          "예쁘니까 그냥 둔다",
+          "꽃이 핀 뒤에 더 많이 수확한다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Bloom Buster 배지"
+    },
+    {
+      "id": "basil_moisture",
+      "title": "흙을 고르게 촉촉하게 유지하기",
+      "summary": "바질은 흙이 너무 마르거나 너무 젖는 것 둘 다 싫어해요.",
+      "concept": "겉흙이 살짝 마르면 물을 주세요. 과습도, 완전히 마르는 것도 피해요. 바질은 물에 일관성이 있을 때 가장 맛있는 잎을 만들어요.",
+      "keyTakeaway": "보상: Moisture Master 배지 — 바질의 물 리듬을 찾아요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 바질은 완전히 건조한 흙을 좋아한다.",
+        "options": [
+          "거짓",
+          "참"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Moisture Master 배지"
+    },
+    {
+      "id": "basil_temperature",
+      "title": "바질을 추위에서 보호하기",
+      "summary": "바질은 따뜻한 허브예요. 낮은 온도와 찬바람에 매우 약해요.",
+      "concept": "바질은 15°C 이하에서 잎이 검게 변하고 죽어요. 에어컨 바람이나 차가운 창문 유리에서 멀리 두세요.",
+      "keyTakeaway": "보상: Warmth Guardian 배지 — 바질의 온도 민감성을 이해해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "바질에게 위험한 환경은 무엇일까요?",
+        "options": [
+          "에어컨 찬바람 아래",
+          "밝은 남향 창가",
+          "따뜻하고 통풍 좋은 주방"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Warmth Guardian 배지"
+    },
+    {
+      "id": "basil_pests",
+      "title": "진딧물과 온실가루이 다루기",
+      "summary": "바질의 흔한 해충을 일찍 발견하면 금방 없앨 수 있어요.",
+      "concept": "잎 뒷면을 확인하고 진딧물이나 흰 가루이 성충이 보이면 물로 씻어내거나 님 오일로 처리하세요. 주변 식물에 옮기지 않도록 격리도 중요해요.",
+      "keyTakeaway": "보상: Pest Buster 배지 — 허브 해충 관리를 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "바질에서 해충을 가장 먼저 확인해야 할 곳은?",
+        "options": [
+          "잎 뒷면",
+          "줄기 맨 위",
+          "흙 위"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Pest Buster 배지"
+    },
+    {
+      "id": "basil_container",
+      "title": "적당한 크기의 화분 선택하기",
+      "summary": "너무 작은 화분은 바질이 꽃을 빨리 피우게 해요. 적당한 공간이 필요해요.",
+      "concept": "지름 20cm 이상의 화분을 쓰면 흙이 더 고르게 마르고 바질이 더 오래 자랄 수 있어요. 여러 포기를 함께 심으면 경쟁이 생겨 수확량이 줄어요.",
+      "keyTakeaway": "보상: Container Coach 배지 — 화분 선택의 중요성을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 바질 한 그루당 지름 20cm 이상의 화분이 적합하다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Container Coach 배지"
+    },
+    {
+      "id": "basil_varieties",
+      "title": "바질 품종 선택하기",
+      "summary": "스위트 바질 외에도 다양한 바질 품종이 있어요. 요리 스타일에 맞게 골라봐요.",
+      "concept": "스위트 바질(파스타/피자), 타이 바질(동남아 요리), 레몬 바질(생선/샐러드), 퍼플 바질(장식+요리) 등 각각 다른 향과 맛을 가져요.",
+      "keyTakeaway": "보상: Variety Explorer 배지 — 바질의 다양한 세계를 탐험해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "태국 요리에 가장 잘 어울리는 바질 품종은?",
+        "options": [
+          "타이 바질",
+          "스위트 바질",
+          "레몬 바질"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Variety Explorer 배지"
+    },
+    {
+      "id": "basil_storage",
+      "title": "수확한 바질 올바르게 보관하기",
+      "summary": "바질을 올바르게 보관하면 냉장고에 넣지 않아도 신선하게 유지할 수 있어요.",
+      "concept": "수확한 바질은 물 담긴 컵에 꽂아 실온에 두는 게 냉장보다 더 오래 신선해요. 냉장하면 검게 변하기 쉬워요.",
+      "keyTakeaway": "보상: Freshness Keeper 배지 — 바질 보관의 비법을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "신선한 바질을 가장 잘 보관하는 방법은?",
+        "options": [
+          "실온 물 담긴 컵에 꽂아 보관",
+          "냉장고 채소 칸에 밀봉",
+          "냉동 보관"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Freshness Keeper 배지"
+    },
+    {
+      "id": "basil_soil",
+      "title": "바질에 맞는 풍부하고 잘 빠지는 흙",
+      "summary": "바질은 유기물이 풍부하면서도 배수가 잘 되는 흙에서 가장 잘 자라요.",
+      "concept": "배양토에 퇴비를 10~20% 섞어 주면 이상적이에요. 배수가 나쁘면 뿌리가 썩고, 너무 영양이 없으면 잎이 작아지고 맛이 없어져요.",
+      "keyTakeaway": "보상: Soil Rich 배지 — 허브 흙의 기초를 배워요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 바질은 유기물이 풍부하고 배수가 잘 되는 흙에서 가장 잘 자란다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Soil Rich 배지"
+    },
+    {
+      "id": "basil_rooting",
+      "title": "물에 바질 꺾꽂이 하기",
+      "summary": "바질 줄기를 물에 꽂아 쉽게 뿌리를 내릴 수 있어요.",
+      "concept": "10cm 이상의 줄기를 잘라 아래쪽 잎을 제거한 후 물에 꽂으세요. 밝은 간접광에서 2~3주면 뿌리가 나와요. 뿌리가 5cm 이상 자라면 흙에 옮겨 심어요.",
+      "keyTakeaway": "보상: Water Rooter 배지 — 바질 번식을 경험해요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 바질 줄기를 물에 꽂아 뿌리를 내릴 수 있다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Water Rooter 배지"
+    },
+    {
+      "id": "basil_succession",
+      "title": "연속 파종으로 계속 수확하기",
+      "summary": "2~3주마다 새 씨앗을 심으면 연속으로 신선한 바질을 수확할 수 있어요.",
+      "concept": "한 번에 많이 심으면 한꺼번에 수확이 몰려요. 2~3주 간격으로 조금씩 심으면 오랜 기간 꾸준히 수확할 수 있어요.",
+      "keyTakeaway": "보상: Succession Star 배지 — 지속 가능한 허브 재배 전략을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "신선한 바질을 계속 수확하는 가장 좋은 방법은?",
+        "options": [
+          "2~3주마다 새 씨앗을 심기",
+          "한 번에 많이 심기",
+          "꽃이 핀 후에만 심기"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Succession Star 배지"
+    },
+    {
+      "id": "basil_companion",
+      "title": "바질과 토마토 함께 심기",
+      "summary": "바질과 토마토는 좋은 동반 식물이에요. 서로 도움을 주고받아요.",
+      "concept": "바질의 향이 토마토에 해로운 해충을 쫓아주고, 토마토의 그늘이 바질을 한낮의 강한 빛에서 보호해줘요. 장기적으로 두 식물 모두 더 건강해져요.",
+      "keyTakeaway": "보상: Companion Planner 배지 — 식물 궁합의 지혜를 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 바질은 토마토 주변에 심으면 해충을 쫓는 데 도움이 된다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Companion Planner 배지"
+    },
+    {
+      "id": "basil_seed_saving",
+      "title": "가장 좋은 식물에서 씨앗 받기",
+      "summary": "꽃이 핀 바질에서 씨앗을 받으면 내년에도 무료로 키울 수 있어요.",
+      "concept": "꽃이 완전히 피고 씨앗이 갈색으로 변할 때까지 기다렸다가 씨앗을 수확하세요. 서늘하고 건조한 곳에 봉투에 담아 보관하면 다음 해에 심을 수 있어요.",
+      "keyTakeaway": "보상: Seed Saver 배지 — 씨앗 채종으로 지속 가능한 재배를 해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "바질 씨앗을 받기 가장 좋은 시기는?",
+        "options": [
+          "씨앗이 갈색으로 완전히 익었을 때",
+          "꽃봉오리가 막 맺혔을 때",
+          "잎이 가장 무성할 때"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Seed Saver 배지"
+    },
+    {
+      "id": "basil_indoor_winter",
+      "title": "겨울에도 실내에서 바질 키우기",
+      "summary": "겨울에는 실내에서 식물등과 따뜻한 환경을 만들어 바질을 유지할 수 있어요.",
+      "concept": "바질은 추위에 약해 야외에서 겨울을 나기 어려워요. 실내에서 식물등을 보조로 사용하고, 따뜻한 곳에 두면 겨울에도 신선한 바질을 즐길 수 있어요.",
+      "keyTakeaway": "보상: Winter Grower 배지 — 겨울에도 허브를 키우는 방법을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 바질은 적절한 빛과 따뜻함만 있으면 실내에서 겨울을 날 수 있다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Winter Grower 배지"
+    },
+    {
+      "id": "general_herb_pinching",
+      "title": "허브를 집어주면 더 풍성해지는 이유",
+      "summary": "꼭대기를 집어주면 가지가 늘어나 더 풍성한 허브가 돼요.",
+      "concept": "꼭대기 생장점을 제거하면 아래쪽 가지에 에너지가 분산되어 더 많은 줄기가 자라요. 허브를 집어주는 것은 수확과 관리를 동시에 하는 일이에요.",
+      "keyTakeaway": "보상: Pinching Pro 배지 — 풍성한 허브의 비결을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 허브 꼭대기를 집어주면 더 많은 가지가 자란다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Pinching Pro 배지"
+    },
+    {
+      "id": "general_kitchen_herbs",
+      "title": "주방 허브 정원 운영하기",
+      "summary": "주방 창가에서 허브를 키우면 요리에 바로 활용할 수 있는 신선한 허브를 얻을 수 있어요.",
+      "concept": "바질, 파슬리, 민트, 차이브 등 자주 쓰는 허브를 창가에 배치해요. 화분마다 배수 구멍을 확인하고, 빛이 충분한지 체크해요.",
+      "keyTakeaway": "보상: Kitchen Garden 배지 — 주방 허브 정원을 시작해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "주방 허브 정원에서 가장 중요하게 확인해야 할 것은?",
+        "options": [
+          "충분한 빛과 배수",
+          "매일 비료 주기",
+          "화분의 색깔"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Kitchen Garden 배지"
+    },
+    {
+      "id": "general_herb_harvest",
+      "title": "허브를 제때 수확하는 방법",
+      "summary": "허브는 꽃 피기 전, 향이 가장 강할 때 수확해야 가장 맛있어요.",
+      "concept": "꽃이 피기 직전이 허브의 에센셜 오일 함량이 가장 높아 향이 진해요. 아침에 이슬이 마른 후 수확하면 더 좋아요.",
+      "keyTakeaway": "보상: Perfect Harvest 배지 — 허브 수확의 최적 타이밍을 알아요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "허브의 향이 가장 강할 때는 언제일까요?",
+        "options": [
+          "꽃이 피기 직전",
+          "꽃이 완전히 핀 후",
+          "가을에 잎이 떨어질 때"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Perfect Harvest 배지"
+    },
+    {
+      "id": "general_herb_drying",
+      "title": "허브 말려서 맛 보존하기",
+      "summary": "건조 허브는 올바른 방법으로 말리면 오랜 기간 향을 유지할 수 있어요.",
+      "concept": "줄기를 묶어 통풍이 잘 되고 빛이 적은 곳에 거꾸로 매달아 1~2주 말려요. 완전히 마르면 밀봉 용기에 담아 서늘하고 어두운 곳에 보관해요.",
+      "keyTakeaway": "보상: Herb Dryer 배지 — 허브 건조 보존법을 마스터해요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 허브를 거꾸로 매달아 건조하면 향을 더 잘 보존할 수 있다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Herb Dryer 배지"
+    },
+    {
+      "id": "general_herb_fertilizing",
+      "title": "허브에는 비료를 적게 줘야 해요",
+      "summary": "허브에 비료를 과하게 주면 잎이 커져도 향이 약해져요.",
+      "concept": "허브의 향은 스트레스에 반응해 만들어지는 에센셜 오일 덕분이에요. 비료가 너무 많으면 빠르게 자라지만 향이 옅어져요. 성장기에 한 달에 한 번, 절반 농도로 줘요.",
+      "keyTakeaway": "보상: Light Feeder 배지 — 허브 비료의 황금 비율을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 허브에 비료를 과하게 주면 향이 약해질 수 있다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Light Feeder 배지"
+    },
+    {
+      "id": "general_herb_pests",
+      "title": "허브의 유기농 해충 관리",
+      "summary": "허브는 먹는 식물이라 친환경 해충 관리가 특히 중요해요.",
+      "concept": "비눗물 스프레이(천연 주방 세제 희석), 님 오일, 손으로 직접 제거 등 화학 농약 없이도 해충을 효과적으로 관리할 수 있어요.",
+      "keyTakeaway": "보상: Organic Guardian 배지 — 안전한 허브 재배를 실천해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "허브의 해충을 유기농으로 관리하는 방법이 아닌 것은?",
+        "options": [
+          "강한 화학 살충제 사용",
+          "님 오일 스프레이",
+          "비눗물로 잎 닦기"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Organic Guardian 배지"
+    },
+    {
+      "id": "general_container_drainage",
+      "title": "화분 배수 필수 사항",
+      "summary": "배수가 좋은 화분 환경이 건강한 허브의 기본이에요.",
+      "concept": "배수 구멍이 있는 화분과 배수 좋은 흙을 사용하세요. 받침 접시에 물이 고이면 주기적으로 비워 뿌리 과습을 방지해요.",
+      "keyTakeaway": "보상: Drain Pro 배지 — 건강한 뿌리 환경을 만들어요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 받침 접시에 고인 물을 주기적으로 비우는 것이 과습 방지에 중요하다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Drain Pro 배지"
+    },
+    {
+      "id": "general_soil_ph",
+      "title": "흙 pH와 식물 건강의 관계",
+      "summary": "대부분의 허브는 약산성 흙(pH 6.0~7.0)에서 영양 흡수가 가장 잘 돼요.",
+      "concept": "pH가 너무 낮거나 높으면 영양분이 흙에 있어도 뿌리가 흡수하지 못해요. 시중 배양토는 대부분 적정 범위에 맞춰져 있어요.",
+      "keyTakeaway": "보상: pH Pal 배지 — 흙 산도의 중요성을 이해해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "대부분의 허브에 적합한 흙 pH 범위는?",
+        "options": [
+          "6.0~7.0 (약산성~중성)",
+          "4.0~5.0 (강산성)",
+          "8.0 이상 (알칼리성)"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "pH Pal 배지"
+    },
+    {
+      "id": "general_composting",
+      "title": "퇴비로 흙 영양 높이기",
+      "summary": "퇴비를 흙에 섞으면 천천히 영양을 공급하고 흙의 구조를 개선해요.",
+      "concept": "시판 퇴비나 지렁이 분변토를 배양토에 10~20% 섞으면 수분 보유력과 영양 공급이 동시에 좋아져요. 비료보다 천천히, 오래 효과를 발휘해요.",
+      "keyTakeaway": "보상: Compost Champion 배지 — 지속 가능한 흙 관리를 배워요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 퇴비를 흙에 섞으면 수분 보유력과 영양 공급이 동시에 개선된다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Compost Champion 배지"
+    },
+    {
+      "id": "general_watering_consistency",
+      "title": "일관된 물 주기로 스트레스 예방",
+      "summary": "식물은 일관된 물 주기 패턴에서 가장 건강하게 자라요.",
+      "concept": "불규칙한 물 주기는 토마토의 배꽃 썩음이나 허브의 볼팅 등을 유발할 수 있어요. 흙 상태에 맞게 일정한 리듬을 만드는 게 중요해요.",
+      "keyTakeaway": "보상: Consistent Carer 배지 — 물 주기 리듬을 만들어요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "불규칙한 물 주기로 생길 수 있는 문제는?",
+        "options": [
+          "토마토 배꽃 썩음, 허브 조기 개화",
+          "잎이 초록색으로 더 짙어짐",
+          "뿌리가 빠르게 성장함"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Consistent Carer 배지"
+    },
+    {
+      "id": "general_south_window",
+      "title": "남향 창가를 최대한 활용하기",
+      "summary": "남향 창가는 실내에서 가장 빛이 강한 자리예요. 햇빛 좋아하는 식물에게 최적이에요.",
+      "concept": "남향 창가는 하루 종일 직간접 빛을 받아요. 바질, 토마토, 선인장 등 빛이 많이 필요한 식물에게 가장 좋은 자리예요. 여름에는 빛이 너무 강할 수 있으니 커튼으로 조절해요.",
+      "keyTakeaway": "보상: South Window Expert 배지 — 빛의 방향을 활용해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "실내에서 빛이 가장 많이 드는 창가 방향은?",
+        "options": [
+          "남향",
+          "북향",
+          "동향"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "South Window Expert 배지"
+    },
+    {
+      "id": "general_herb_overwatering",
+      "title": "허브 뿌리 과습 피하기",
+      "summary": "허브는 과습에 매우 취약해요. 흙이 완전히 마르지 않아도 과습이 될 수 있어요.",
+      "concept": "허브 화분에 항상 배수 구멍이 있어야 하고, 받침 접시에 물이 고이지 않도록 해요. 흙을 만져 약간 촉촉할 때 물을 주는 게 좋아요.",
+      "keyTakeaway": "보상: Root Protector 배지 — 허브 과습 방지를 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 허브 화분 받침 접시에 고인 물은 즉시 비워야 한다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Root Protector 배지"
+    },
+    {
+      "id": "general_bolting",
+      "title": "조기 개화(볼팅) 이해하고 예방하기",
+      "summary": "허브가 갑자기 꽃을 피우면 잎 품질이 떨어져요. 원인과 예방법을 알아봐요.",
+      "concept": "볼팅은 더위나 건조 스트레스, 낮이 길어지는 것 등에 반응해 일어나요. 서늘하고 물이 충분한 환경에서 키우고, 꽃봉오리를 빨리 떼어내면 잎 수확 기간을 늘릴 수 있어요.",
+      "keyTakeaway": "보상: Anti-Bolt Expert 배지 — 볼팅을 막는 법을 마스터해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "허브의 조기 개화(볼팅)를 유발하는 주요 원인은?",
+        "options": [
+          "더위, 건조 스트레스, 긴 낮 길이",
+          "과습",
+          "비료 부족"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Anti-Bolt Expert 배지"
+    },
+    {
+      "id": "general_organic_pest",
+      "title": "님 오일로 해충 예방하기",
+      "summary": "님 오일은 안전하고 효과적인 유기농 해충 방제제예요.",
+      "concept": "희석한 님 오일을 잎 앞뒤로 분무하면 진딧물, 응애, 온실가루이 등을 예방하고 관리할 수 있어요. 2주마다 예방적으로 분무하면 효과가 더 좋아요.",
+      "keyTakeaway": "보상: Neem Ninja 배지 — 유기농 해충 방제를 실천해요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 님 오일을 2주마다 예방적으로 분무하면 해충을 효과적으로 막을 수 있다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Neem Ninja 배지"
+    },
+    {
+      "id": "general_herb_season",
+      "title": "계절에 맞는 허브 선택하기",
+      "summary": "허브도 각자 좋아하는 계절이 있어요. 계절에 맞게 심으면 훨씬 잘 자라요.",
+      "concept": "바질·고수는 여름 허브, 파슬리·딜은 봄·가을 허브, 로즈마리·타임은 연중 재배 가능해요. 계절에 맞게 선택하면 더 건강하고 맛있는 허브를 얻을 수 있어요.",
+      "keyTakeaway": "보상: Seasonal Herb Pro 배지 — 계절별 허브 재배를 마스터해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "여름에 잘 자라는 허브는?",
+        "options": [
+          "바질",
+          "파슬리",
+          "딜"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Seasonal Herb Pro 배지"
+    }
+  ],
+  "Tomato": [
+    {
+      "id": "tomato_support",
+      "title": "열매 달리는 줄기 일찍 지지하기",
+      "summary": "토마토 줄기는 지지대 없이는 무거운 열매를 감당하기 어려워요.",
+      "concept": "심을 때부터 지지대나 토마토 케이지를 세워 주세요. 줄기가 넘어지면 병해 위험도 커지고 열매 품질도 떨어질 수 있어요.",
+      "keyTakeaway": "보상: Support Star 배지 — 튼튼한 토마토 지지법을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 토마토는 심을 때부터 지지대를 세우는 게 좋다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Support Star 배지"
+    },
+    {
+      "id": "tomato_deep_water",
+      "title": "깊게, 가끔씩 물 주기",
+      "summary": "토마토는 매일 조금씩보다, 한 번에 깊게 물을 줘야 뿌리가 더 깊이 자라요.",
+      "concept": "얕게 자주 주는 것보다 일주일에 2~3회, 흙 깊이 30cm까지 물이 스며들 정도로 충분히 줘요. 깊은 뿌리는 가뭄에도 강해요.",
+      "keyTakeaway": "보상: Deep Waterer 배지 — 토마토 물 주기 원칙을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "토마토 물 주기에서 가장 효과적인 방법은?",
+        "options": [
+          "주 2~3회 깊게 물 주기",
+          "매일 조금씩 물 주기",
+          "잎에 뿌리듯이 물 주기"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Deep Waterer 배지"
+    },
+    {
+      "id": "tomato_feeding",
+      "title": "꽃 필 때 비료 조절하기",
+      "summary": "개화기 토마토에는 인과 칼륨을 높이고 질소를 줄여야 열매가 잘 맺혀요.",
+      "concept": "성장 초기에는 균형 비료를 쓰다가, 꽃이 피기 시작하면 질소를 낮추고 인·칼륨을 높인 토마토 전용 비료로 바꿔요.",
+      "keyTakeaway": "보상: Bloom Feeder 배지 — 개화기 비료 전략을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "토마토에 꽃이 피기 시작할 때 어떤 비료가 좋을까요?",
+        "options": [
+          "인·칼륨이 높은 토마토 전용 비료",
+          "질소 위주의 성장 비료",
+          "비료를 전혀 주지 않는다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Bloom Feeder 배지"
+    },
+    {
+      "id": "tomato_airflow",
+      "title": "통풍을 위한 공간 확보하기",
+      "summary": "토마토 사이에 충분한 공간을 두면 병해 위험을 크게 줄일 수 있어요.",
+      "concept": "토마토는 60~90cm 간격으로 심어요. 밀식하면 공기 순환이 나빠져 역병이나 잿빛곰팡이 같은 병이 쉽게 생겨요.",
+      "keyTakeaway": "보상: Airflow Agent 배지 — 통풍 관리로 건강한 토마토를 키워요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 토마토를 너무 밀식하면 병해 위험이 높아진다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Airflow Agent 배지"
+    },
+    {
+      "id": "tomato_pruning",
+      "title": "곁순 제거로 집중 성장 유도하기",
+      "summary": "곁순을 제거하면 토마토가 잎보다 열매에 에너지를 집중할 수 있어요.",
+      "concept": "주줄기와 잎자루 사이에서 나오는 곁순을 일찍 손으로 떼어내세요. 특히 무한 신장형(인디터미네이트) 품종에서 효과가 커요.",
+      "keyTakeaway": "보상: Pruning Pro 배지 — 곁순 관리를 마스터해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "토마토 곁순은 어디서 자라나요?",
+        "options": [
+          "주줄기와 잎자루 사이",
+          "잎 끝",
+          "뿌리 주변"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Pruning Pro 배지"
+    },
+    {
+      "id": "tomato_pollination",
+      "title": "꽃가루받이 돕기",
+      "summary": "실내나 바람이 약한 환경에서는 인공 수분으로 결실률을 높일 수 있어요.",
+      "concept": "꽃이 피면 꽃자루를 살살 흔들거나 전동 칫솔을 꽃에 대면 꽃가루가 암술에 닿아요. 벌이 없는 환경에서 특히 효과적이에요.",
+      "keyTakeaway": "보상: Pollinator Helper 배지 — 수분 방법을 익혀요.",
+      "quiz": {
+        "type": "SCENARIO_CHOICE",
+        "prompt": "실내에서 키우는 토마토에 꽃이 피었는데 열매가 잘 안 생겨요. 어떻게 하나요?",
+        "options": [
+          "꽃자루를 살살 흔들어 인공 수분한다",
+          "물을 더 준다",
+          "비료를 더 준다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Pollinator Helper 배지"
+    },
+    {
+      "id": "tomato_blossom_drop",
+      "title": "토마토 꽃 낙화 예방하기",
+      "summary": "꽃이 열매 없이 떨어지는 낙화는 온도나 영양 문제로 생겨요.",
+      "concept": "낙화의 주요 원인은 밤 온도가 너무 낮거나(13°C 이하) 높거나(30°C 이상), 질소 과다, 수분 부족이에요. 적정 온도 유지와 일관된 물 주기가 예방의 핵심이에요.",
+      "keyTakeaway": "보상: Blossom Saver 배지 — 낙화 원인과 해결법을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "토마토 낙화의 가장 흔한 원인은?",
+        "options": [
+          "너무 낮거나 높은 밤 온도",
+          "과습",
+          "빛 부족"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Blossom Saver 배지"
+    },
+    {
+      "id": "tomato_calcium",
+      "title": "칼슘으로 배꽃 썩음 예방하기",
+      "summary": "배꽃 썩음은 병이 아니라 칼슘 공급 부족에 의한 생리 장해예요.",
+      "concept": "일관되지 않은 물 주기가 칼슘 흡수를 방해해 열매 아랫부분이 검게 썩어요. 규칙적인 물 주기와 칼슘 비료로 예방할 수 있어요.",
+      "keyTakeaway": "보상: Calcium Champion 배지 — 칼슘 관리로 건강한 열매를 키워요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 토마토 배꽃 썩음은 불규칙한 물 주기로 인한 칼슘 흡수 장해가 원인이다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Calcium Champion 배지"
+    },
+    {
+      "id": "tomato_mulching",
+      "title": "멀칭으로 수분 균형 유지하기",
+      "summary": "토마토 주변에 멀칭을 하면 흙의 수분이 고르게 유지되고 잡초도 억제돼요.",
+      "concept": "짚, 나무 조각, 퇴비 등으로 5~8cm 두께로 멀칭하면 증발을 줄이고 흙 온도를 안정시켜요. 배꽃 썩음과 역병 예방에도 효과가 있어요.",
+      "keyTakeaway": "보상: Mulch Master 배지 — 멀칭의 다양한 효과를 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "토마토 주변에 멀칭을 하면 얻을 수 있는 가장 큰 이점은?",
+        "options": [
+          "흙 수분 보유 및 온도 안정",
+          "열매 크기 증가",
+          "해충 완전 제거"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Mulch Master 배지"
+    },
+    {
+      "id": "tomato_types",
+      "title": "유한 신장형 vs 무한 신장형 토마토",
+      "summary": "토마토 품종에 따라 성장 방식이 달라 관리 방법도 달라요.",
+      "concept": "유한 신장형(Determinate)은 일정 크기까지만 자라고 한꺼번에 수확, 무한 신장형(Indeterminate)은 계속 자라며 시즌 내내 수확해요. 공간과 목적에 맞게 선택하세요.",
+      "keyTakeaway": "보상: Tomato Taxonomist 배지 — 품종 특성을 알고 키워요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "시즌 내내 지속적으로 수확할 수 있는 토마토 타입은?",
+        "options": [
+          "무한 신장형(Indeterminate)",
+          "유한 신장형(Determinate)",
+          "둘 다 동일하다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Tomato Taxonomist 배지"
+    },
+    {
+      "id": "tomato_transplanting",
+      "title": "깊게 심어 튼튼한 뿌리 만들기",
+      "summary": "토마토는 줄기 깊숙이 심을수록 뿌리가 더 강하게 자라요.",
+      "concept": "줄기의 2/3 이상을 흙에 묻어 심어도 괜찮아요. 매몰된 줄기 부분에서 새 뿌리가 나와 더 강하고 안정적인 뿌리 시스템이 만들어져요.",
+      "keyTakeaway": "보상: Deep Planter 배지 — 토마토 이식의 비결을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 토마토는 줄기의 상당 부분을 흙에 묻어 깊이 심는 것이 더 좋다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Deep Planter 배지"
+    },
+    {
+      "id": "tomato_disease",
+      "title": "토마토 병해 초기에 알아채기",
+      "summary": "역병, 잿빛곰팡이 등을 초기에 발견하면 전파를 막을 수 있어요.",
+      "concept": "잎이나 줄기에 갈색 또는 검은 반점이 생기거나, 흰 가루가 끼면 병해 신호예요. 병든 잎은 즉시 제거하고, 통풍을 개선하고, 필요시 친환경 살균제를 써요.",
+      "keyTakeaway": "보상: Disease Detector 배지 — 토마토 병해 조기 대응을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "토마토 잎에 갈색 반점이 생기면 가장 먼저 해야 할 일은?",
+        "options": [
+          "병든 잎을 제거하고 통풍을 개선한다",
+          "물을 더 준다",
+          "비료를 추가한다"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Disease Detector 배지"
+    },
+    {
+      "id": "tomato_harvest",
+      "title": "토마토가 완전히 익었을 때 수확하기",
+      "summary": "색깔과 촉감으로 완숙된 토마토를 판단하는 방법을 익혀봐요.",
+      "concept": "품종에 따라 빨강, 노랑, 주황 등 고유 색이 완전히 나타나고, 살짝 눌렀을 때 약간 탄력이 있으면 완숙이에요. 너무 일찍 따면 맛이 없고, 너무 늦으면 터져요.",
+      "keyTakeaway": "보상: Perfect Ripeness 배지 — 완숙 판별 능력을 키워요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "토마토 완숙의 가장 좋은 판별 방법은?",
+        "options": [
+          "품종 고유의 색 + 살짝 눌렀을 때 탄력",
+          "줄기가 완전히 마를 때까지 기다림",
+          "크기로만 판단"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Perfect Ripeness 배지"
+    },
+    {
+      "id": "tomato_end_season",
+      "title": "토마토 시즌 마무리 잘 하기",
+      "summary": "시즌 말에 남은 푸른 토마토와 흙을 잘 관리하면 내년 농사가 편해져요.",
+      "concept": "서리가 오기 전 남은 푸른 토마토를 실내에서 후숙시키고, 줄기와 잎은 퇴비로 활용하거나 폐기해요. 병든 잎은 반드시 따로 폐기해요.",
+      "keyTakeaway": "보상: Season Closer 배지 — 시즌 종료 정리를 마스터해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "서리가 오기 전 수확한 푸른 토마토를 익히는 가장 좋은 방법은?",
+        "options": [
+          "실온 실내에서 후숙",
+          "냉장고에서 보관",
+          "서리를 맞혀 익히기"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Season Closer 배지"
+    },
+    {
+      "id": "tomato_companion",
+      "title": "토마토와 잘 맞는 동반 식물",
+      "summary": "함께 심으면 서로 도움이 되는 식물이 있어요. 토마토의 최고 동반자들을 알아봐요.",
+      "concept": "바질은 해충을 쫓고, 만수국은 뿌리 선충을 억제하고, 당근은 토양 구조를 개선해요. 반면 회향(fennel)은 토마토 성장을 방해해요.",
+      "keyTakeaway": "보상: Companion Expert 배지 — 식물 조합의 지혜를 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "토마토 근처에 심으면 해충 방제에 도움이 되는 식물은?",
+        "options": [
+          "바질",
+          "회향(펜넬)",
+          "고수"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 25,
+      "rewardLabel": "Companion Expert 배지"
+    },
+    {
+      "id": "general_vegetable_sun",
+      "title": "채소는 충분한 햇빛이 필요해요",
+      "summary": "대부분의 채소는 하루 6~8시간 이상의 직사광이 있어야 제대로 자라요.",
+      "concept": "햇빛이 부족하면 줄기가 웃자라고 열매가 잘 안 달려요. 텃밭이나 화분 위치를 정할 때 하루 종일 빛이 드는 자리를 선택하세요.",
+      "keyTakeaway": "보상: Sun Farmer 배지 — 채소 재배의 빛 요건을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "대부분의 채소가 건강하게 자라려면 하루 최소 몇 시간의 직사광이 필요할까요?",
+        "options": [
+          "6~8시간",
+          "1~2시간",
+          "빛 없이도 가능"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Sun Farmer 배지"
+    },
+    {
+      "id": "general_vegetable_water",
+      "title": "채소밭 물 주기 원칙",
+      "summary": "채소는 일관된 수분이 열매 품질과 수확량을 좌우해요.",
+      "concept": "채소는 대부분 주 2~3회 깊이 물을 줘요. 잎이 아닌 뿌리 근처에 물을 주면 병해도 줄어요. 아침에 주는 게 증발 손실도 적고 효과적이에요.",
+      "keyTakeaway": "보상: Veggie Waterer 배지 — 채소 물 주기 원칙을 마스터해요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 채소에 물을 줄 때는 잎보다 뿌리 근처에 주는 게 병해 예방에 더 좋다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Veggie Waterer 배지"
+    },
+    {
+      "id": "general_vegetable_feed",
+      "title": "채소밭 비료 주기",
+      "summary": "채소는 성장 단계에 따라 다른 영양소가 필요해요.",
+      "concept": "초기 성장기에는 질소 비료, 개화·결실기에는 인·칼륨 비료를 써요. 유기질 비료는 천천히 효과가 나타나지만 흙 구조 개선에도 도움이 돼요.",
+      "keyTakeaway": "보상: Fertilizer Farmer 배지 — 채소 성장 단계별 비료법을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "채소의 개화·결실기에 가장 중요한 비료 성분은?",
+        "options": [
+          "인(P)과 칼륨(K)",
+          "질소(N)만",
+          "비료 없이 물만"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Fertilizer Farmer 배지"
+    },
+    {
+      "id": "general_pest_management",
+      "title": "자연 친화적 해충 관리",
+      "summary": "화학 농약 없이도 대부분의 채소 해충을 효과적으로 관리할 수 있어요.",
+      "concept": "손으로 직접 제거, 비눗물 스프레이, 님 오일, 천적(무당벌레) 활용, 방충망 설치 등 다양한 방법이 있어요. 정기적인 점검이 가장 중요해요.",
+      "keyTakeaway": "보상: Natural Pest Guard 배지 — 친환경 해충 관리를 실천해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "친환경 해충 관리 방법이 아닌 것은?",
+        "options": [
+          "강한 합성 농약 살포",
+          "님 오일 분무",
+          "손으로 직접 제거"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Natural Pest Guard 배지"
+    },
+    {
+      "id": "general_vegetable_harvest",
+      "title": "자주 수확해서 생산성 높이기",
+      "summary": "자주 수확하면 식물이 계속 새 열매를 만들어요.",
+      "concept": "열매가 익으면 바로 수확하는 게 중요해요. 열매를 너무 오래 달아 두면 식물이 씨앗 성숙에 에너지를 집중해 새 꽃과 열매를 덜 만들어요.",
+      "keyTakeaway": "보상: Frequent Harvester 배지 — 수확 빈도의 중요성을 익혀요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 채소를 자주 수확하면 식물이 더 많은 열매를 만든다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Frequent Harvester 배지"
+    },
+    {
+      "id": "general_succession",
+      "title": "연속 파종으로 수확 연장하기",
+      "summary": "2~3주마다 씨앗을 심으면 오랜 기간 신선한 채소를 수확할 수 있어요.",
+      "concept": "상추, 고수, 바질 등은 연속 파종에 적합해요. 한 번에 많이 심으면 수확이 한꺼번에 몰리지만, 연속 파종하면 꾸준히 수확할 수 있어요.",
+      "keyTakeaway": "보상: Succession Expert 배지 — 연속 파종 전략을 마스터해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "연속 파종에 가장 적합한 채소는?",
+        "options": [
+          "상추, 고수",
+          "토마토",
+          "호박"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Succession Expert 배지"
+    },
+    {
+      "id": "general_raised_beds",
+      "title": "화단 재배의 장점",
+      "summary": "상자 텃밭(레이즈드 베드)은 흙 관리, 배수, 해충 방제 모두에서 유리해요.",
+      "concept": "일반 땅보다 흙 품질을 쉽게 관리하고, 배수도 좋아요. 무릎을 굽히지 않아 관리도 편하고, 달팽이 같은 해충도 줄어요.",
+      "keyTakeaway": "보상: Bed Builder 배지 — 레이즈드 베드의 장점을 알아요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "레이즈드 베드(상자 텃밭)의 가장 큰 장점은?",
+        "options": [
+          "흙 품질 관리와 배수가 쉬움",
+          "더 큰 식물을 키울 수 있음",
+          "비용이 적게 듦"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Bed Builder 배지"
+    },
+    {
+      "id": "general_soil_amendment",
+      "title": "텃밭 흙 개선하기",
+      "summary": "퇴비와 유기물을 섞으면 척박한 흙도 채소 재배에 적합해지게 만들 수 있어요.",
+      "concept": "퇴비, 피트모스, 버미큘라이트, 지렁이 분변토 등을 흙에 섞으면 구조·영양·수분 보유력이 모두 개선돼요. 매 시즌 시작 전에 흙을 보충해요.",
+      "keyTakeaway": "보상: Soil Improver 배지 — 흙 개선 노하우를 쌓아요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 매 시즌 전 퇴비를 흙에 보충하면 채소 수확량이 향상된다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Soil Improver 배지"
+    },
+    {
+      "id": "general_crop_rotation",
+      "title": "윤작으로 흙과 식물 건강 지키기",
+      "summary": "같은 자리에 같은 과의 채소를 반복 심으면 병해와 해충이 늘어나요.",
+      "concept": "한 자리에 같은 채소 과를 연속으로 심지 않는 게 윤작의 핵심이에요. 예: 토마토 심은 자리에 다음 해 콩 심기. 병원균과 해충의 사이클을 끊어줘요.",
+      "keyTakeaway": "보상: Rotation Ranger 배지 — 윤작 원칙을 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "윤작의 가장 큰 이점은?",
+        "options": [
+          "토양 병해와 해충 사이클을 끊음",
+          "수확량을 즉시 늘림",
+          "물 사용을 줄임"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Rotation Ranger 배지"
+    },
+    {
+      "id": "general_organic",
+      "title": "유기농 재배의 핵심 원칙",
+      "summary": "화학 비료와 농약 없이 건강하고 맛있는 채소를 키울 수 있어요.",
+      "concept": "유기농 재배의 핵심은 흙 건강 개선, 생물 다양성 촉진, 천연 자원 활용이에요. 퇴비, 멀칭, 윤작, 천적 활용이 기본 방법이에요.",
+      "keyTakeaway": "보상: Organic Farmer 배지 — 유기농 재배 철학을 이해해요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 유기농 재배에서는 화학 합성 비료와 농약을 사용하지 않는다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Organic Farmer 배지"
+    },
+    {
+      "id": "general_plant_nutrition",
+      "title": "식물이 영양을 활용하는 방식",
+      "summary": "식물은 광합성과 흙에서 흡수한 영양으로 성장해요.",
+      "concept": "식물은 빛+물+이산화탄소로 포도당을 만들고(광합성), 뿌리로 NPK 등 미네랄을 흡수해요. 두 가지가 모두 충분해야 최적 성장을 할 수 있어요.",
+      "keyTakeaway": "보상: Plant Nutritionist 배지 — 식물 영양의 과학을 이해해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "식물 광합성에 반드시 필요한 3가지 요소는?",
+        "options": [
+          "빛, 물, 이산화탄소",
+          "흙, 비료, 물",
+          "공기, 비료, 온도"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Plant Nutritionist 배지"
+    },
+    {
+      "id": "general_mulching",
+      "title": "멀칭이 텃밭에 주는 이점",
+      "summary": "멀칭은 수분 보유, 잡초 억제, 흙 온도 안정 등 다양한 혜택을 줘요.",
+      "concept": "짚, 나무 조각, 퇴비, 신문지 등으로 흙 위를 5~8cm 덮으면 수분 증발이 줄고, 잡초 발아가 억제되고, 흙 미생물이 활성화돼요.",
+      "keyTakeaway": "보상: Mulch Benefit Expert 배지 — 멀칭의 복합 효과를 익혀요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "멀칭의 가장 중요한 세 가지 이점은?",
+        "options": [
+          "수분 보유, 잡초 억제, 흙 온도 안정",
+          "비료 절감, 해충 제거, 수확 증가",
+          "잡초 제거, 물 절약, 비용 절감"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Mulch Benefit Expert 배지"
+    },
+    {
+      "id": "general_irrigation",
+      "title": "효율적인 물 주기 시스템 구축",
+      "summary": "점적 관개나 물 주기 일정을 만들면 물도 절약되고 식물도 더 건강해요.",
+      "concept": "점적 관개는 뿌리에 직접 물을 공급해 증발을 최소화해요. 타이머를 활용하면 일관된 물 주기가 가능하고, 잎에 물이 닿지 않아 병해도 줄어요.",
+      "keyTakeaway": "보상: Irrigation Innovator 배지 — 스마트한 물 주기를 실천해요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 점적 관개는 물 낭비를 줄이고 뿌리에 효율적으로 수분을 공급한다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Irrigation Innovator 배지"
+    },
+    {
+      "id": "general_container_veg",
+      "title": "화분에서 채소 키우기",
+      "summary": "화분에서도 토마토, 상추, 고추, 허브 등 다양한 채소를 키울 수 있어요.",
+      "concept": "충분한 크기의 화분(최소 30L), 배수 좋은 흙, 충분한 햇빛, 규칙적인 물 주기와 비료가 화분 채소 재배의 핵심이에요.",
+      "keyTakeaway": "보상: Container Veggie Grower 배지 — 화분 채소 재배를 마스터해요.",
+      "quiz": {
+        "type": "MULTIPLE_CHOICE",
+        "prompt": "화분 채소 재배에서 가장 중요한 요소는?",
+        "options": [
+          "충분한 크기의 화분과 배수",
+          "화분의 색깔",
+          "화분 소재(플라스틱 vs 테라코타)"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Container Veggie Grower 배지"
+    },
+    {
+      "id": "general_end_season_garden",
+      "title": "성장 시즌 마무리 정리하기",
+      "summary": "시즌이 끝날 때 텃밭을 잘 정리하면 내년 봄 시작이 훨씬 수월해져요.",
+      "concept": "수확이 끝난 식물은 제거하고, 병든 잎은 따로 폐기해요. 흙에 퇴비를 보충하고, 화단을 덮어 두면 겨울 동안 흙 구조가 개선돼요.",
+      "keyTakeaway": "보상: Season Wrap-Up Pro 배지 — 시즌 종료 관리를 마스터해요.",
+      "quiz": {
+        "type": "TRUE_FALSE",
+        "prompt": "참 또는 거짓: 시즌 말에 흙에 퇴비를 보충하면 내년 봄 채소 재배에 도움이 된다.",
+        "options": [
+          "참",
+          "거짓"
+        ],
+        "correctAnswerIndex": 0
+      },
+      "rewardXp": 20,
+      "rewardLabel": "Season Wrap-Up Pro 배지"
+    }
   ]
 }
